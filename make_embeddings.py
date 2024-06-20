@@ -4,8 +4,12 @@ from langchain.text_splitter import (
     RecursiveCharacterTextSplitter,
 )
 from langchain_community.embeddings.gigachat import GigaChatEmbeddings
-from langchain.vectorstores import Chroma
+from langchain_community.vectorstores.chroma import Chroma
 from chromadb.config import Settings
+from dotenv import load_dotenv
+
+ABS_PATH = os.path.dirname(os.path.abspath(__file__))
+DB_DIR = os.path.join(ABS_PATH, "db")
 
 LOADER = PDFMinerLoader
 print("Loading data...")
@@ -31,7 +35,9 @@ for loader in loaders:
     documents = text_splitter.split_documents(raw_documents)
     all_documents.extend(documents)
 
-CREDENTIALS = os.getenv('CREDENTIALS', '0')
+
+load_dotenv()
+CREDENTIALS = os.environ.get('CREDENTIALS', '0')
 
 embeddings = GigaChatEmbeddings(
     credentials=CREDENTIALS, verify_ssl_certs=False
@@ -40,6 +46,10 @@ embeddings = GigaChatEmbeddings(
 db = Chroma.from_documents(
     all_documents,
     embeddings,
-    client_settings=Settings(anonymized_telemetry=False),
-    persist_directory="./chroma_db",
+    persist_directory=DB_DIR,
+#    collection_name='documents_base'
 )
+db.persist()
+print('БД сохранится в', DB_DIR)
+
+db = None
