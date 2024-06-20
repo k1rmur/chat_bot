@@ -1,10 +1,10 @@
 import os
-from langchain.vectorstores import Chroma
-from langchain.chains import RetrievalQA
+import sys
+from logging_settings import logging_config
+from langchain.vectorconversation_historys import Chroma
 from langchain.chat_models.gigachat import GigaChat
 from langchain_community.embeddings.gigachat import GigaChatEmbeddings
 from langchain_chroma import Chroma
-from chromadb.config import Settings
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from dotenv import load_dotenv
 from langchain.chains import create_history_aware_retriever
@@ -16,6 +16,7 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message
+import logging
 
 
 load_dotenv()
@@ -45,7 +46,7 @@ retriever = db.as_retriever()
 ### Переформулирование вопроса ###
 contextualize_q_system_prompt = """Имея историю чата и последний вопрос пользователя, \
 который может ссылаться на контекст в истории чата, сформулируй самостоятельный вопрос, \
-который можно понять без истории чата. Не ОТВЕЧАЙ на вопрос, \
+который можно понять без истории чата. НЕ ОТВЕЧАЙ на вопрос, \
 просто переформулируй его при необходимости, иначе верни его как есть."""
 contextualize_q_prompt = ChatPromptTemplate.from_messages(
     [
@@ -62,7 +63,7 @@ history_aware_retriever = create_history_aware_retriever(
 ### Ответ на вопрос ###
 qa_system_prompt = """Ты ассисент для ответов на вопросы по документам, которые касаются Федерального Агенства Водных Ресурсов. \
 Используй следующий контекст для ответа на вопрос. \
-Если ответа нет в базе данных, напиши об этом. \
+Если ответа нет в базе данных, ни в коем случае не пиши ответ на него. \
 Отвечай кратко и ёмко.\
 
 {context}"""
@@ -79,13 +80,13 @@ rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chai
 
 
 ### Состояние для работы с историей чата ###
-store = {}
+conversation_history = {}
 
 
 def get_session_history(session_id: str) -> BaseChatMessageHistory:
-    if session_id not in store:
-        store[session_id] = ChatMessageHistory()
-    return store[session_id]
+    if session_id not in conversation_history:
+        conversation_history[session_id] = ChatMessageHistory()
+    return conversation_history[session_id]
 
 
 conversational_rag_chain = RunnableWithMessageHistory(
@@ -100,20 +101,37 @@ conversational_rag_chain = RunnableWithMessageHistory(
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
+logging.config.dictConfig(logging_config)
+logger = logging.getLogger(__name__)
+
+
 @dp.message(Command(commands=["start"]))
 async def process_start_command(message: Message):
+    logger.info(f'Пользователь {message.from_user} начал диалог')
     await message.answer('Привет!')
+
+
+@dp.message_handler(commands=['clear'])
+async def process_clear_command(message: Message):
+    user_id = message.from_user.id
+    conversation_history[user_id] = ChatMessageHistory()
+    logger.info(f'Пользователь {message.from_user} очистил историю диалога')
+    await message.reply("История диалога очищена.")
+
 
 @dp.message()
 async def send_echo(message: Message):
-    answer = conversational_rag_chain.invoke(
-        {"input": message.text},
-        config={
-            "configurable": {"session_id": "abc123"}
-        }
-    )["answer"]
-    print(message.text)
-    print(answer)
+    try:
+        answer = conversational_rag_chain.invoke(
+            {"input": message.text},
+            config={
+                "configurable": {"session_id": message.from_user.id}
+            }
+        )["answer"]
+        logger.info(f'Пользователь {message.from_user} задал вопрос: "{message.text}"\nОтвет: {answer}')
+    except Exception:
+        logger.exception(exc_info=True)
+
     await message.reply(text=answer)
 
 
