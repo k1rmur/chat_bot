@@ -61,9 +61,11 @@ history_aware_retriever = create_history_aware_retriever(
 
 
 ### Ответ на вопрос ###
-qa_system_prompt = """Ты ассисент для ответов на вопросы по документам, которые касаются Федерального Агенства Водных Ресурсов. \
-Используй следующий контекст для ответа на вопрос. \
-Если ответа нет в базе данных, ни в коем случае не пиши ответ на него. \
+qa_system_prompt = """Ты ассистент Федерального Агенства Водных Ресурсов \
+(ФАВР) для ответов на вопросы по документам из базы данных. \
+Используй ТОЛЬКО следующий контекст для ответа на вопрос. \
+Если ответа нет в базе данных, НИ В КОЕМ СЛУЧАЕ не пиши ответ на него, \
+скажи, что не знаешь ответ на этот вопрос.
 Отвечай кратко и ёмко.\
 
 {context}"""
@@ -111,7 +113,7 @@ async def process_start_command(message: Message):
     await message.answer('Привет!')
 
 
-@dp.message_handler(commands=['clear'])
+@dp.message(commands=["clear"])
 async def process_clear_command(message: Message):
     user_id = message.from_user.id
     conversation_history[user_id] = ChatMessageHistory()
@@ -128,7 +130,8 @@ async def send_echo(message: Message):
                 "configurable": {"session_id": message.from_user.id}
             }
         )["answer"]
-        logger.info(f'Пользователь {message.from_user} задал вопрос: "{message.text}"\nОтвет: {answer}')
+        print(get_session_history(message.from_user.id))
+        logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{message.text}"\nОтвет: {answer}')
     except Exception:
         logger.exception(exc_info=True)
 
