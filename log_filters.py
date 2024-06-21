@@ -7,4 +7,4 @@ class InfoLogFilter(logging.Filter):
 
 class ExceptionLogFilter(logging.Filter):
     def filter(self, record):
-        return record.levelname == 'EXCEPTION'
+        return record.levelname == 'ERROR'

@@ -1,7 +1,7 @@
 import os
-import sys
+import logging
+import logging.config
 from logging_settings import logging_config
-from langchain.vectorconversation_historys import Chroma
 from langchain.chat_models.gigachat import GigaChat
 from langchain_community.embeddings.gigachat import GigaChatEmbeddings
 from langchain_chroma import Chroma
@@ -16,7 +16,6 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message
-import logging
 
 
 load_dotenv()
@@ -26,6 +25,8 @@ BOT_TOKEN = os.getenv('BOT_TOKEN', '0')
 
 ABS_PATH = os.path.dirname(os.path.abspath(__file__))
 DB_DIR = os.path.join(ABS_PATH, "db")
+
+MESSAGE_THRESHOLD = 5
 
 embeddings = GigaChatEmbeddings(
     credentials=CREDENTIALS, verify_ssl_certs=False
@@ -109,30 +110,32 @@ logger = logging.getLogger(__name__)
 
 @dp.message(Command(commands=["start"]))
 async def process_start_command(message: Message):
-    logger.info(f'Пользователь {message.from_user} начал диалог')
+    logger.info(f'Пользователь {message.from_user.username} начал диалог')
     await message.answer('Привет!')
 
 
-@dp.message(commands=["clear"])
+@dp.message(Command(commands=["clear"]))
 async def process_clear_command(message: Message):
     user_id = message.from_user.id
     conversation_history[user_id] = ChatMessageHistory()
-    logger.info(f'Пользователь {message.from_user} очистил историю диалога')
+    logger.info(f'Пользователь {message.from_user.username} очистил историю диалога')
     await message.reply("История диалога очищена.")
 
 
 @dp.message()
 async def send_echo(message: Message):
+    session_id = message.from_user.id
     try:
         answer = conversational_rag_chain.invoke(
             {"input": message.text},
             config={
-                "configurable": {"session_id": message.from_user.id}
+                "configurable": {"session_id": session_id}
             }
         )["answer"]
-        print(get_session_history(message.from_user.id))
-        logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{message.text}"\nОтвет: {answer}')
-    except Exception:
+        # Сохраняем только последние несколько вопросов-ответов, чтобы не забивать память
+        conversation_history[session_id].messages = conversation_history[session_id].messages[-MESSAGE_THRESHOLD*2:]
+        logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{message.text}", получен ответ: "{answer}"')
+    except Exception as e:
         logger.exception(exc_info=True)
 
     await message.reply(text=answer)

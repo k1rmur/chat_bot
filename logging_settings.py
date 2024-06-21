@@ -25,24 +25,29 @@ logging_config = {
         'error_file': {
             'class': 'logging.FileHandler',
             'filename': 'error.log',
-            'mode': 'a',
             'level': 'ERROR',
-            'filters': ['exception_filter']
+            'formatter': 'default',
+            'filters': ['exception_filter'],
+            'encoding': 'utf-8'
         },
         'info_file': {
             'class': 'logging.FileHandler',
             'filename': 'info.log',
-            'mode': 'a',
-            'filters': ['info_filter']
+            'level': 'INFO',
+            'formatter': 'default',
+            'filters': ['info_filter'],
+            'encoding': 'utf-8'
         }
     },
     'loggers': {
         'get_bot': {
+            'level': 'DEBUG',
             'handlers': ['error_file', 'info_file']
         }
     },
     'root': {
         'formatter': 'default',
-        'handlers': ['default']
+        'level': 'DEBUG',
+        'handlers': ['error_file', 'info_file']
     }
 }
