@@ -5,7 +5,6 @@ from langchain.text_splitter import (
 )
 from langchain_community.embeddings.gigachat import GigaChatEmbeddings
 from langchain_community.vectorstores.chroma import Chroma
-from chromadb.config import Settings
 from dotenv import load_dotenv
 
 ABS_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -29,8 +28,8 @@ for loader in loaders:
 
     print("Splitting text...")
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=400,
+        chunk_size=1500,
+        chunk_overlap=500,
     )
     documents = text_splitter.split_documents(raw_documents)
     all_documents.extend(documents)
