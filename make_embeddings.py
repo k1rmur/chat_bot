@@ -28,7 +28,7 @@ for loader in loaders:
 
     print("Splitting text...")
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1500,
+        chunk_size=1000,
         chunk_overlap=500,
     )
     documents = text_splitter.split_documents(raw_documents)
