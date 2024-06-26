@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   chattbot:
-    image: chat_bot
+    build: .
     container_name: chattbot
     command: /bin/bash -c "/app/venv/bin/python3 get_bot.py & sleep infinity"
     stdin_open: true
