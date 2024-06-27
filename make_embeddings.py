@@ -45,10 +45,7 @@ embeddings = GigaChatEmbeddings(
 db = Chroma.from_documents(
     all_documents,
     embeddings,
-    persist_directory=DB_DIR,
-#    collection_name='documents_base'
+    persist_directory=DB_DIR
 )
 db.persist()
 print('БД сохранится в', DB_DIR)
-
-db = None
