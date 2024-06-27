@@ -38,7 +38,7 @@ db = Chroma(
 )
 db.get()
 
-llm = GigaChat(credentials=CREDENTIALS, verify_ssl_certs=False)
+llm = GigaChat(credentials=CREDENTIALS, verify_ssl_certs=False, model="GigaChat-Pro")
 
 
 retriever = db.as_retriever()
