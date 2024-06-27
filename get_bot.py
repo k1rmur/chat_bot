@@ -136,7 +136,7 @@ async def send_echo(message: Message):
         conversation_history[session_id].messages = conversation_history[session_id].messages[-MESSAGE_THRESHOLD*2:]
         logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{message.text}", получен ответ: "{answer}"')
     except Exception as e:
-        logger.exception(exc_info=True)
+        logger.error(exc_info=True)
 
     await message.reply(text=answer)
 
