@@ -34,6 +34,7 @@ for loader in loaders:
     documents = text_splitter.split_documents(raw_documents)
     all_documents.extend(documents)
 
+print("Splitting is finished")
 
 load_dotenv()
 CREDENTIALS = os.environ.get('CREDENTIALS', '0')
@@ -49,3 +50,5 @@ db = Chroma.from_documents(
 )
 db.persist()
 print('БД сохранится в', DB_DIR)
+
+db = None

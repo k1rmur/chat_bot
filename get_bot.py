@@ -2,7 +2,7 @@ import os
 import logging
 import logging.config
 from logging_settings import logging_config
-from langchain.chat_models.gigachat import GigaChat
+from langchain_community.chat_models.gigachat import GigaChat
 from langchain_community.embeddings.gigachat import GigaChatEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -39,7 +39,6 @@ db = Chroma(
 db.get()
 
 llm = GigaChat(credentials=CREDENTIALS, verify_ssl_certs=False, model="GigaChat-Plus")
-
 
 retriever = db.as_retriever()
 
@@ -136,10 +135,12 @@ async def send_echo(message: Message):
         conversation_history[session_id].messages = conversation_history[session_id].messages[-MESSAGE_THRESHOLD*2:]
         logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{message.text}", получен ответ: "{answer}"')
     except Exception as e:
-        logger.error(exc_info=True)
+        print(e)
+        logger.error(e, exc_info=True)
 
     await message.reply(text=answer)
 
 
 if __name__ == '__main__':
+    print("Бот запускается")
     dp.run_polling(bot)
