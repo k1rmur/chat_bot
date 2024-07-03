@@ -181,3 +181,4 @@ grpcio_tools==1.64.1
 openai-whisper==20231117
 python_docx==1.1.2
 ffmpeg==1.4
+docx2txt==0.8
