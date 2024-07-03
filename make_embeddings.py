@@ -1,5 +1,5 @@
 import os
-from langchain_community.document_loaders import PDFMinerLoader
+from langchain_community.document_loaders import PDFMinerLoader, CSVLoader, Docx2txtLoader
 from langchain.text_splitter import (
     RecursiveCharacterTextSplitter,
 )
@@ -10,14 +10,19 @@ from dotenv import load_dotenv
 ABS_PATH = os.path.dirname(os.path.abspath(__file__))
 DB_DIR = os.path.join(ABS_PATH, "db")
 
-LOADER = PDFMinerLoader
+PDF_LOADER = PDFMinerLoader
+CSV_LOADER = CSVLoader
+DOCX_LOADER = Docx2txtLoader
 print("Loading data...")
-pdf_folder_path = "./data/"
-files = [file for file in os.listdir(pdf_folder_path) if file.endswith(".pdf")]
+folder_path = "./data/"
+pdf_files = [file for file in os.listdir(folder_path) if file.endswith(".pdf")]
+csv_files = [file for file in os.listdir(folder_path) if file.endswith(".csv")]
+docx_files = [file for file in os.listdir(folder_path) if file.endswith(".docx")]
 
-loaders = [LOADER(os.path.join(pdf_folder_path, fn)) for fn in files]
-
-print(loaders)
+pdf_loaders = [PDF_LOADER(os.path.join(folder_path, fn)) for fn in pdf_files]
+csv_loaders = [CSV_LOADER(os.path.join(folder_path, fn)) for fn in csv_files]
+docx_loaders = [DOCX_LOADER(os.path.join(folder_path, fn)) for fn in docx_files]
+loaders = pdf_loaders + csv_loaders + docx_loaders
 
 all_documents = []
 
