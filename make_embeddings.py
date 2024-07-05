@@ -3,18 +3,32 @@ from langchain_community.document_loaders import PDFMinerLoader, CSVLoader, Docx
 from langchain.text_splitter import (
     RecursiveCharacterTextSplitter,
 )
+from optparse import OptionParser
 from langchain_community.embeddings.gigachat import GigaChatEmbeddings
 from langchain_community.vectorstores.chroma import Chroma
 from dotenv import load_dotenv
 
+
+parser = OptionParser()
+parser.add_option('--Mode', type=str, default="inner")
+(Opts, args) = parser.parse_args()
+mode = Opts.Mode
+
+
 ABS_PATH = os.path.dirname(os.path.abspath(__file__))
-DB_DIR = os.path.join(ABS_PATH, "db")
 
 PDF_LOADER = PDFMinerLoader
 CSV_LOADER = CSVLoader
 DOCX_LOADER = Docx2txtLoader
 print("Loading data...")
-folder_path = "./data/"
+
+if mode == "inner":
+    folder_path = "./data/"
+    DB_DIR = os.path.join(ABS_PATH, "db")
+else:
+    folder_path = "./data_citizens/"
+    DB_DIR = os.path.join(ABS_PATH, "db_citizens")
+
 pdf_files = [file for file in os.listdir(folder_path) if file.endswith(".pdf")]
 csv_files = [file for file in os.listdir(folder_path) if file.endswith(".csv")]
 docx_files = [file for file in os.listdir(folder_path) if file.endswith(".docx")]

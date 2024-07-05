@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from environs import Env
 
 
-#@dataclass
+@dataclass
 #class DatabaseConfig:
 #    database: str         # Название базы данных
 #    db_host: str          # URL-адрес базы данных
@@ -22,7 +22,11 @@ class Config:
 #    db: DatabaseConfig
 
 
-def load_config(path: str | None = None) -> Config:
+def load_config(path: str | None = None, mode: str = 'inner') -> Config:
     env = Env()
     env.read_env(path)
-    return Config(tg_bot=TgBot(token=env('BOT_TOKEN')))
+    if mode == 'inner':
+        token = env('BOT_TOKEN_INNER')
+    else:
+        token = env('BOT_TOKEN_OUTER')
+    return Config(tg_bot=TgBot(token=token))
