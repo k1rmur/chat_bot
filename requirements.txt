@@ -14,13 +14,13 @@ langchain-chroma==0.1.1
 langchain-community==0.2.5
 langchain-core==0.2.9
 langchain-text-splitters==0.2.1
-logging==0.4.9.6
+#logging==0.4.9.6
 moviepy==1.0.3
 numpy==1.26.4
 openai-whisper==20231117
 pdf2image==1.17.0
 pdfminer.six==20231228
-protobuf==3.19.4
+protobuf
 python-docx==1.1.2
 python-dotenv==1.0.1
 tiktoken==0.7.0
