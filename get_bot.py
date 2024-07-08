@@ -9,6 +9,7 @@ from config_data.config import Config, load_config
 from keyboards.set_menu import set_main_menu
 from optparse import OptionParser
 import services.initialize_db_name as db
+import os
 
 parser = OptionParser()
 parser.add_option('--Mode', type=str, default="inner")
@@ -37,4 +38,6 @@ async def main():
 
 if __name__ == '__main__':
     print("Бот запускается")
+    if not os.path.exists("./tmp"):
+        os.mkdir("./tmp")
     asyncio.run(main())
