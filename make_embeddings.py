@@ -34,7 +34,7 @@ csv_files = [file for file in os.listdir(folder_path) if file.endswith(".csv")]
 docx_files = [file for file in os.listdir(folder_path) if file.endswith(".docx")]
 
 pdf_loaders = [PDF_LOADER(os.path.join(folder_path, fn)) for fn in pdf_files]
-csv_loaders = [CSV_LOADER(os.path.join(folder_path, fn)) for fn in csv_files]
+csv_loaders = [CSV_LOADER(os.path.join(folder_path, fn), csv_args={"delimiter": ",", "quotechar": '"'}, encoding='utf-8-sig') for fn in csv_files]
 docx_loaders = [DOCX_LOADER(os.path.join(folder_path, fn)) for fn in docx_files]
 loaders = pdf_loaders + csv_loaders + docx_loaders
 
@@ -43,15 +43,16 @@ all_documents = []
 for loader in loaders:
     print("Loading raw document..." + loader.file_path)
     raw_documents = loader.load()
-    print(raw_documents[0])
-
-    print("Splitting text...")
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=500,
-    )
-    documents = text_splitter.split_documents(raw_documents)
-    all_documents.extend(documents)
+    if loader.__class__!=CSVLoader:
+        print("Splitting text...")
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000,
+            chunk_overlap=500,
+        )
+        documents = text_splitter.split_documents(raw_documents)
+        all_documents.extend(documents)
+    else:
+        all_documents.extend(raw_documents)
 
 print("Splitting is finished")
 
@@ -69,5 +70,3 @@ db = Chroma.from_documents(
 )
 db.persist()
 print('БД сохранится в', DB_DIR)
-
-db = None

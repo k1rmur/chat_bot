@@ -10,15 +10,16 @@ from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 import services.initialize_db_name  as db_name
+from dotenv import load_dotenv
 
-
+load_dotenv()
 CREDENTIALS = os.getenv('CREDENTIALS', '0')
 
 ABS_PATH = os.path.dirname(os.path.abspath(__file__))
 if db_name.db_name == 'inner':
     DB_DIR = os.path.join(ABS_PATH, "../db")
 elif db_name.db_name == 'outer':
-    DB_DIR = os.path.join(ABS_PATH, "../db_citizen")
+    DB_DIR = os.path.join(ABS_PATH, "../db_citizens")
 else:
     raise Exception("Ошибка с инициализацией имени базы данных")
 
