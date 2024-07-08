@@ -9,6 +9,7 @@ from config_data.config import Config, load_config
 from keyboards.set_menu import set_main_menu
 from optparse import OptionParser
 import services.initialize_db_name as db
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -19,11 +20,11 @@ mode = Opts.Mode
 db.initialize_db(mode)
 from handlers import user_handlers, video_protocols
 
+logging.config.dictConfig(logging_config)
+config: Config = load_config(mode=mode)
+
 
 async def main():
-    logging.config.dictConfig(logging_config)
-
-    config: Config = load_config(mode=mode)
 
     bot = Bot(
         token=config.tg_bot.token,
@@ -40,4 +41,6 @@ async def main():
 
 if __name__ == '__main__':
     print("Бот запускается")
+    if not os.path.exists("./tmp"):
+        os.mkdir("./tmp")
     asyncio.run(main())

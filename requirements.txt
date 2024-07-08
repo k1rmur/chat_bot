@@ -68,7 +68,6 @@ langchain-text-splitters==0.2.1
 langdetect==1.0.9
 langsmith==0.1.81
 layoutparser==0.3.4
-logging==0.4.9.6
 lxml==5.2.2
 magic-filter==1.0.12
 markdown-it-py==3.0.0
