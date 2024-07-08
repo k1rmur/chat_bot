@@ -1,10 +1,11 @@
 version: '3.8'
 services:
-  chattbot:
+  bot-inner:
     build: .
-    container_name: chattbot
-    command: /bin/bash -c "/app/venv/bin/python3 get_bot.py & sleep infinity"
-    stdin_open: true
-    tty: true
-    restart: unless-stopped
+    command: >
+      sh -c "pip install protobuf==3.19.4 && cp ./builder.py /usr/local/lib/python3.10/site-packages/google/protobuf/internal/ && python3 get_bot.py --Mode inner"
+  bot-outer:
+    build: .
+    command: >
+      sh -c "pip install protobuf==3.19.4 && cp ./builder.py /usr/local/lib/python3.10/site-packages/google/protobuf/internal/ && python3 get_bot.py --Mode outer"
 
