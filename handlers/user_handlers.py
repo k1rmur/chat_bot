@@ -3,17 +3,18 @@ from aiogram.types import Message
 from aiogram.filters import Command, CommandStart
 from lexicon.lexicon import LEXICON_RU
 from langchain_community.chat_message_histories import ChatMessageHistory
+import logging
 
 from services.rag import conversation_history, conversational_rag_chain, MESSAGE_THRESHOLD
 
 
 router = Router()
 
-
+logger = logging.getLogger(__name__)
 
 @router.message(CommandStart())
 async def process_start_command(message: Message):
-#    logger.info(f'Пользователь {message.from_user.username} начал диалог')
+    logger.info(f'Пользователь {message.from_user.username} начал диалог')
     await message.answer(text=LEXICON_RU['/start'])
 
 
@@ -21,7 +22,7 @@ async def process_start_command(message: Message):
 async def process_clear_command(message: Message):
     user_id = message.from_user.id
     conversation_history[user_id] = ChatMessageHistory()
-#    logger.info(f'Пользователь {message.from_user.username} очистил историю диалога')
+    logger.info(f'Пользователь {message.from_user.username} очистил историю диалога')
     await message.answer(text=LEXICON_RU['/clear'])
 
 
@@ -37,9 +38,8 @@ async def send(message: Message):
         )["answer"]
         # Сохраняем только последние несколько вопросов-ответов, чтобы не забивать память
         conversation_history[session_id].messages = conversation_history[session_id].messages[-MESSAGE_THRESHOLD*2:]
-#        logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{message.text}", получен ответ: "{answer}"')
+        logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{message.text}", получен ответ: "{answer}"')
+        await message.reply(text=answer)
     except Exception as e:
-        print(e)
-#        logger.error(e, exc_info=True)
-
-    await message.reply(text=answer)
+        logger.error(e)
+        await message.reply("Произошла ошибка при обработке Вашего запроса")

@@ -9,16 +9,13 @@ from config_data.config import Config, load_config
 from keyboards.set_menu import set_main_menu
 from optparse import OptionParser
 import services.initialize_db_name as db
-import os
-
-logger = logging.getLogger(__name__)
 
 parser = OptionParser()
 parser.add_option('--Mode', type=str, default="inner")
 (Opts, args) = parser.parse_args()
 mode = Opts.Mode
 db.initialize_db(mode)
-from handlers import user_handlers, video_protocols
+from handlers import user_handlers
 
 logging.config.dictConfig(logging_config)
 config: Config = load_config(mode=mode)
@@ -33,7 +30,6 @@ async def main():
     dp = Dispatcher()
     await set_main_menu(bot)
     dp.include_router(user_handlers.router)
-    dp.include_router(video_protocols.router)
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
@@ -41,6 +37,4 @@ async def main():
 
 if __name__ == '__main__':
     print("Бот запускается")
-    if not os.path.exists("./tmp"):
-        os.mkdir("./tmp")
     asyncio.run(main())

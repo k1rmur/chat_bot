@@ -43,11 +43,10 @@ logging_config = {
         'get_bot': {
             'level': 'DEBUG',
             'handlers': ['error_file', 'info_file']
+        },
+        'handlers.user_handlers': {
+            'level': 'DEBUG',
+            'handlers': ['error_file', 'info_file']
         }
     },
-    'root': {
-        'formatter': 'default',
-        'level': 'DEBUG',
-        'handlers': ['error_file', 'info_file']
-    }
 }
