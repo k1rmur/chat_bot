@@ -2,5 +2,5 @@
 
 ## Установка и развертывание
 ```
-docker-compose up
+docker-compose up --build -d
 ```
