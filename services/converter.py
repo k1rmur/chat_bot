@@ -1,21 +1,19 @@
-import moviepy.editor as mp
+import os
+import glob
 import whisper
-from datetime import timedelta
-from docx import Document
-from aiogram.types import FSInputFile
 
-# Change to large MB
-model_name = 'tiny'
+model_name = 'medium'
 model = whisper.load_model(model_name)
 
 
-def convert(video_path, audio_path):
-    clip = mp.VideoFileClip(video_path)
-    clip.audio.write_audiofile(audio_path)
+def clear_temp():
+    files = glob.glob('./tmp/*')
+    for f in files:
+        os.remove(f)
 
 
-def recognize(source_file_name):
-    audio = whisper.load_audio(f'./tmp/{source_file_name}.wav')
+def recognize(file_id):
+    audio = whisper.load_audio(f'./tmp/{file_id}.wav')
     audio = whisper.pad_or_trim(audio)
     if model_name == 'large':
         mel = whisper.log_mel_spectrogram(audio=audio).to(model.device)
@@ -23,21 +21,15 @@ def recognize(source_file_name):
         mel = whisper.log_mel_spectrogram(audio=audio, n_mels=128).to(model.device)
     else:
         mel = whisper.log_mel_spectrogram(audio=audio, n_mels=80).to(model.device)
+
     _, probs = model.detect_language(mel)
-    result = model.transcribe(f'./tmp/{source_file_name}' + '.wav',)
+    result = model.transcribe(f'./tmp/{file_id}' + '.wav',)
     segments = result['segments']
     text_massive = []
     for segment in segments:
-        startTime = str(0)+str(timedelta(seconds=int(segment['start'])))
-        endTime = str(0)+str(timedelta(seconds=int(segment['end'])))
         text = segment['text']
-        segmentId = segment['id']+1
-        segment = f"{segmentId}. {startTime} - {endTime}\n{text[1:] if text[0] == ' ' else text}"
+        segment = f"{text[1:] if text[0] == ' ' else text}"
         text_massive.append(segment)
     text = text_massive
-    doc = Document()
-    for key in text:
-        doc.add_paragraph(key)
-    doc.save(f"./tmp/{source_file_name}.docx")
 
-    return FSInputFile(f"./tmp/{source_file_name}.docx", filename="Транскрипция.docx")
+    return ' '.join(text)

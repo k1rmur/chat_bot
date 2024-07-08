@@ -1,4 +1,4 @@
-from aiogram import Router, F
+from aiogram import Router, F, Bot
 from aiogram.types import Message
 from aiogram.filters import Command, CommandStart
 from lexicon.lexicon import LEXICON_RU
@@ -6,6 +6,7 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 import logging
 
 from services.rag import conversation_history, conversational_rag_chain, MESSAGE_THRESHOLD
+from services.converter import recognize, clear_temp
 
 
 router = Router()
@@ -26,20 +27,37 @@ async def process_clear_command(message: Message):
     await message.answer(text=LEXICON_RU['/clear'])
 
 
-@router.message(F.text)
-async def send(message: Message):
+@router.message(F.text | F.voice)
+async def send(message: Message, bot: Bot):
     session_id = message.from_user.id
+    if message.voice:
+        try:
+            file_id = message.voice.file_id
+            file = await bot.get_file(file_id=file_id)
+            file_path = file.file_path
+            audio_destination = f'./tmp/{file_id}.wav'
+            await bot.download_file(file_path, audio_destination)
+            text = recognize(file_id)
+            clear_temp()
+        except Exception as e:
+            await message.reply("Произошла ошибка при распознавании голосового сообщения :(")
+            logger.error(e)
+            clear_temp()
+            return
+    else:
+        text = message.text
+
     try:
         answer = conversational_rag_chain.invoke(
-            {"input": message.text},
+            {"input": text},
             config={
                 "configurable": {"session_id": session_id}
             }
         )["answer"]
         # Сохраняем только последние несколько вопросов-ответов, чтобы не забивать память
         conversation_history[session_id].messages = conversation_history[session_id].messages[-MESSAGE_THRESHOLD*2:]
-        logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{message.text}", получен ответ: "{answer}"')
+        logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"')
         await message.reply(text=answer)
     except Exception as e:
         logger.error(e)
-        await message.reply("Произошла ошибка при обработке Вашего запроса")
+        await message.reply("Произошла ошибка при обработке Вашего запроса :(")
