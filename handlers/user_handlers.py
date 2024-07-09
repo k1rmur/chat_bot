@@ -59,7 +59,6 @@ async def send(message: Message, bot: Bot):
         conversation_history[session_id].messages = conversation_history[session_id].messages[-MESSAGE_THRESHOLD*2:]
         logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"')
         await message.reply(text=answer, parse_mode=ParseMode.MARKDOWN)
-        print(message.from_user.id)
     except Exception as e:
         error_text = f'Пользователь {message.from_user.username} получил ошибку\n{e}'
         logger.error(error_text, exc_info=True)
