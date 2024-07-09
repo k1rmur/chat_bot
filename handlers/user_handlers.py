@@ -1,6 +1,7 @@
 from aiogram import Router, F, Bot
 from aiogram.types import Message
 from aiogram.filters import Command, CommandStart
+from aiogram.enums.parse_mode import ParseMode
 from lexicon.lexicon import LEXICON_RU
 from langchain_community.chat_message_histories import ChatMessageHistory
 import logging
@@ -57,7 +58,10 @@ async def send(message: Message, bot: Bot):
         # Сохраняем только последние несколько вопросов-ответов, чтобы не забивать память
         conversation_history[session_id].messages = conversation_history[session_id].messages[-MESSAGE_THRESHOLD*2:]
         logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"')
-        await message.reply(text=answer)
+        await message.reply(text=answer, parse_mode=ParseMode.MARKDOWN)
+        print(message.from_user.id)
     except Exception as e:
-        logger.error(e)
+        error_text = f'Пользователь {message.from_user.username} получил ошибку\n{e}'
+        logger.error(error_text, exc_info=True)
+        await bot.send_message(322077458, error_text)
         await message.reply("Произошла ошибка при обработке Вашего запроса :(")

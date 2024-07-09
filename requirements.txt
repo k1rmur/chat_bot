@@ -20,7 +20,16 @@ numpy==1.26.4
 openai-whisper==20231117
 pdf2image==1.17.0
 pdfminer.six==20231228
-protobuf==3.19.4
+protobuf
 python-docx==1.1.2
 python-dotenv==1.0.1
 tiktoken==0.7.0
+git+https://github.com/MIDORIBIN/langchain-gpt4free.git
+g4f==0.3.2.1
+curl_cffi==0.7.0
+nest_asyncio==1.6.0
+g4f[webdriver]
+InstructorEmbedding
+sentence-transformers==2.2.2
+transformers==4.39.2
+llama_index==0.10.53

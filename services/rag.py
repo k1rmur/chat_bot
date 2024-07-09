@@ -1,16 +1,20 @@
 import os
-from langchain_community.embeddings.gigachat import GigaChatEmbeddings
 from langchain_chroma import Chroma
-from langchain_community.chat_models.gigachat import GigaChat
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.chains import create_history_aware_retriever
 from langchain.chains import create_retrieval_chain
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 import services.initialize_db_name  as db_name
 from dotenv import load_dotenv
+from g4f import models, Provider
+from langchain.llms.base import LLM
+
+from langchain_g4f import G4FLLM
+
 
 load_dotenv()
 CREDENTIALS = os.getenv('CREDENTIALS', '0')
@@ -27,9 +31,7 @@ print(DB_DIR)
 
 MESSAGE_THRESHOLD = 5
 
-embeddings = GigaChatEmbeddings(
-    credentials=CREDENTIALS, verify_ssl_certs=False
-)
+embeddings = HuggingFaceBgeEmbeddings(model_name="BAAI/bge-m3")
 
 db = Chroma(
     persist_directory=DB_DIR,
@@ -37,7 +39,10 @@ db = Chroma(
 )
 db.get()
 
-llm = GigaChat(credentials=CREDENTIALS, verify_ssl_certs=False, model="GigaChat-Plus")
+llm: LLM = G4FLLM(
+    model=models.gpt_35_turbo,
+    provider=Provider.You
+)
 
 retriever = db.as_retriever()
 
@@ -62,21 +67,21 @@ history_aware_retriever = create_history_aware_retriever(
 if db_name.db_name == 'inner':
     qa_system_prompt = """Ты ассистент для сотрудников Федерального Агенства Водных Ресурсов \
     (ФАВР), твоя единственная функция - отвечать на вопросы по документам из базы данных. \
-    Используй ТОЛЬКО следующий контекст для ответа на вопрос. \
-    Если ответа нет в базе данных, НИ В КОЕМ СЛУЧАЕ не пиши ответ на него, \
-    скажи, что не знаешь ответ на этот вопрос.
-    Отвечай кратко и ёмко.\
-
-    {context}"""
+    Используй ТОЛЬКО следующий контекст для ответа на вопрос, не пользуясь своими начальными знаниями. \
+    Если ответа нет в базе данных, не пиши ответ на него. \
+    Отвечай кратко и ёмко, пиши только на русском языке.\
+    Контекст:\
+    {context}\
+    Конец контекста."""
 else:
     qa_system_prompt = """Ты ассистент Федерального Агенства Водных Ресурсов для граждан, \
     твоя единственная функция - отвечать на вопросы граждан по документам из базы данных. \
-    Используй ТОЛЬКО следующий контекст для ответа на вопрос. \
-    Если ответа нет в базе данных, НИ В КОЕМ СЛУЧАЕ не пиши ответ на него, \
-    скажи, что не знаешь ответ на этот вопрос.
-    Отвечай кратко и ёмко.\
-
-    {context}"""
+    Используй ТОЛЬКО следующий контекст для ответа на вопрос, не пользуясь своими начальными знаниями. \
+    Если ответа нет в базе данных, не пиши ответ на него. \
+    Отвечай кратко и ёмко, пиши только на русском языке.\
+    Контекст:\
+    {context}\
+    Конец контекста."""
 
 qa_prompt = ChatPromptTemplate.from_messages(
     [

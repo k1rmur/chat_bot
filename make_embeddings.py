@@ -4,10 +4,9 @@ from langchain.text_splitter import (
     RecursiveCharacterTextSplitter,
 )
 from optparse import OptionParser
-from langchain_community.embeddings.gigachat import GigaChatEmbeddings
 from langchain_community.vectorstores.chroma import Chroma
 from dotenv import load_dotenv
-
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 
 parser = OptionParser()
 parser.add_option('--Mode', type=str, default="inner")
@@ -43,11 +42,11 @@ all_documents = []
 for loader in loaders:
     print("Loading raw document..." + loader.file_path)
     raw_documents = loader.load()
-    if loader.__class__!=CSVLoader:
+    if loader.__class__ != CSVLoader:
         print("Splitting text...")
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000,
-            chunk_overlap=500,
+            chunk_overlap=400,
         )
         documents = text_splitter.split_documents(raw_documents)
         all_documents.extend(documents)
@@ -59,9 +58,9 @@ print("Splitting is finished")
 load_dotenv()
 CREDENTIALS = os.environ.get('CREDENTIALS', '0')
 
-embeddings = GigaChatEmbeddings(
-    credentials=CREDENTIALS, verify_ssl_certs=False
-)
+embeddings = HuggingFaceBgeEmbeddings(model_name="BAAI/bge-m3")
+
+#embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
 
 db = Chroma.from_documents(
     all_documents,
