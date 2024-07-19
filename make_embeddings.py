@@ -45,8 +45,8 @@ for loader in loaders:
     if loader.__class__ != CSVLoader:
         print("Splitting text...")
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,
-            chunk_overlap=400,
+            chunk_size=2048,
+            chunk_overlap=64,
         )
         documents = text_splitter.split_documents(raw_documents)
         all_documents.extend(documents)
@@ -58,9 +58,7 @@ print("Splitting is finished")
 load_dotenv()
 CREDENTIALS = os.environ.get('CREDENTIALS', '0')
 
-embeddings = HuggingFaceBgeEmbeddings(model_name="BAAI/bge-m3")
-
-#embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
+embeddings = HuggingFaceBgeEmbeddings(model_name="deepvk/USER-bge-m3")
 
 db = Chroma.from_documents(
     all_documents,
