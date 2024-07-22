@@ -6,7 +6,7 @@ from langchain.text_splitter import (
 from optparse import OptionParser
 from langchain_community.vectorstores.chroma import Chroma
 from dotenv import load_dotenv
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 
 parser = OptionParser()
 parser.add_option('--Mode', type=str, default="inner")
@@ -45,7 +45,7 @@ for loader in loaders:
     if loader.__class__ != CSVLoader:
         print("Splitting text...")
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=2048,
+            chunk_size=512,
             chunk_overlap=64,
         )
         documents = text_splitter.split_documents(raw_documents)
@@ -58,7 +58,7 @@ print("Splitting is finished")
 load_dotenv()
 CREDENTIALS = os.environ.get('CREDENTIALS', '0')
 
-embeddings = HuggingFaceBgeEmbeddings(model_name="deepvk/USER-bge-m3")
+embeddings = HuggingFaceEmbeddings(model_name="intfloat/multilingual-e5-small")
 
 db = Chroma.from_documents(
     all_documents,
