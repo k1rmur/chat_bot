@@ -45,7 +45,7 @@ for loader in loaders:
     if loader.__class__ != CSVLoader:
         print("Splitting text...")
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=512,
+            chunk_size=256,
             chunk_overlap=64,
         )
         documents = text_splitter.split_documents(raw_documents)

@@ -5,7 +5,7 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ffmpeg
 
-COPY requirements.txt .
+COPY . /app
 
 RUN pip install --upgrade pip
 
