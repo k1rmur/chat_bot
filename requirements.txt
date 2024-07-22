@@ -34,5 +34,4 @@ bitsandbytes==0.41.1
 accelerate==0.22.0
 einops==0.6.1
 xformers==0.0.21
-torch==2.3.1+cu121
-cuda_python==12.5.0
+torch==2.3.1
