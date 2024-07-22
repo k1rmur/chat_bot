@@ -49,12 +49,16 @@ async def send(message: Message, bot: Bot):
         text = message.text
 
     try:
-        answer = conversational_rag_chain.invoke(
+        chain = conversational_rag_chain.invoke(
             {"input": text},
             config={
                 "configurable": {"session_id": session_id}
             }
-        )["answer"]
+        )
+        answer = chain["answer"]
+        print(chain["context"])
+        # Сохраняем только последние несколько вопросов-ответов, чтобы не забивать память
+        conversation_history[session_id].messages = conversation_history[session_id].messages[-MESSAGE_THRESHOLD*2:]
         logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"')
         await message.reply(text=answer, parse_mode=ParseMode.MARKDOWN)
     except Exception as e:

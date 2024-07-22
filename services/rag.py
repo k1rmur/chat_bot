@@ -1,21 +1,17 @@
 import os
-import torch
 from langchain_chroma import Chroma
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.chains import create_history_aware_retriever
 from langchain.chains import create_retrieval_chain
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 import services.initialize_db_name  as db_name
 from dotenv import load_dotenv
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
-from langchain_huggingface import HuggingFacePipeline
-import transformers
 from langchain_community.llms import LlamaCpp
 from langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHandler
+from langchain.prompts import PromptTemplate
 
 
 load_dotenv()
@@ -31,10 +27,10 @@ else:
 
 print(DB_DIR)
 
-MESSAGE_THRESHOLD = 5
+MESSAGE_THRESHOLD = 3
 
 
-embeddings = HuggingFaceBgeEmbeddings(model_name="deepvk/USER-bge-m3")
+embeddings = HuggingFaceEmbeddings(model_name="intfloat/multilingual-e5-small")
 
 db = Chroma(
     persist_directory=DB_DIR,
@@ -42,38 +38,16 @@ db = Chroma(
 )
 db.get()
 
-#quantization_config = BitsAndBytesConfig(
-#    llm_int8_enable_fp32_cpu_offload=True,
-#    load_in_8bit=True,
-#)
-#
-#model = AutoModelForCausalLM.from_pretrained(
-#    MODEL_NAME,
-#    quantization_config=quantization_config,
-#    torch_dtype=torch.bfloat16,
-#    device_map="auto"
-#)
-#model.eval()
-#
-#tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-#
-#query_pipeline = transformers.pipeline(
-#    "text-generation",
-#    model=model,
-#    tokenizer=tokenizer,
-#    torch_dtype=torch.bfloat16,
-#    device_map="auto",
-#)
-#
-#llm = HuggingFacePipeline(pipeline=query_pipeline)
-
-model_path = os.path.join(ABS_PATH, "models/saiga_llama3_8b.Q5_0.gguf")
+model_path = os.path.join(ABS_PATH, "models/model-q4_K.gguf")
 
 callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
 
 llm = LlamaCpp(
   model_path=model_path,
-  n_ctx=2048,
+  temperature=0.1,
+  top_p=0.9,
+  top_k=30,
+  n_ctx=8192,
   n_threads=8,
   f16_kv=True,
   verbose=True,
@@ -82,50 +56,30 @@ llm = LlamaCpp(
 
 retriever = db.as_retriever()
 
+rephrase_template = '''<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 
-### Переформулирование вопроса ###
-contextualize_q_system_prompt = """Имея историю чата и последний вопрос пользователя, \
-который может ссылаться на контекст в истории чата, сформулируй самостоятельный вопрос, \
-который можно понять без истории чата. НЕ ОТВЕЧАЙ на вопрос, \
-просто переформулируй его при необходимости, иначе верни его как есть."""
-contextualize_q_prompt = ChatPromptTemplate.from_messages(
-    [
-        ("system", f'<|im_start|>\n{contextualize_q_system_prompt}<|im_end|>'),
-#        MessagesPlaceholder("chat_history", n_messages=1),
-        ("user", "<|im_start|>\n{input}<|im_end|><|im_start|>assistant"),
-    ]
-)
+Ты ассистент Федерального агенства водных ресурсов (ФАВР). Учитывая историю чата и последний вопрос пользователя, который может ссылаться на историю чата, перефразируй этот вопрос в самостоятельный вопрос, который можно понять без истории чата. История чата: {chat_history} Если последний вопрос не связан с историей чата, просто перефразируй этот вопрос или оставь как есть.<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+{input}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+Перефразированный вопрос в одно предложение:'''
+
+qa_template = '''<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+
+Ты - полезный, уважительный и честный ассистент Федерального агенства водных ресурсов (ФАВР). Всегда отвечай как можно более надежно. В ответах не должно быть информации из твоей базы знаний, а только лишь информация из контекста и ее перефразирование. Если вопрос не имеет смысла или не является фактологически последовательным, объясни почему, а не отвечай на вопрос некорректно. Если ты не знаешь ответа на вопрос, пожалуйста, не сообщай ложную информацию. Твоя цель - дать ответы, связанные с базой знаний ФАВР. База знаний: {context} История чата: {chat_history}<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+{input}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+Вот краткий ответ на Ваш вопрос:'''
+
+
+contextualize_q_prompt = PromptTemplate.from_template(rephrase_template)
+
 history_aware_retriever = create_history_aware_retriever(
     llm, retriever, contextualize_q_prompt
 )
 
-
-if db_name.db_name == 'inner':
-    qa_system_prompt = """Ты ассистент для сотрудников Федерального Агенства Водных Ресурсов \
-    (ФАВР), твоя единственная функция - отвечать на вопросы по документам из базы данных. \
-    Используй ТОЛЬКО следующий контекст для ответа на вопрос, не пользуясь своими начальными знаниями. \
-    Если ответа нет в базе данных, не пиши ответ на него. \
-    Отвечай кратко и ёмко.\
-    Контекст:\
-    {context}\
-    Конец контекста."""
-else:
-    qa_system_prompt = """Ты ассистент Федерального Агенства Водных Ресурсов для граждан, \
-    твоя единственная функция - отвечать на вопросы граждан по документам из базы данных. \
-    Используй ТОЛЬКО следующий контекст для ответа на вопрос, не пользуясь своими начальными знаниями. \
-    Если ответа нет в базе данных, не пиши ответ на него. \
-    Отвечай кратко и ёмко.\
-    Контекст:\
-    {context}\
-    Конец контекста."""
-
-qa_prompt = ChatPromptTemplate.from_messages(
-    [
-        ("system", f'<|im_start|>\n{qa_system_prompt}<|im_end|>'),
-#        MessagesPlaceholder("chat_history", n_messages=1),
-        ("user", "<|im_start|>\n{input}<|im_end|><|im_start|>assistant"),
-    ]
-)
+qa_prompt = PromptTemplate.from_template(qa_template)
 question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
 
 rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
