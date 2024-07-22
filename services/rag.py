@@ -70,7 +70,7 @@ qa_template = '''<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 
 {input}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 
-Вот краткий ответ на Ваш вопрос:'''
+'''
 
 
 contextualize_q_prompt = PromptTemplate.from_template(rephrase_template)
