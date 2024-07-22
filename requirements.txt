@@ -23,15 +23,13 @@ protobuf
 python-docx==1.1.2
 python-dotenv==1.0.1
 tiktoken==0.7.0
+tokenizers==0.19.1
 curl_cffi==0.7.0
 nest_asyncio==1.6.0
 InstructorEmbedding
 sentence-transformers==3.0.1
-transformers==4.39.2
-accelerate==0.32.1
+transformers
 langchain_huggingface==0.0.3
-bitsandbytes==0.41.1
 accelerate==0.22.0
 einops==0.6.1
-xformers==0.0.21
 torch==2.3.1
