@@ -5,11 +5,15 @@ from aiogram.enums.parse_mode import ParseMode
 from lexicon.lexicon import LEXICON_RU
 from langchain_community.chat_message_histories import ChatMessageHistory
 import logging
+from dotenv import load_dotenv, find_dotenv
+import os
 
 from services.rag import conversation_history, conversational_rag_chain, MESSAGE_THRESHOLD
 from services.converter import recognize, clear_temp
 
 
+load_dotenv(find_dotenv())
+send_message_to = list(map(int, os.getenv("SEND_MESSAGE_TO").split(","))) 
 router = Router()
 
 logger = logging.getLogger(__name__)
@@ -66,3 +70,8 @@ async def send(message: Message, bot: Bot):
         logger.error(error_text, exc_info=True)
         await bot.send_message(322077458, error_text)
         await message.reply("Произошла ошибка при обработке Вашего запроса :(")
+
+
+async def send_message_on_time(bot: Bot):
+    for user in send_message_to:
+        await bot.send_message(user, "Отправка по расписанию")

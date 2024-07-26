@@ -10,6 +10,9 @@ from keyboards.set_menu import set_main_menu
 from optparse import OptionParser
 import services.initialize_db_name as db
 import os
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from datetime import timezone, timedelta
+
 
 parser = OptionParser()
 parser.add_option('--Mode', type=str, default="inner")
@@ -31,6 +34,11 @@ async def main():
     dp = Dispatcher()
     await set_main_menu(bot)
     dp.include_router(user_handlers.router)
+
+    if mode == 'inner':
+        scheduler = AsyncIOScheduler()
+        scheduler.add_job(user_handlers.send_message_on_time, "cron", day_of_week='fri', hour=17, minute=0, timezone=timezone(timedelta(hours=+3)), args=(bot,))
+        scheduler.start()
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
