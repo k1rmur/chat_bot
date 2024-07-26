@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  bot-outer:
+    build: .
+    command: >
+      sh -c "pip install protobuf==3.19.4 && cp ./builder.py /usr/local/lib/python3.10/site-packages/google/protobuf/internal/ && python3 make_embeddings.py --Mode outer && python3 get_bot.py --Mode outer"
+
