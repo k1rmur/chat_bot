@@ -6,7 +6,6 @@ dataclasses-json==0.6.7
 docx2txt==0.8
 environs==11.0.0
 ffmpeg==1.4
-gigachat==0.1.30
 grpcio==1.64.1
 grpcio-tools==1.64.1
 langchain==0.2.5
@@ -28,8 +27,10 @@ curl_cffi==0.7.0
 nest_asyncio==1.6.0
 InstructorEmbedding
 sentence-transformers==3.0.1
-transformers
+transformers==4.43.2
 langchain_huggingface==0.0.3
 accelerate==0.22.0
 einops==0.6.1
-torch==2.3.1
+torch
+APScheduler-3.10.4
+langchain-ollama
