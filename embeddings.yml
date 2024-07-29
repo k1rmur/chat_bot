@@ -1,0 +1,14 @@
+services:
+  embeddings:
+    container_name: embeddings
+    build:
+      context: .
+      dockerfile: Dockerfile_embeddings
+    volumes:
+      - embeddings_inner:/app/db/
+      - embeddings_outer:/app/db_citizens/
+
+
+volumes:
+  embeddings_inner:
+  embeddings_outer:
