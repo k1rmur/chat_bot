@@ -1,11 +1,22 @@
 version: '3.8'
 services:
   bot-inner:
+    container_name: favr_bot_inner
     build: .
     command: >
-      sh -c "pip install protobuf==3.19.4 && cp ./builder.py /usr/local/lib/python3.10/site-packages/google/protobuf/internal/ && python3 make_embeddings.py --Mode inner && python3 get_bot.py --Mode inner"
+      sh -c "python3 get_bot.py --Mode inner"
+    volumes:
+      - embeddings_inner:/app/db/
   bot-outer:
+    container_name: favr_bot_outer
     build: .
     command: >
-      sh -c "pip install protobuf==3.19.4 && cp ./builder.py /usr/local/lib/python3.10/site-packages/google/protobuf/internal/ && python3 make_embeddings.py --Mode outer && python3 get_bot.py --Mode outer"
+      sh -c "python3 get_bot.py --Mode outer"
+    volumes:
+      - embeddings_outer:/app/db_citizens/
+
+
+volumes:
+  embeddings_inner:
+  embeddings_outer:
 

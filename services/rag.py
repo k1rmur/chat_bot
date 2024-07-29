@@ -39,7 +39,7 @@ db = Chroma(
 db.get()
 
 
-llm = ChatOllama(model='llama3.1')
+llm = ChatOllama(model='llama3.1', temperature=0.2, base_url="http://ollama-container:11434", keep_alive=-1, num_ctx=2048, num_thread=8, num_gpu=0)
 
 retriever = db.as_retriever()
 

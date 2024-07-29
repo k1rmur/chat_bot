@@ -11,13 +11,10 @@ RUN pip install -r requirements.txt
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ffmpeg
 
-RUN curl -fsSL https://ollama.com/install.sh | sh
-
-COPY run-ollama.sh .
-
-RUN chmod +x run-ollama.sh \
-    && ./run-ollama.sh
-
 COPY . /app
 
-CMD python get_bot.py
+RUN sh -c "pip install protobuf==3.19.4 && cp ./builder.py /usr/local/lib/python3.10/site-packages/google/protobuf/internal/"
+
+RUN python3 make_embeddings.py --Mode inner
+
+RUN python3 make_embeddings.py --Mode outer
