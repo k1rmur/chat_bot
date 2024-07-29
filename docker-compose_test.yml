@@ -1,9 +1,10 @@
 services:
   bot-outer:
+    env_file: ./.env_test
     container_name: favr_outer_test
     build: .
-    command: >
-      sh -c "python3 get_bot.py --Mode outer"
+    command:
+      python3 get_bot.py --Mode outer
     volumes:
       - embeddings_outer:/app/db_citizens/
       - whisper:/root/.cache/whisper/
