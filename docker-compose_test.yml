@@ -7,6 +7,8 @@ services:
       sh -c "python3 get_bot.py --Mode outer"
     volumes:
       - embeddings_outer:/app/db_citizens/
+      - whisper:/app/services/models/
 
 volumes:
   embeddings_outer:
+  whisper:
