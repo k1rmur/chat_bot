@@ -41,6 +41,7 @@ async def main():
         scheduler.start()
 
     await bot.delete_webhook(drop_pending_updates=True)
+    await bot.send_message(322077458, "Я запустился")
     await dp.start_polling(bot)
 
 
