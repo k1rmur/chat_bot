@@ -68,5 +68,5 @@ def load_embeddings():
     print('БД сохранится в', DB_DIR)
 
 
-if os.path.isfile(os.path.join(DB_DIR, "chroma.sqlite3")):
-    load_embeddings()
+
+load_embeddings()
