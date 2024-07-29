@@ -2,8 +2,8 @@ services:
   bot-inner:
     container_name: favr_bot_inner
     build: .
-    command: >
-      sh -c "python3 get_bot.py --Mode inner"
+    command: 
+      python3 get_bot.py --Mode inner
     volumes:
       - embeddings_inner:/app/db/
       - whisper:/root/.cache/whisper/
@@ -11,7 +11,7 @@ services:
     container_name: favr_bot_outer
     build: .
     command: >
-      sh -c "python3 get_bot.py --Mode outer"
+      python3 get_bot.py --Mode outer
     volumes:
       - embeddings_outer:/app/db_citizens/
       - whisper:/root/.cache/whisper/

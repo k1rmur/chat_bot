@@ -1,5 +1,5 @@
 services:
-  bot-outer:
+  bot-outer_test:
     env_file: ./.env_test
     container_name: favr_outer_test
     build: .
