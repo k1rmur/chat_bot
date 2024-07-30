@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 async def process_start_command(message: Message):
     logger.info(f'Пользователь {message.from_user.username} начал диалог')
     answer_text, reply_markup = LEXICON_COMMANDS_RU['/start']
-    await message.answer(answer_text, reply_markup=reply_markup)
+    await message.answer(answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
 
 
 @router.message(Command(commands=["clear"]))
@@ -42,7 +42,7 @@ async def process_clear_command(message: Message):
 async def send(message: Message, bot: Bot):
     if message.text in LEXICON_RU:
         answer_text, reply_markup = LEXICON_RU[message.text]
-        await message.answer(text=answer_text, reply_markup=reply_markup)
+        await message.answer(text=answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
     else:
         session_id = message.from_user.id
         if message.voice:
