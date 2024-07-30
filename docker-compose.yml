@@ -1,7 +1,10 @@
 services:
   bot-inner:
     container_name: favr_bot_inner
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: ./.env_inner
     command: 
       python3 get_bot.py --Mode inner
     volumes:
@@ -9,7 +12,10 @@ services:
       - whisper:/root/.cache/whisper/
   bot-outer:
     container_name: favr_bot_outer
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: ./.env_outer
     command:
       python3 get_bot.py --Mode outer
     volumes:

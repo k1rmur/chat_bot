@@ -2,7 +2,10 @@ services:
   bot-outer_test:
     env_file: ./.env_test
     container_name: favr_outer_test
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: ./.env_outer
     command:
       python3 get_bot.py --Mode outer
     volumes:

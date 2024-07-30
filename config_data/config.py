@@ -25,8 +25,5 @@ class Config:
 def load_config(path: str | None = None, mode: str = 'inner') -> Config:
     env = Env()
     env.read_env(path)
-    if mode == 'inner':
-        token = env('BOT_TOKEN_INNER')
-    else:
-        token = env('BOT_TOKEN_OUTER')
+    token = env('BOT_TOKEN')
     return Config(tg_bot=TgBot(token=token))
