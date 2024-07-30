@@ -6,7 +6,6 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from config_data.config import Config, load_config
-from keyboards.set_menu import set_main_menu
 from optparse import OptionParser
 import services.initialize_db_name as db
 import os
@@ -32,7 +31,6 @@ async def main():
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
     dp = Dispatcher()
-    await set_main_menu(bot)
     dp.include_router(user_handlers.router)
 
     if mode == 'inner':
