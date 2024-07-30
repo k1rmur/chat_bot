@@ -2,7 +2,6 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 
 def general_menu():
-    markup = ReplyKeyboardMarkup(resize_keyboard=True)
     btn_vod_obj = KeyboardButton("Виртуальный собеседник")
     btn_gouslugi = KeyboardButton("ГосУслуги")
     btn_struct_rosvodres = KeyboardButton("Структура Росводресурсов")
@@ -16,7 +15,6 @@ def general_menu():
     return markup 
 
 def gosuslugi_menu():
-    markup = ReplyKeyboardMarkup(resize_keyboard=True)
     btn_doc1 = KeyboardButton('''Водный реестр''')
     btn_doc2 = KeyboardButton('''Право пользования''')
     btn_doc3 = KeyboardButton('''Договоры''')
