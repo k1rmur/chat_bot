@@ -10,7 +10,7 @@ services:
   bot-outer:
     container_name: favr_bot_outer
     build: .
-    command: >
+    command:
       python3 get_bot.py --Mode outer
     volumes:
       - embeddings_outer:/app/db_citizens/
