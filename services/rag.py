@@ -50,7 +50,7 @@ contextualize_q_system_prompt = """Имея историю чата и посл�
 contextualize_q_prompt = ChatPromptTemplate.from_messages(
     [
         ("system", contextualize_q_system_prompt),
-        MessagesPlaceholder("chat_history", n=2),
+        MessagesPlaceholder("chat_history", n_messages=2),
         ("human", "{input}"),
     ]
 )
@@ -81,7 +81,7 @@ else:
 qa_prompt = ChatPromptTemplate.from_messages(
     [
         ("system", qa_system_prompt),
-        MessagesPlaceholder("chat_history", n=2),
+        MessagesPlaceholder("chat_history", n_messages=2),
         ("human", "{input}"),
     ]
 )
