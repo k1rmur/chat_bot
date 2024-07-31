@@ -13,6 +13,7 @@ from services.converter import recognize, clear_temp
 load_dotenv(find_dotenv())
 mode = os.getenv("MODE")
 print(mode)
+ADD_USER_PASSWORD = os.getenv("ADD_USER_PASSWORD")
 
 if mode == 'inner':
     from lexicon.lexicon_inner import LEXICON_RU, LEXICON_COMMANDS_RU
@@ -40,7 +41,7 @@ async def process_clear_command(message: Message):
     await message.answer(text=LEXICON_RU['/clear'])
 
 
-@router.message((F.text | F.voice) & ~F.text.startswith('/'))
+@router.message((F.text | F.voice) & ~F.text.startswith('/') & F.text != ADD_USER_PASSWORD)
 async def send(message: Message, bot: Bot):
     if message.text in LEXICON_RU:
         answer_text, reply_markup = LEXICON_RU[message.text]

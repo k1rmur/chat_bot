@@ -61,7 +61,7 @@ async def help_command(message: Message):
 /send_document - Отправить новый документ
 /delete_documents - Удалить все документы из папки для отправки
 /check_documents - Проверить список документов в папке для отправки
-/add_user - Добавить себя в список рассылки (требуется пароль)
+/subscribe - Добавить себя в список рассылки (требуется пароль)
     """
     await message.reply(help_text)
 
