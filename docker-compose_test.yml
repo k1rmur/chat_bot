@@ -14,9 +14,11 @@ services:
       - whisper:/root/.cache/whisper/
       - test_logs:/app/logs/
       - send_to_list_test:/app/send_to/
+      - docs_to_send_test:/app/documents_to_send/
 
 volumes:
   embeddings_outer:
   whisper:
   test_logs:
   send_to_list_test:
+  docs_to_send_test:
