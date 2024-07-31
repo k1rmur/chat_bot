@@ -46,6 +46,8 @@ async def send(message: Message, bot: Bot):
     if message.text in LEXICON_RU:
         answer_text, reply_markup = LEXICON_RU[message.text]
         await message.answer(text=answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
+        if message.text == 'Структура Росводресурсов':
+            await message.answer_photo('/app/photos/struct.png')
     else:
         session_id = message.from_user.id
         if message.voice:
