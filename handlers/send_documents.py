@@ -116,8 +116,7 @@ async def send_message_on_time(bot: Bot):
         file_path = os.path.join(DOCUMENTS_TO_SEND, filename)
         for user_id in send_message_to:
             try:
-                with open(file_path, 'rb') as doc:
-                    await bot.send_document(user_id, doc)
+                await bot.send_document(user_id, FSInputFile(file_path))
             except Exception as e:
                 logger.error(e, exc_info=True)
         os.rename(file_path, os.path.join(DOCUMENTS_SENT, filename))
