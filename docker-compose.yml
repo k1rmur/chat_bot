@@ -38,4 +38,5 @@ volumes:
   outer_logs:
   inner_logs:
   docs_to_send:
+  send_to_list:
 

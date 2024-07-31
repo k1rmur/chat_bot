@@ -2,7 +2,7 @@ services:
   bot-outer_test:
     env_file: ./.env_test
     environment:
-      MODE: "outer"
+      MODE: "inner"
     container_name: favr_outer_test
     build:
       context: .
@@ -19,3 +19,4 @@ volumes:
   embeddings_outer:
   whisper:
   test_logs:
+  send_to_list_test:
