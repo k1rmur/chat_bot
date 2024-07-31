@@ -7,17 +7,19 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 import logging
 from dotenv import load_dotenv, find_dotenv
 import os
-from services.rag import conversation_history, conversational_rag_chain, MESSAGE_THRESHOLD
+from services.rag import conversation_history, conversational_rag_chain
 from services.converter import recognize, clear_temp
-import services.initialize_db_name  as db_name
 
-if db_name.db_name == 'inner':
+load_dotenv(find_dotenv())
+mode = os.getenv("MODE")
+print(mode)
+
+if mode == 'inner':
     from lexicon.lexicon_inner import LEXICON_RU, LEXICON_COMMANDS_RU
 else:
     from lexicon.lexicon_outer import LEXICON_RU, LEXICON_COMMANDS_RU
 
 
-load_dotenv(find_dotenv())
 send_message_to = list(map(int, os.getenv("SEND_MESSAGE_TO").split(","))) 
 router = Router()
 
@@ -52,7 +54,7 @@ async def send(message: Message, bot: Bot):
                 file_path = file.file_path
                 audio_destination = f'./tmp/{file_id}.wav'
                 await bot.download_file(file_path, audio_destination)
-                text = recognize(file_id)
+                text = await recognize(file_id)
                 clear_temp()
             except Exception as e:
                 await message.reply("Произошла ошибка при распознавании голосового сообщения :(")
@@ -71,8 +73,6 @@ async def send(message: Message, bot: Bot):
             )
             answer = chain["answer"]
             print(chain["context"])
-            # Сохраняем только последние несколько вопросов-ответов, чтобы не забивать память
-            conversation_history[session_id].messages = conversation_history[session_id].messages[-MESSAGE_THRESHOLD*2:]
             logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"')
             await message.reply(text=answer, parse_mode=ParseMode.MARKDOWN)
         except Exception as e:
