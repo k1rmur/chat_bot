@@ -10,8 +10,6 @@ import os
 from services.rag import conversation_history, conversational_rag_chain
 from services.converter import recognize, clear_temp
 
-logger = logging.getLogger(__name__)
-
 load_dotenv(find_dotenv())
 mode = os.getenv("MODE")
 print(mode)

@@ -51,6 +51,10 @@ logging_config = {
         'handlers.user_handlers': {
             'level': 'DEBUG',
             'handlers': ['error_file', 'info_file']
+        },
+        'handlers.send_documents': {
+            'level': 'DEBUG',
+            'handlers': ['error_file', 'info_file']
         }
     },
 }

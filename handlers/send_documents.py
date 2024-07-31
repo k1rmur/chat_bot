@@ -6,10 +6,13 @@ import os
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import FSInputFile
+import logging
 
 
 DOCUMENTS_TO_SEND = "/app/documents_to_send"
 DOCUMENTS_SENT = "/app/documents_sent"
+
+logger = logging.getLogger(__name__)
 
 
 router = Router()
@@ -116,5 +119,5 @@ async def send_message_on_time(bot: Bot):
                 with open(file_path, 'rb') as doc:
                     await bot.send_document(user_id, doc)
             except Exception as e:
-                print(f"Ошибка при отправке документа {filename} пользователю {user_id}: {e}")
+                logger.error(e, exc_info=True)
         os.rename(file_path, os.path.join(DOCUMENTS_SENT, filename))
