@@ -14,6 +14,7 @@ services:
       - whisper:/root/.cache/whisper/
       - inner_logs:/app/logs/
       - docs_to_send:/app/documents_to_send/
+      - send_to_list:/app/send_to/
   bot-outer:
     container_name: favr_bot_outer
     build:

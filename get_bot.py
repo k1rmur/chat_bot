@@ -58,4 +58,6 @@ if __name__ == '__main__':
             os.mkdir("./documents_to_send")
         if not os.path.exists("./documents_sent"):
             os.mkdir("./documents_sent")
+        if not os.path.exists("./send_to"):
+            os.mkdir("./send_to")
     asyncio.run(main())
