@@ -5,26 +5,33 @@ services:
       context: .
       dockerfile: Dockerfile
     env_file: ./.env_inner
+    environment:
+      MODE: "inner"
     command: 
       python3 get_bot.py --Mode inner
     volumes:
       - embeddings_inner:/app/db/
       - whisper:/root/.cache/whisper/
+      - inner_logs:/app/logs/
   bot-outer:
     container_name: favr_bot_outer
     build:
       context: .
       dockerfile: Dockerfile
     env_file: ./.env_outer
+    environment:
+      MODE: "outer"
     command:
       python3 get_bot.py --Mode outer
     volumes:
       - embeddings_outer:/app/db_citizens/
       - whisper:/root/.cache/whisper/
+      - outer_logs:/app/logs/
 
 
 volumes:
   embeddings_inner:
   embeddings_outer:
   whisper:
+  outer_logs:
 

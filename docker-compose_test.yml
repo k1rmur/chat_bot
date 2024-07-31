@@ -12,7 +12,9 @@ services:
     volumes:
       - embeddings_outer:/app/db_citizens/
       - whisper:/root/.cache/whisper/
+      - test_logs:/app/logs/
 
 volumes:
   embeddings_outer:
   whisper:
+  test_logs:

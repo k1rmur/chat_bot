@@ -24,7 +24,7 @@ logging_config = {
         },
         'error_file': {
             'class': 'logging.FileHandler',
-            'filename': 'error.log',
+            'filename': '/app/logs/error.log',
             'level': 'ERROR',
             'formatter': 'default',
             'filters': ['exception_filter'],
@@ -32,7 +32,7 @@ logging_config = {
         },
         'info_file': {
             'class': 'logging.FileHandler',
-            'filename': 'info.log',
+            'filename': '/app/logs/info.log',
             'level': 'INFO',
             'formatter': 'default',
             'filters': ['info_filter'],
