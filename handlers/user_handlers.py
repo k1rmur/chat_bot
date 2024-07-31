@@ -9,7 +9,7 @@ from dotenv import load_dotenv, find_dotenv
 import os
 from services.rag import conversation_history, conversational_rag_chain
 from services.converter import recognize, clear_temp
-from aiogram.types import InputFile
+from aiogram.types import FSInputFile
 
 
 load_dotenv(find_dotenv())
@@ -48,8 +48,8 @@ async def send(message: Message, bot: Bot):
     if message.text in LEXICON_RU:
         answer_text, reply_markup = LEXICON_RU[message.text]
         await message.answer(text=answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
-        if message.text == 'Структура Росводресурсов':
-            await message.answer_photo(InputFile('/app/photos/struct.png'))
+        if 'Структура Росводресурсов'.lower() in message.text.lower():
+            await message.answer_photo(FSInputFile('/app/photos/struct.png'))
     else:
         session_id = message.from_user.id
         if message.voice:
