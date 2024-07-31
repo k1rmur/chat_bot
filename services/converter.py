@@ -2,6 +2,7 @@ import os
 import glob
 import whisper
 import asyncio
+import functools
 
 model_name = 'medium'
 model = whisper.load_model(model_name)
@@ -25,7 +26,7 @@ async def recognize(file_id):
         mel = whisper.log_mel_spectrogram(audio=audio, n_mels=80).to(model.device)
 
     _, probs = model.detect_language(mel)
-    result = await loop.run_in_executor(None, model.transcribe, (f'./tmp/{file_id}' + '.wav',))
+    result = await loop.run_in_executor(None, functools.partial(model.transcribe, (f'./tmp/{file_id}' + '.wav',)))
     segments = result['segments']
     text_massive = []
     for segment in segments:

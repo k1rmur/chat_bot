@@ -58,7 +58,7 @@ async def send(message: Message, bot: Bot):
                 clear_temp()
             except Exception as e:
                 await message.reply("Произошла ошибка при распознавании голосового сообщения :(")
-                logger.error(e)
+                logger.error(e, exc_info=True)
                 clear_temp()
                 return
         else:
