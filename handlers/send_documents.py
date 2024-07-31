@@ -153,6 +153,7 @@ async def check_documents_command(message: Message, state: FSMContext, bot: Bot)
 async def send_message_on_time(bot: Bot):
     for filename in os.listdir(DOCUMENTS_TO_SEND):
         file_path = os.path.join(DOCUMENTS_TO_SEND, filename)
+        send_message_to = load_send_to()
         for user_id in send_message_to:
             try:
                 await bot.send_document(user_id, FSInputFile(file_path))
