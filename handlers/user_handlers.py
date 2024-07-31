@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 @router.message(CommandStart())
 async def process_start_command(message: Message):
-    logger.info(f'Пользователь {message.from_user.username} начал диалог')
+    logger.info(f'Пользователь {message.from_user.username} начал диалог, код чата {message.chat.id}')
     answer_text, reply_markup = LEXICON_COMMANDS_RU['/start']
     await message.answer(answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
 
@@ -63,7 +63,7 @@ async def send(message: Message, bot: Bot):
             text = message.text
 
         try:
-            chain = conversational_rag_chain.invoke(
+            chain = await conversational_rag_chain.ainvoke(
                 {"input": text},
                 config={
                     "configurable": {"session_id": session_id}

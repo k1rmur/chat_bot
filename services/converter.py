@@ -1,6 +1,7 @@
 import os
 import glob
 import whisper
+import asyncio
 
 model_name = 'medium'
 model = whisper.load_model(model_name)
@@ -12,7 +13,8 @@ def clear_temp():
         os.remove(f)
 
 
-def recognize(file_id):
+async def recognize(file_id):
+    loop = asyncio.get_event_loop()
     audio = whisper.load_audio(f'./tmp/{file_id}.wav')
     audio = whisper.pad_or_trim(audio)
     if model_name == 'large':
@@ -23,7 +25,7 @@ def recognize(file_id):
         mel = whisper.log_mel_spectrogram(audio=audio, n_mels=80).to(model.device)
 
     _, probs = model.detect_language(mel)
-    result = model.transcribe(f'./tmp/{file_id}' + '.wav',)
+    result = await loop.run_in_executor(None, model.transcribe, (f'./tmp/{file_id}' + '.wav',))
     segments = result['segments']
     text_massive = []
     for segment in segments:
