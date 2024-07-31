@@ -3,6 +3,7 @@ from aiogram.types import Message
 from aiogram.filters import Command
 from functools import wraps
 import os
+import shutil
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import FSInputFile
@@ -159,4 +160,5 @@ async def send_message_on_time(bot: Bot):
                 await bot.send_document(user_id, FSInputFile(file_path))
             except Exception as e:
                 logger.error(e, exc_info=True)
-        os.rename(file_path, os.path.join(DOCUMENTS_SENT, filename))
+        shutil.copy(file_path, os.path.join(DOCUMENTS_SENT, filename))
+        os.remove(file_path)
