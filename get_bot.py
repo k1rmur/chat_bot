@@ -39,7 +39,7 @@ async def main():
     if mode == 'inner':
         dp.include_router(send_documents.router)
         scheduler = AsyncIOScheduler()
-        scheduler.add_job(send_documents.send_message_on_time, "cron", day_of_week='wed', hour=9, minute=15, timezone=timezone(timedelta(hours=+3)), args=(bot,))
+        scheduler.add_job(send_documents.send_message_on_time, "cron", day_of_week='wed', hour=9, minute=45, timezone=timezone(timedelta(hours=+3)), args=(bot,))
         scheduler.start()
 
     dp.include_router(user_handlers.router)
