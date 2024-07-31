@@ -82,8 +82,3 @@ async def send(message: Message, bot: Bot):
             logger.error(error_text, exc_info=True)
             await bot.send_message(322077458, error_text)
             await message.reply("Произошла ошибка при обработке Вашего запроса :(")
-
-
-async def send_message_on_time(bot: Bot):
-    for user in send_message_to:
-        await bot.send_message(user, "Отправка по расписанию")
