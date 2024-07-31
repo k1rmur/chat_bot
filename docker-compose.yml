@@ -34,4 +34,5 @@ volumes:
   embeddings_outer:
   whisper:
   outer_logs:
+  inner_logs:
 
