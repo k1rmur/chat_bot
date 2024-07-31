@@ -35,13 +35,14 @@ async def main():
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
     dp = Dispatcher()
-    dp.include_router(user_handlers.router)
 
     if mode == 'inner':
         dp.include_router(send_documents.router)
         scheduler = AsyncIOScheduler()
         scheduler.add_job(send_documents.send_message_on_time, "cron", day_of_week='wed', hour=9, minute=0, timezone=timezone(timedelta(hours=+3)), args=(bot,))
         scheduler.start()
+
+    dp.include_router(user_handlers.router)
 
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.send_message(322077458, "Я запустился")

@@ -42,7 +42,7 @@ async def process_clear_command(message: Message):
     await message.answer(text=LEXICON_RU['/clear'])
 
 
-@router.message(F.text | F.voice)
+@router.message((F.text | F.voice) & ~F.text.startswith('/'))
 async def send(message: Message, bot: Bot):
     if message.text in LEXICON_RU:
         answer_text, reply_markup = LEXICON_RU[message.text]
