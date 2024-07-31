@@ -15,6 +15,7 @@ services:
       - test_logs:/app/logs/
       - send_to_list_test:/app/send_to/
       - docs_to_send_test:/app/documents_to_send/
+      - docs_sent_test:/app/documents_sent/
 
 volumes:
   embeddings_outer:
@@ -22,3 +23,4 @@ volumes:
   test_logs:
   send_to_list_test:
   docs_to_send_test:
+  docs_sent_test:
