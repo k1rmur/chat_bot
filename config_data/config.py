@@ -3,27 +3,22 @@ from environs import Env
 
 
 @dataclass
-#class DatabaseConfig:
-#    database: str         # Название базы данных
-#    db_host: str          # URL-адрес базы данных
-#    db_user: str          # Username пользователя базы данных
-#    db_password: str      # Пароль к базе данных
-
-
-@dataclass
 class TgBot:
-    token: str            # Токен для доступа к телеграм-боту
-#    admin_ids: list[int]  # Список id администраторов бота
+    token: str
+    api_id: int
+    api_hash: str
 
 
 @dataclass
 class Config:
     tg_bot: TgBot
-#    db: DatabaseConfig
 
 
-def load_config(path: str | None = None, mode: str = 'inner') -> Config:
+def load_config(path: str | None = None) -> Config:
     env = Env()
     env.read_env(path)
-    token = env('BOT_TOKEN')
-    return Config(tg_bot=TgBot(token=token))
+    return Config(tg_bot=TgBot(
+        token=env('BOT_TOKEN'),
+        api_id=env('API_ID'),
+        api_hash=env('API_HASH')
+    ))

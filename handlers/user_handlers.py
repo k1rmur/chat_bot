@@ -8,7 +8,7 @@ import logging
 from dotenv import load_dotenv, find_dotenv
 import os
 from services.rag import conversation_history, conversational_rag_chain
-from services.converter import recognize, clear_temp
+from services.converter import recognize_voice, clear_temp
 from aiogram.types import FSInputFile
 
 
@@ -59,7 +59,7 @@ async def send(message: Message, bot: Bot):
                 file_path = file.file_path
                 audio_destination = f'./tmp/{file_id}.wav'
                 await bot.download_file(file_path, audio_destination)
-                text = await recognize(file_id)
+                text = await recognize_voice(file_id)
                 clear_temp()
             except Exception as e:
                 await message.reply("Произошла ошибка при распознавании голосового сообщения :(")
