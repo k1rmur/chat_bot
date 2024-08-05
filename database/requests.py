@@ -1,7 +1,7 @@
 from database.models import User
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import delete, and_, select
+from sqlalchemy import select
 
 
 class Database:
