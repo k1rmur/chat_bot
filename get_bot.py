@@ -48,17 +48,17 @@ async def main():
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
     dp = Dispatcher()
+    dp.update.middleware(DatabaseMiddleware(session=session))
 
     if mode == 'inner':
         app.add_handler(MessageHandler(video_protocols.send_protocol, filters=filters.video | filters.audio | filters.document))
         dp.include_router(send_documents.router)
         scheduler = AsyncIOScheduler()
-        scheduler.add_job(send_documents.send_message_on_time, "cron", day_of_week='wed', hour=10, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot,))
+        scheduler.add_job(send_documents.send_message_on_time, "cron", day_of_week='mon', hour=13, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot,))
         scheduler.start()
         await app.start()
 
     dp.include_router(user_handlers.router)
-    dp.update.middleware(DatabaseMiddleware(session=session))
 
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.send_message(322077458, "Я запустился")
