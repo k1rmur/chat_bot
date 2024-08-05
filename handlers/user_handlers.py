@@ -44,7 +44,7 @@ async def process_start_command(message: Message, db: Database):
     )
 
 
-@router.message(Command(commands=["clear"]))
+@router.message(Command("clear"))
 async def process_clear_command(message: Message):
     user_id = message.from_user.id
     conversation_history[user_id] = ChatMessageHistory()
@@ -52,7 +52,7 @@ async def process_clear_command(message: Message):
     await message.answer(text=LEXICON_COMMANDS_RU['/clear'])
 
 
-@router.message(Command(commands=["test"]))
+@router.message(Command("test"))
 async def test_sending_message_to_everyone(bot: Bot, session: AsyncSession):
     stmt = select(User.chat_id)
     chat_id_list = await session.execute(stmt).all()
