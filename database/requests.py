@@ -11,14 +11,12 @@ class Database:
     async def add_user(self, id: int, chat_id: int, username: str) -> None:
         user = await self.session.get(User, id)
         if not user:
-            print('NOT USER')
             user = User(
                 id=id,
                 chat_id=chat_id,
                 username=username,
             )
             self.session.add(user)
-        print('user added')
         await self.session.commit()
 
 

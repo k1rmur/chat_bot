@@ -49,6 +49,13 @@ async def process_clear_command(message: Message):
     await message.answer(text=LEXICON_RU['/clear'])
 
 
+@router.message(Command(commands=["test"]))
+async def test_sending_message_to_everyone(bot: Bot, db: Database):
+    chat_id_list = db.get_all_users()
+    for chat_id in chat_id_list:
+        await bot.send_message(chat_id=chat_id, text='Проверка')
+
+
 @router.message((F.text | F.voice) & ~F.text.startswith('/') & F.text != ADD_USER_PASSWORD)
 async def send(message: Message, bot: Bot):
     if message.text in LEXICON_RU:
