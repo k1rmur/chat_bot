@@ -8,11 +8,12 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import FSInputFile
 import logging
-from database import Database
+import json
 
 
 DOCUMENTS_TO_SEND = "/app/documents_to_send"
 DOCUMENTS_SENT = "/app/documents_sent"
+SEND_TO_FILE = "/app/send_to/send_to_list.json"
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,21 @@ class DocumentStates(StatesGroup):
     waiting_for_document = State()
     waiting_for_password = State()
 
+
+def load_send_to():
+    if os.path.exists(SEND_TO_FILE):
+        with open(SEND_TO_FILE, 'r') as f:
+            return json.load(f)
+    return []
+
+def save_send_to(send_to):
+    with open(SEND_TO_FILE, 'w') as f:
+        json.dump(send_to, f)
+
+
+send_to = load_send_to()
+
+
 @router.message(Command("help"))
 @allowed_users_only
 async def help_command(message: Message):
@@ -58,15 +74,15 @@ async def add_user_command(message: Message, state: FSMContext):
 
 
 @router.message(DocumentStates.waiting_for_password)
-async def handle_password(message: Message, state: FSMContext, db: Database):
+async def handle_password(message: Message, state: FSMContext):
     if message.text == ADD_USER_PASSWORD:
         user_id = message.from_user.id
-        await db.update_user_data(
-            id=user_id,
-            is_subscribed_to_oper=True,
-        )
-        await message.reply("Вы успешно добавлены в список рассылки.")
-
+        if user_id not in send_to:
+            send_to.append(user_id)
+            save_send_to(send_to)
+            await message.reply("Вы успешно добавлены в список рассылки.")
+        else:
+            await message.reply("Вы уже находитесь в списке рассылки.")
     else:
         await message.reply("Неверный пароль. Вы не добавлены в список рассылки.")
     await state.clear()
@@ -135,13 +151,13 @@ async def check_documents_command(message: Message, state: FSMContext, bot: Bot)
 
 
 
-async def send_message_on_time(bot: Bot, db: Database):
+async def send_message_on_time(bot: Bot):
     for filename in os.listdir(DOCUMENTS_TO_SEND):
         file_path = os.path.join(DOCUMENTS_TO_SEND, filename)
-        send_message_to = db.get_subscribed_users()
-        for chat_id in send_message_to:
+        send_message_to = load_send_to()
+        for user_id in send_message_to:
             try:
-                await bot.send_document(chat_id, FSInputFile(file_path))
+                await bot.send_document(user_id, FSInputFile(file_path))
             except Exception as e:
                 logger.error(e, exc_info=True)
         shutil.copy(file_path, os.path.join(DOCUMENTS_SENT, filename))

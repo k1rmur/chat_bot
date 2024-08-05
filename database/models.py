@@ -10,7 +10,6 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     chat_id: Mapped[int] = mapped_column()
     username: Mapped[str] = mapped_column()
-    is_subscribed_to_oper = mapped_column(Boolean, default=False)
 
     def __repr__(self):
         return f'UserModel(id={self.id!r}, username={self.username}, chat_id={self.chat_id})'
