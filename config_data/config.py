@@ -22,5 +22,6 @@ def load_config(path: str | None = None, mode: str = 'inner') -> Config:
         token=env('BOT_TOKEN'),
         api_id=env('API_ID'),
         api_hash=env('API_HASH'),
-        db_url=env('DB_URL')
-    ))
+        ),
+	db_url=env('DB_URL')
+    )
