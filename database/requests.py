@@ -25,9 +25,9 @@ class Database:
         return user
 
 
-    async def get_all_users(self):
+    async def get_all_users(self) -> list[int]:
         users = self.session.query(User)
-        return users
+        return [user.chat_id for user in users]
 
         
 
