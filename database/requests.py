@@ -18,16 +18,5 @@ class Database:
             )
             self.session.add(user)
         await self.session.commit()
-
-
-    async def get_user_data(self, id: int) -> User:
-        user = await self.session.get(User, id)
-        return user
-
-
-    async def get_all_users(self) -> list[int]:
-        result = await self.session.query(User.chat_id)
-        return result
-
         
 
