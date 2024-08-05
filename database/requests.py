@@ -27,9 +27,7 @@ class Database:
 
     async def get_all_users(self):
         stmt = select(User.chat_id).where()
-        result = await self.session.execute(stmt)
-
-        result = [i[0] for i in result.all()]
+        result = await self.session.execute(stmt).all()
         return result
 
         
