@@ -15,6 +15,8 @@ from datetime import timezone, timedelta
 from dotenv import load_dotenv, find_dotenv
 from pyrogram import Client, filters
 from pyrogram.handlers import MessageHandler
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from middlewares import DatabaseMiddleware
 
 
 load_dotenv(find_dotenv())
@@ -38,6 +40,8 @@ async def main():
         api_id=config.tg_bot.api_id, api_hash=config.tg_bot.api_hash,
         bot_token=config.tg_bot.token
     )
+    engine = create_async_engine(url=config.db_url, echo=True)
+    session = async_sessionmaker(engine, expire_on_commit=False)
 
     bot = Bot(
         token=config.tg_bot.token,
@@ -54,6 +58,7 @@ async def main():
         await app.start()
 
     dp.include_router(user_handlers.router)
+    dp.update.middleware(DatabaseMiddleware(session=session))
 
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.send_message(322077458, "Я запустился")

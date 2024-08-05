@@ -10,6 +10,7 @@ import os
 from services.rag import conversation_history, conversational_rag_chain
 from services.converter import recognize_voice, clear_temp
 from aiogram.types import FSInputFile
+from database import Database
 
 
 load_dotenv(find_dotenv())
@@ -29,10 +30,13 @@ router = Router()
 logger = logging.getLogger(__name__)
 
 @router.message(CommandStart())
-async def process_start_command(message: Message):
+async def process_start_command(message: Message, db: Database):
     logger.info(f'Пользователь {message.from_user.username} начал диалог, код чата {message.chat.id}')
     answer_text, reply_markup = LEXICON_COMMANDS_RU['/start']
     await message.answer(answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
+    await db.add_user(
+        id=message.chat.id
+    )
 
 
 @router.message(Command(commands=["clear"]))
