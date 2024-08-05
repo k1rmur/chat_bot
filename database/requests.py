@@ -26,9 +26,8 @@ class Database:
 
 
     async def get_all_users(self):
-        users = User.query.all()
-        result = [user.chat_id for user in users]
-        return result
+        users = select(User.c.chat_id)
+        return users
 
         
 
