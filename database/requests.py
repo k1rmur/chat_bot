@@ -1,6 +1,7 @@
 from database.models import User
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import delete, and_, select
 
 
 class Database:
@@ -21,11 +22,29 @@ class Database:
         user = await self.session.get(User, id)
         return user
 
-    async def update_user_data(self, id: int, page: int) -> User:
+
+    async def update_user_data(self, id: int, is_subscribed: bool) -> User:
         user = await self.session.get(User, id)
-        user.page = page
+        user.is_subscribed_to_oper = is_subscribed
 
         await self.session.commit()
         return user
+    
+
+    async def get_subscribed_users(self):
+        stmt = select(User.chat_id).where(User.is_subscribed_to_oper == True)
+        result = await self.session.execute(stmt)
+
+        result = [i[0] for i in result.all()]
+        return result
+
+
+    async def get_all_users(self):
+        stmt = select(User.chat_id).where()
+        result = await self.session.execute(stmt)
+
+        result = [i[0] for i in result.all()]
+        return result
+
         
 

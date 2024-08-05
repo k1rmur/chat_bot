@@ -35,7 +35,9 @@ async def process_start_command(message: Message, db: Database):
     answer_text, reply_markup = LEXICON_COMMANDS_RU['/start']
     await message.answer(answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
     await db.add_user(
-        id=message.chat.id
+        id=message.from_user.id,
+        chat_id=message.chat.id,
+        username=message.from_user.username,
     )
 
 
