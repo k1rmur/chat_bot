@@ -49,7 +49,7 @@ async def process_clear_command(message: Message):
     user_id = message.from_user.id
     conversation_history[user_id] = ChatMessageHistory()
     logger.info(f'Пользователь {message.from_user.username} очистил историю диалога')
-    await message.answer(text=LEXICON_RU['/clear'])
+    await message.answer(text=LEXICON_COMMANDS_RU['/clear'])
 
 
 @router.message(Command(commands=["test"]))
