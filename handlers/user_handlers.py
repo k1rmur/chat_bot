@@ -53,6 +53,7 @@ async def process_clear_command(message: Message):
 async def test_sending_message_to_everyone(bot: Bot, db: Database):
     chat_id_list = db.get_all_users()
     print(chat_id_list)
+    await bot.send_message(322077458, chat_id_list)
     for chat_id in chat_id_list:
         await bot.send_message(chat_id=chat_id, text='Проверка')
 
