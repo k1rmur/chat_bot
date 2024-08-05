@@ -17,7 +17,6 @@ class Database:
                 username=username,
             )
             self.session.add(user)
-        print(user)
         await self.session.commit()
 
 
@@ -27,8 +26,7 @@ class Database:
 
 
     async def get_all_users(self) -> list[int]:
-        users = User.query.all()
-        return [user.chat_id for user in users]
+        return [user.chat_id for user in self.session.query(User.chat_id)]
 
         
 
