@@ -16,6 +16,7 @@ services:
       - send_to_list_test:/app/send_to/
       - docs_to_send_test:/app/documents_to_send/
       - docs_sent_test:/app/documents_sent/
+      - user_db_test:/user_db/
 
 volumes:
   embeddings_outer:
@@ -24,3 +25,4 @@ volumes:
   send_to_list_test:
   docs_to_send_test:
   docs_sent_test:
+  user_db_test:
