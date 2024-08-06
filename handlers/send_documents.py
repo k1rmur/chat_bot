@@ -76,8 +76,10 @@ async def help_command(message: Message):
 @router.message(Command("test"))
 @allowed_users_only
 async def help_command(bot: Bot, session: AsyncSession):
+    bot.send_message(chat_id=322077458, text=session)
     try:
-        users = session.query(User).all()
+        result = await session.execute(select(User))
+        users = result.scalars().all()
         print(users)
         bot.send_message(chat_id=322077458, text=users)
     except Exception as e:
