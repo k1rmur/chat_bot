@@ -9,6 +9,9 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import FSInputFile
 import logging
 import json
+from database.models import User
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 DOCUMENTS_TO_SEND = "/app/documents_to_send"
@@ -65,6 +68,18 @@ async def help_command(message: Message):
 /subscribe - Добавить себя в список рассылки (требуется пароль)
     """
     await message.reply(help_text)
+
+
+
+@router.message(Command("test"))
+@allowed_users_only
+async def test_sending_message_to_everyone(bot: Bot, session: AsyncSession):
+    await bot.send_message(chat_id=322077458, text='Отловился')
+#    stmt = select(User.chat_id)
+#    chat_id_list = await session.execute(stmt).all()
+#    print(chat_id_list)
+#    for chat_id in chat_id_list:
+#        await bot.send_message(chat_id=chat_id, text='Проверка')
 
 
 @router.message(Command("subscribe"))

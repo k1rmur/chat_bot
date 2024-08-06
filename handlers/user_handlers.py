@@ -11,9 +11,6 @@ from services.rag import conversation_history, conversational_rag_chain
 from services.converter import recognize_voice, clear_temp
 from aiogram.types import FSInputFile
 from database import Database
-from database.models import User
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 load_dotenv(find_dotenv())
@@ -50,16 +47,6 @@ async def process_clear_command(message: Message):
     conversation_history[user_id] = ChatMessageHistory()
     logger.info(f'Пользователь {message.from_user.username} очистил историю диалога')
     await message.answer(text=LEXICON_COMMANDS_RU['/clear'])
-
-
-@router.message(Command("test"))
-async def test_sending_message_to_everyone(bot: Bot, session: AsyncSession):
-    await bot.send_message(chat_id=322077458, text='Отловился')
-    stmt = select(User.chat_id)
-    chat_id_list = await session.execute(stmt).all()
-    print(chat_id_list)
-    for chat_id in chat_id_list:
-        await bot.send_message(chat_id=chat_id, text='Проверка')
 
 
 @router.message((F.text | F.voice) & ~F.text.startswith('/') & F.text != ADD_USER_PASSWORD)

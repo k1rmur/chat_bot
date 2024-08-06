@@ -49,7 +49,6 @@ async def main():
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
     dp = Dispatcher()
-    dp.update.middleware(DatabaseMiddleware(session=session))
 
     if mode == 'inner':
         app.add_handler(MessageHandler(video_protocols.send_protocol, filters=filters.video | filters.audio | filters.document))
@@ -60,6 +59,7 @@ async def main():
         await app.start()
 
     dp.include_router(user_handlers.router)
+    dp.update.middleware(DatabaseMiddleware(session=session))
 
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.send_message(322077458, "Я запустился")
