@@ -42,7 +42,7 @@ async def process_start_command(message: Message, db: Database):
 
 
 @router.message(Command("clear"))
-async def process_clear_command(message: Message):
+async def process_clear_command(message: Message, bot: Bot):
     user_id = message.from_user.id
     conversation_history[user_id] = ChatMessageHistory()
     logger.info(f'Пользователь {message.from_user.username} очистил историю диалога')

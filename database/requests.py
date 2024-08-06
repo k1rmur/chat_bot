@@ -18,5 +18,13 @@ class Database:
             )
             self.session.add(user)
         await self.session.commit()
+
+
+    async def get_chat_ids(self):
+        stmt = select(User.chat_id)
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
+
+
         
 

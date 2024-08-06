@@ -12,6 +12,7 @@ import json
 from database.models import User
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from database import Database
 
 
 DOCUMENTS_TO_SEND = "/app/documents_to_send"
@@ -73,10 +74,8 @@ async def help_command(message: Message):
 
 @router.message(Command("test"))
 @allowed_users_only
-async def help_command(message: Message, bot: Bot, session: AsyncSession):
-    stmt = select(User.chat_id)
-    chat_id_list = await session.execute(stmt).all()
-    print(chat_id_list)
+async def help_command(message: Message, bot: Bot, db: Database):
+    chat_id_list = db.get_chat_ids()
     for chat_id in chat_id_list:
         await bot.send_message(chat_id=chat_id, text='Проверка')
 
@@ -122,7 +121,6 @@ async def handle_document(message: Message, state: FSMContext):
         await message.reply("Пожалуйста, отправьте документ.")
         return
 
-    # Скачиваем документ в память
     file = await message.bot.get_file(document.file_id)
     file_path = os.path.join(DOCUMENTS_TO_SEND, document.file_name)
     await message.bot.download_file(file.file_path, file_path)
