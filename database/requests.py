@@ -22,7 +22,10 @@ class Database:
     async def get_chat_ids(self):
         stmt = select(User.id)
         print('Статемент')
-        result = await self.session.execute(stmt)
+        try:
+            result = await self.session.execute(stmt)
+        except Exception as e:
+            print(e)
         print('Результат', result.all())
         return [user for user in result.all()]
 
