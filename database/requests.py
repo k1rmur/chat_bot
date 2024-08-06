@@ -26,7 +26,6 @@ class Database:
             result = await self.session.execute(stmt)
         except Exception as e:
             print(e)
-        print('Результат', result.all())
         return [user for user in result.all()]
 
 

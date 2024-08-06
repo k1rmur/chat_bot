@@ -1,12 +1,13 @@
-from database.base import Base
+from app.database.base import Base
 
-from sqlalchemy import Column, String, BigInteger
+from sqlalchemy.orm import Mapped, mapped_column
+
 
 class User(Base):
-    __tablename__ = 'user'
+    __tablename__ = 'Users'
 
-    id = Column(BigInteger, primary_key=True, unique=True, autoincrement=False)
-    username = Column(String)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(nullable=False, default=1)
 
     def __repr__(self):
         return f'UserModel(id={self.id!r}, username={self.username})'
