@@ -13,6 +13,7 @@ from database.models import User
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from database import Database
+import asyncio
 
 
 DOCUMENTS_TO_SEND = "/app/documents_to_send"
@@ -74,11 +75,16 @@ async def help_command(message: Message):
 
 @router.message(Command("test"))
 @allowed_users_only
-async def help_command(bot: Bot, db: Database):
-    chat_id_list = await db.get_chat_ids()
-    await bot.send_message(chat_id=322077458, text=chat_id_list)
-    for chat_id in chat_id_list:
-        await bot.send_message(chat_id=chat_id, text='Проверка')
+async def help_command(bot: Bot, session: AsyncSession):
+    try:
+        users = session.query(User).all()
+        print(users)
+        bot.send_message(chat_id=322077458, text=users)
+    except Exception as e:
+        bot.send_message(chat_id=322077458, text=e)
+
+    tasks = [bot.send_message(user.chat_id, "Это тестовое сообщение") for user in users]
+    await asyncio.gather(*tasks)
 
 
 @router.message(Command("subscribe"))
