@@ -1,7 +1,7 @@
 from database.models import User
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
+from sqlalchemy import select
 
 
 class Database:
@@ -21,8 +21,9 @@ class Database:
 
 
     async def get_chat_ids(self):
-        result = await self.session.execute(select(User))
-        return [user.chat_id for user in result.scalars()]
+        stmt = select(User.chat_id)
+        result = await self.session.execute(stmt)
+        return [user for user in result.all()]
 
 
         

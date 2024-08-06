@@ -69,22 +69,6 @@ async def help_command(message: Message):
     await message.reply(help_text)
 
 
-
-@router.message(Command("trying"))
-@allowed_users_only
-async def test_command(bot: Bot, db: Database, message: Message):
-    bot.send_message(chat_id=322077458, text='Отловился я')
-    try:
-        users = await db.get_chat_ids()
-        print(users)
-        bot.send_message(chat_id=322077458, text=users)
-    except Exception as e:
-        bot.send_message(chat_id=322077458, text=e)
-
-    tasks = [bot.send_message(user, "Это тестовое сообщение") for user in users]
-    await asyncio.gather(*tasks)
-
-
 @router.message(Command("subscribe"))
 async def add_user_command(message: Message, state: FSMContext):
     await message.reply("Пожалуйста, введите пароль для добавления в список рассылки.")
