@@ -76,7 +76,7 @@ async def help_command(message: Message):
 @router.message(Command("test"))
 @allowed_users_only
 async def help_command(bot: Bot, db: Database):
-    bot.send_message(chat_id=322077458, text=db)
+    bot.send_message(chat_id=322077458, text='Отловился я')
     try:
         users = await db.get_chat_ids()
         print(users)
@@ -84,7 +84,7 @@ async def help_command(bot: Bot, db: Database):
     except Exception as e:
         bot.send_message(chat_id=322077458, text=e)
 
-    tasks = [bot.send_message(user.chat_id, "Это тестовое сообщение") for user in users]
+    tasks = [bot.send_message(user, "Это тестовое сообщение") for user in users]
     await asyncio.gather(*tasks)
 
 
