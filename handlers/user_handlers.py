@@ -54,6 +54,7 @@ async def process_clear_command(message: Message):
 
 @router.message(Command("test"))
 async def test_sending_message_to_everyone(bot: Bot, session: AsyncSession):
+    await bot.send_message(chat_id=322077458, text='Отловился')
     stmt = select(User.chat_id)
     chat_id_list = await session.execute(stmt).all()
     print(chat_id_list)
