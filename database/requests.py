@@ -21,8 +21,9 @@ class Database:
 
     async def get_chat_ids(self):
         stmt = select(User.id)
+        print('Статемент')
         result = await self.session.execute(stmt)
-        print('Результат', result)
+        print('Результат', result.all())
         return [user for user in result.all()]
 
 
