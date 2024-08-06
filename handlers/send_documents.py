@@ -74,7 +74,7 @@ async def help_command(message: Message):
 
 @router.message(Command("test"))
 @allowed_users_only
-async def help_command(message: Message, bot: Bot, db: Database):
+async def help_command(bot: Bot, db: Database):
     chat_id_list = await db.get_chat_ids()
     await bot.send_message(chat_id=322077458, text=chat_id_list)
     for chat_id in chat_id_list:
