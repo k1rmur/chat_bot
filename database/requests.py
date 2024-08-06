@@ -21,10 +21,9 @@ class Database:
 
 
     async def get_chat_ids(self):
-        result = await self.session.execute(select(User))
-        users = result.scalars().all()
+        result = await self.session.query(User).all()
 
-        return [user.chat_id for user in users]
+        return [user.chat_id for user in result]
 
 
         
