@@ -9,9 +9,6 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import FSInputFile
 import logging
 import json
-from database.models import User
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from database import Database
 import asyncio
 
@@ -75,7 +72,7 @@ async def help_command(message: Message):
 
 @router.message(Command("test"))
 @allowed_users_only
-async def test_command(bot: Bot, db: Database):
+async def test_command(bot: Bot, db: Database, message: Message):
     bot.send_message(chat_id=322077458, text='Отловился я')
     try:
         users = await db.get_chat_ids()
