@@ -17,7 +17,6 @@ from pyrogram import Client, filters
 from pyrogram.handlers import MessageHandler
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from middlewares import DatabaseMiddleware
-from database import Database
 
 
 load_dotenv(find_dotenv())
