@@ -70,7 +70,7 @@ async def help_command(message: Message):
 
 
 
-@router.message(Command("test"))
+@router.message(Command("trying"))
 @allowed_users_only
 async def test_command(bot: Bot, db: Database, message: Message):
     bot.send_message(chat_id=322077458, text='Отловился я')

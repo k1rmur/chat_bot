@@ -41,6 +41,18 @@ async def process_start_command(message: Message, db: Database):
     )
 
 
+@router.message(Command('grozd'))
+async def process_start_command(message: Message, db: Database):
+    logger.info(f'Пользователь {message.from_user.username} начал диалог, код чата {message.chat.id}')
+    answer_text, reply_markup = LEXICON_COMMANDS_RU['/start']
+    await message.answer(answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
+    await db.add_user(
+        id=message.from_user.id,
+        chat_id=message.chat.id,
+        username=message.from_user.username,
+    )
+
+
 @router.message(Command("clear"))
 async def process_clear_command(message: Message, bot: Bot):
     user_id = message.from_user.id
