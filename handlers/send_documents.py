@@ -73,13 +73,8 @@ async def help_command(message: Message):
 
 @router.message(Command("test"))
 @allowed_users_only
-async def test_sending_message_to_everyone(bot: Bot):
-    await bot.send_message(chat_id=322077458, text='Отловился')
-#    stmt = select(User.chat_id)
-#    chat_id_list = await session.execute(stmt).all()
-#    print(chat_id_list)
-#    for chat_id in chat_id_list:
-#        await bot.send_message(chat_id=chat_id, text='Проверка')
+async def help_command(message: Message, bot: Bot):
+    await bot.send_message(chat_id=322077458, text='Я поймался')
 
 
 @router.message(Command("subscribe"))
