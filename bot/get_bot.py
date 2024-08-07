@@ -54,10 +54,11 @@ async def main():
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
     dp = Dispatcher()
+    dp.include_router(send_documents.router)
+
 
     if mode == 'inner':
         app.add_handler(MessageHandler(video_protocols.send_protocol, filters=filters.video | filters.audio | filters.document))
-        dp.include_router(send_documents.router)
         scheduler = AsyncIOScheduler()
         scheduler.add_job(send_documents.send_message_on_time, "cron", day_of_week='mon', hour=13, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot,))
         scheduler.start()
