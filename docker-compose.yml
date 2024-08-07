@@ -10,11 +10,11 @@ services:
     command: 
       python3 /app/bot/get_bot.py --Mode inner
     volumes:
-      - embeddings_inner:/app/db/
+      - embeddings_inner:/app/bot/db/
       - whisper:/root/.cache/whisper/
       - inner_logs:/app/logs/
-      - docs_to_send:/app/documents_to_send/
-      - send_to_list:/app/send_to/
+      - docs_to_send:/app/bot/documents_to_send/
+      - send_to_list:/app/bot/send_to/
       - user_db_inner:/user_db/
   bot-outer:
     container_name: favr_bot_outer
@@ -27,7 +27,7 @@ services:
     command:
       python3 /app/bot/get_bot.py --Mode outer
     volumes:
-      - embeddings_outer:/app/db_citizens/
+      - embeddings_outer:/app/bot/db_citizens/
       - whisper:/root/.cache/whisper/
       - outer_logs:/app/logs/
       - user_db_outer:/user_db/

@@ -10,12 +10,12 @@ services:
     command:
       python3 /app/bot/get_bot.py --Mode inner
     volumes:
-      - embeddings_outer:/app/db_citizens/
+      - embeddings_outer:/app/bot/db_citizens/
       - whisper:/root/.cache/whisper/
       - test_logs:/app/logs/
-      - send_to_list_test:/app/send_to/
-      - docs_to_send_test:/app/documents_to_send/
-      - docs_sent_test:/app/documents_sent/
+      - send_to_list_test:/app/bot/send_to/
+      - docs_to_send_test:/app/bot/documents_to_send/
+      - docs_sent_test:/app/bot/documents_sent/
       - user_db_test:/user_db/
 
 volumes:
