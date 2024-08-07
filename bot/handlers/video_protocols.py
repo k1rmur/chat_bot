@@ -44,7 +44,7 @@ async def send_protocol(app: Client, message: Message):
             return
 
         document, file_name, text = await recognize(file_id, extension)
-        await message.bot.delete_message(chat_id=message.from_user.id, message_id=message_to_delete.id)
+        await message_to_delete.delete()
         await message.reply_document(document=document, file_name=file_name)
         document_sum, file_name_sum = await get_summary(file_id, text)
         await message.reply_document(document=document_sum, file_name=file_name_sum)
