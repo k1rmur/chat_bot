@@ -17,6 +17,7 @@ from pyrogram import Client, filters
 from pyrogram.handlers import MessageHandler
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from middlewares import DatabaseMiddleware
+from database import Base
 
 
 load_dotenv(find_dotenv())
@@ -43,6 +44,9 @@ async def main():
 
     engine = create_async_engine(url=config.db_url, echo=True)
     session = async_sessionmaker(engine, expire_on_commit=False)
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
     bot = Bot(

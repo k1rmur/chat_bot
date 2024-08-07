@@ -1,13 +1,13 @@
 from database.base import Base
 
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String
+from sqlalchemy import String, BigInteger
 
 
 class User(Base):
-    __tablename__ = 'Users'
+    __tablename__ = 'users'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     username: Mapped[str] = mapped_column(String, nullable=False, default=1)
 
     def __repr__(self):
