@@ -40,8 +40,12 @@ async def main():
         api_id=config.tg_bot.api_id, api_hash=config.tg_bot.api_hash,
         bot_token=config.tg_bot.token
     )
-    engine = create_async_engine(url=config.db_url, echo=True)
-    session = async_sessionmaker(engine, expire_on_commit=False)
+
+    try:
+        engine = create_async_engine(url=config.db_url, echo=True)
+        session = async_sessionmaker(engine, expire_on_commit=False)
+    except Exception as e:
+        print(e)
 
     bot = Bot(
         token=config.tg_bot.token,
