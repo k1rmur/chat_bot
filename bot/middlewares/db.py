@@ -21,4 +21,3 @@ class DatabaseMiddleware(BaseMiddleware):
             db = Database(session=session)
             data['db'] = db
             return await handler(event, data)
-            

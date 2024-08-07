@@ -11,7 +11,7 @@ RUN pip install -r requirements.txt
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ffmpeg
 
-RUN pip install langchain_huggingface aiosqlite
+RUN pip install langchain_huggingface aiosqlite alembic==1.8.1 Mako==1.2.4
 
 COPY . /app
 
