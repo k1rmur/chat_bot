@@ -45,8 +45,11 @@ async def send_protocol(app: Client, message: Message):
 
         document, file_name, text = await recognize(file_id, extension)
         await message_to_delete.delete()
+
         await message.reply_document(document=document, file_name=file_name)
+        message_to_delete = await message.reply("Готовится протокол...")
         document_sum, file_name_sum = await get_summary(file_id, text)
+        await message_to_delete.delete()
         await message.reply_document(document=document_sum, file_name=file_name_sum)
         logger.info(f'Пользователь {message.from_user.username} отправил файл формата {extension} и получил ответ.')
 
