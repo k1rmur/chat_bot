@@ -30,7 +30,7 @@ db.initialize_db(mode)
 from handlers import user_handlers, send_documents
 
 logging.config.dictConfig(logging_config)
-config: Config = load_config(mode=mode)
+config: Config = load_config()
 
 
 async def main():
@@ -41,11 +41,9 @@ async def main():
         bot_token=config.tg_bot.token
     )
 
-    try:
-        engine = create_async_engine(url=config.db_url, echo=True)
-        session = async_sessionmaker(engine, expire_on_commit=False)
-    except Exception as e:
-        print(e)
+    engine = create_async_engine(url=config.db_url, echo=True)
+    session = async_sessionmaker(engine, expire_on_commit=False)
+
 
     bot = Bot(
         token=config.tg_bot.token,
