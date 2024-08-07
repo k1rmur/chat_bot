@@ -11,7 +11,6 @@ from services.rag import conversation_history, conversational_rag_chain
 from services.converter import recognize_voice, clear_temp
 from aiogram.types import FSInputFile
 from database import Database
-import asyncio
 
 
 load_dotenv(find_dotenv())
@@ -24,8 +23,6 @@ if mode == 'inner':
 else:
     from lexicon.lexicon_outer import LEXICON_RU, LEXICON_COMMANDS_RU
 
-
-send_message_to = list(map(int, os.getenv("SEND_MESSAGE_TO").split(","))) 
 router = Router()
 
 logger = logging.getLogger(__name__)
