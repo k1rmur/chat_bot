@@ -57,7 +57,6 @@ async def send(message: Message, bot: Bot):
     else:
         session_id = message.from_user.id
         if message.voice:
-            print('VOICE DETECTED')
             try:
                 file_id = message.voice.file_id
                 file = await bot.get_file(file_id=file_id)
@@ -73,6 +72,8 @@ async def send(message: Message, bot: Bot):
                 return
         else:
             text = message.text
+            if text is None:
+                return
 
         try:
             chain = await conversational_rag_chain.ainvoke(
