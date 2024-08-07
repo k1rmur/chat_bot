@@ -39,6 +39,7 @@ def allowed_users_only(func):
 class DocumentStates(StatesGroup):
     waiting_for_document = State()
     waiting_for_password = State()
+    waiting_for_text = State()
 
 
 def load_send_to():
@@ -65,6 +66,7 @@ async def help_command(message: Message):
 /delete_documents - Удалить все документы из папки для отправки
 /check_documents - Проверить список документов в папке для отправки
 /subscribe - Добавить себя в список рассылки (требуется пароль)
+/send_to_everyone - Отправить всем сообщение
     """
     await message.reply(help_text)
 
@@ -73,6 +75,27 @@ async def help_command(message: Message):
 async def add_user_command(message: Message, state: FSMContext):
     await message.reply("Пожалуйста, введите пароль для добавления в список рассылки.")
     await state.set_state(DocumentStates.waiting_for_password)
+
+
+@router.message(Command('send_to_everyone'))
+@allowed_users_only
+async def process_send_command(message: Message, state: FSMContext):
+
+    await message.reply("Пожалуйста, напишите текст для рассылки всем пользователям.")
+    await state.set_state(DocumentStates.waiting_for_text)
+
+
+@router.message(DocumentStates.waiting_for_text)
+async def send_to_everyone(message: Message, db: Database, state: FSMContext):
+    if message.text:
+        result = await db.get_chat_ids()
+        tasks = [message.bot.send_message(chat_id=chat_id, text=message.text) for chat_id in result]
+        await asyncio.gather(*tasks)
+        await message.reply("Рассылка прошла успешно.")
+    else:
+        await message.reply("Нет текста.")
+    await state.clear()
+
 
 
 @router.message(DocumentStates.waiting_for_password)
