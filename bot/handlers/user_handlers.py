@@ -11,6 +11,7 @@ from services.rag import conversation_history, conversational_rag_chain
 from services.converter import recognize_voice, clear_temp
 from aiogram.types import FSInputFile
 from database import Database
+import asyncio
 
 
 load_dotenv(find_dotenv())
@@ -46,7 +47,8 @@ async def process_start_command(message: Message, db: Database):
 #    answer_text, reply_markup = LEXICON_COMMANDS_RU['/start']
 #    await message.answer(answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
     result = await db.get_chat_ids()
-    await message.answer(text='сработало')
+    tasks = [message.bot.send_message(chat_id=chat_id, text='Тест рассылки') for chat_id in result]
+    await asyncio.gather(*tasks)
 
 
 @router.message(Command("clear"))
