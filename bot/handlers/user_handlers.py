@@ -54,22 +54,25 @@ async def send(message: Message, bot: Bot):
         await message.answer(text=answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
         if 'Структура Росводресурсов'.lower() in message.text.lower():
             await message.answer_photo(FSInputFile('/app/bot/photos/struct.png'))
-    elif message.voice:
-        try:
-            file_id = message.voice.file_id
-            file = await bot.get_file(file_id=file_id)
-            file_path = file.file_path
-            audio_destination = f'./tmp/{file_id}.wav'
-            await bot.download_file(file_path, audio_destination)
-            text = await recognize_voice(file_id)
-            clear_temp()
-        except Exception as e:
-            await message.reply("Произошла ошибка при распознавании голосового сообщения :(")
-            logger.error(e, exc_info=True)
-            clear_temp()
-            return
     else:
-        text = message.text
+        session_id = message.from_user.id
+        if message.voice:
+            print('VOICE DETECTED')
+            try:
+                file_id = message.voice.file_id
+                file = await bot.get_file(file_id=file_id)
+                file_path = file.file_path
+                audio_destination = f'./tmp/{file_id}.wav'
+                await bot.download_file(file_path, audio_destination)
+                text = await recognize_voice(file_id)
+                clear_temp()
+            except Exception as e:
+                await message.reply("Произошла ошибка при распознавании голосового сообщения :(")
+                logger.error(e, exc_info=True)
+                clear_temp()
+                return
+        else:
+            text = message.text
 
         try:
             chain = await conversational_rag_chain.ainvoke(
