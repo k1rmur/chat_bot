@@ -21,11 +21,11 @@ class Database:
 
     async def get_chat_ids(self):
         stmt = select(User.id)
-        print('Статемент')
         try:
             result = await self.session.execute(stmt)
         except Exception as e:
             print(e)
+        print('Результ алл', result.all())
         return [user for user in result.all()]
 
 
