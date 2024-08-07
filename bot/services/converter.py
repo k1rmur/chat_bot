@@ -36,10 +36,11 @@ model = whisperx.load_model(model_name, device=device, compute_type=compute_type
 
 
 async def recognize_voice(file_id):
+    audiofile = f'./tmp/{file_id}.wav'
     loop = asyncio.get_event_loop()
-    audio = whisperx.load_audio(f'./tmp/{file_id}.wav')
+#    audio = whisperx.load_audio(audiofile)
 
-    result = await loop.run_in_executor(None, functools.partial(model.transcribe, audio, language='ru'))
+    result = await loop.run_in_executor(None, functools.partial(model.transcribe, audiofile, language='ru', batch_size=batch_size))
     segments = result['segments']
     text_massive = []
     for segment in segments:
