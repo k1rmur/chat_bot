@@ -97,7 +97,7 @@ async def send(message: Message, bot: Bot):
 fire_list = ['ГосУслуги', 'Оптимизированный стандарт', 'Описание целевого состояния', 'Назад', 'Водный реестр', 'Право пользования', 'Договоры', 'Земельный участок', 'Допустимые нормы', 'Обратная связь', 'Виртуальный собеседник', 'Структура Росводресурсов', 'Бюджетные сметы', 'Субвенции', 'Субсидии на иные цели', 'Капитальный ремонт', 'Капитальное строительство', 'Регламенты ПКИ', 'Электронный протокол', 'Оперативная информация о водохозяйственной обстановке']
 if mode=='inner':
     from keyboards.keyboards_inner import gosuslugi_menu, gosuslugi_menu_main, general_menu, reglament_menu
-    @router.message(F.text in fire_list)
+    @router.message(F.text.in_(fire_list))
     async def send_text(message: Message, bot: Bot):
         global menu_lvl
         if message.text == 'ГосУслуги':
