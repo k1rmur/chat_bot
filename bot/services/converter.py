@@ -29,7 +29,7 @@ print(device)
 compute_type = "int8"
 batch_size = 16
 
-model_dir = "/app/bot/services/models/"
+model_dir = "/app/services/models/"
 model_name = 'medium'
 
 model = whisperx.load_model(model_name, device=device, compute_type=compute_type, download_root=model_dir, language='ru')
