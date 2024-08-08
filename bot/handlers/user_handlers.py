@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 @router.message(CommandStart())
 async def process_start_command(message: Message, db: Database):
     logger.info(f'Пользователь {message.from_user.username} начал диалог, код чата {message.chat.id}')
-    answer_text, reply_markup = LEXICON_COMMANDS_RU['/start']
+    answer_text, reply_markup, files = LEXICON_COMMANDS_RU['/start']
     await message.answer(answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
     await db.add_user(
         id=message.from_user.id,
@@ -43,14 +43,17 @@ async def process_clear_command(message: Message):
     user_id = message.from_user.id
     conversation_history[user_id] = ChatMessageHistory()
     logger.info(f'Пользователь {message.from_user.username} очистил историю диалога')
-    await message.answer(text=LEXICON_COMMANDS_RU['/clear'])
+    await message.answer(text=LEXICON_COMMANDS_RU['/clear'][0])
 
 
 @router.message((F.text | F.voice) & ~F.text.startswith('/') & F.text != ADD_USER_PASSWORD)
 async def send(message: Message, bot: Bot):
     session_id = message.from_user.id
     if message.text in LEXICON_RU:
-        answer_text, reply_markup = LEXICON_RU[message.text]
+        answer_text, reply_markup, files = LEXICON_RU[message.text]
+        if files:
+            for file in files:
+                await bot.answer_document(FSInputFile(file))
         await message.answer(text=answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
         if 'Структура Росводресурсов'.lower() in message.text.lower():
             await message.answer_photo(FSInputFile('/app/documents/struct.png'))
