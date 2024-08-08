@@ -16,6 +16,7 @@ menu_lvl = 0
 
 @router.message(F.text.lower().in_(lower_list))
 async def send_text(message: Message, bot: Bot):
+    print('send_text')
     global menu_lvl
     if message.text.lower() in lower_list:
         if message.text == 'ГосУслуги':
