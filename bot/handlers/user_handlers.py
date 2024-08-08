@@ -98,6 +98,7 @@ async def send(message: Message, bot: Bot):
 
 
 if mode=='inner':
+    print('ASYNC DEF SEND')
     from keyboards.keyboards_inner import gosuslugi_menu, gosuslugi_menu_main, general_menu, reglament_menu
     @router.message(F.text.in_(fire_list))
     async def send_text(message: Message, bot: Bot):
