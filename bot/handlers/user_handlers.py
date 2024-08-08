@@ -13,6 +13,7 @@ from aiogram.types import FSInputFile
 from database import Database
 
 
+fire_list = ['ГосУслуги', 'Оптимизированный стандарт', 'Описание целевого состояния', 'Назад', 'Водный реестр', 'Право пользования', 'Договоры', 'Земельный участок', 'Допустимые нормы', 'Обратная связь', 'Виртуальный собеседник', 'Структура Росводресурсов', 'Бюджетные сметы', 'Субвенции', 'Субсидии на иные цели', 'Капитальный ремонт', 'Капитальное строительство', 'Регламенты ПКИ', 'Электронный протокол', 'Оперативная информация о водохозяйственной обстановке']
 load_dotenv(find_dotenv())
 mode = os.getenv("MODE")
 print(mode)
@@ -46,8 +47,9 @@ async def process_clear_command(message: Message):
     await message.answer(text=LEXICON_COMMANDS_RU['/clear'])
 
 
-@router.message((F.text | F.voice) & ~F.text.startswith('/') & F.text != ADD_USER_PASSWORD)
+@router.message((F.text | F.voice) & ~F.text.startswith('/') & F.text != ADD_USER_PASSWORD & ~F.text.in_(fire_list))
 async def send(message: Message, bot: Bot):
+    print("Вызвали send")
     session_id = message.from_user.id
     if message.text in LEXICON_RU:
         if mode=='outer':
@@ -94,11 +96,12 @@ async def send(message: Message, bot: Bot):
             await message.reply("Произошла ошибка при обработке Вашего запроса :(")
 
 
-fire_list = ['ГосУслуги', 'Оптимизированный стандарт', 'Описание целевого состояния', 'Назад', 'Водный реестр', 'Право пользования', 'Договоры', 'Земельный участок', 'Допустимые нормы', 'Обратная связь', 'Виртуальный собеседник', 'Структура Росводресурсов', 'Бюджетные сметы', 'Субвенции', 'Субсидии на иные цели', 'Капитальный ремонт', 'Капитальное строительство', 'Регламенты ПКИ', 'Электронный протокол', 'Оперативная информация о водохозяйственной обстановке']
+
 if mode=='inner':
     from keyboards.keyboards_inner import gosuslugi_menu, gosuslugi_menu_main, general_menu, reglament_menu
     @router.message(F.text.in_(fire_list))
     async def send_text(message: Message, bot: Bot):
+        print("Меня вызвали")
         global menu_lvl
         if message.text == 'ГосУслуги':
             menu_lvl = 1
