@@ -10,9 +10,11 @@ logger = logging.getLogger(__name__)
 
 fire_list = ['ГосУслуги', 'Оптимизированный стандарт', 'Описание целевого состояния', 'Назад', 'Водный реестр', 'Право пользования', 'Договоры', 'Земельный участок', 'Допустимые нормы', 'Обратная связь', 'Виртуальный собеседник', 'Структура Росводресурсов', 'Бюджетные сметы', 'Субвенции', 'Субсидии на иные цели', 'Капитальный ремонт', 'Капитальное строительство', 'Регламенты ПКИ', 'Электронный протокол', 'Оперативная информация о водохозяйственной обстановке']
 
-lower_list = {x.lower() for x in fire_list}
+lower_list = [x.lower() for x in fire_list]
 
-@router.message(F.text)
+menu_lvl = 0
+
+@router.message(F.text.lower().in_(lower_list))
 async def send_text(message: Message, bot: Bot):
     global menu_lvl
     if message.text.lower() in lower_list:
