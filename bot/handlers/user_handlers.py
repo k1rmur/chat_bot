@@ -53,7 +53,8 @@ async def send(message: Message, bot: Bot):
         answer_text, reply_markup, files = LEXICON_RU[message.text]
         if files:
             for file in files:
-                await message.answer_document(FSInputFile(file))
+                print(file)
+                await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
         await message.answer(text=answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
     else:
         session_id = message.from_user.id
