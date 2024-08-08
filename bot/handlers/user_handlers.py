@@ -51,11 +51,11 @@ async def send(message: Message, bot: Bot):
     session_id = message.from_user.id
     if message.text in LEXICON_RU:
         answer_text, reply_markup, files = LEXICON_RU[message.text]
+        await message.answer(text=answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
         if files:
             for file in files:
                 print(file)
                 await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
-        await message.answer(text=answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
     else:
         session_id = message.from_user.id
         if message.voice:
