@@ -8,7 +8,7 @@ from aiogram.enums import ParseMode
 from config_data.config import Config, load_config
 from optparse import OptionParser
 import services.initialize_db_name as db
-from handlers import video_protocols
+from handlers import video_protocols, inner_handlers
 import os
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import timezone, timedelta
@@ -62,6 +62,7 @@ async def main():
         scheduler = AsyncIOScheduler()
         scheduler.add_job(send_documents.send_message_on_time, "cron", day_of_week='mon', hour=13, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot,))
         scheduler.start()
+        db.include_router(inner_handlers.router)
         await app.start()
 
     dp.include_router(user_handlers.router)
