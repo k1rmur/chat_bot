@@ -16,8 +16,6 @@ logger = logging.getLogger(__name__)
 
 async def send_protocol(app: Client, message: Message):
 
-    message_to_delete = await message.reply("Медиафайл получен, готовится транскрипция...")
-
     if message.video:
         file_id = message.video.file_id
     elif message.audio:
@@ -33,6 +31,8 @@ async def send_protocol(app: Client, message: Message):
 
     if not is_audio(extension) and not is_video(extension):
         return
+    
+    message_to_delete = await message.reply("Медиафайл получен, готовится транскрипция...")
 
     try:
         audio_destination = f'./tmp/{file_id}.wav'
