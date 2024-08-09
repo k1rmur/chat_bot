@@ -13,8 +13,8 @@ services:
       - embeddings_inner:/app/bot/db/
       - whisper:/root/.cache/whisper/
       - inner_logs:/app/logs/
-      - docs_to_send:/app/bot/documents_to_send/
-      - send_to_list:/app/bot/send_to/
+      - docs_to_send:/app/documents_to_send/
+      - send_to_list:/app/send_to/
       - user_db_inner:/user_db/
   bot-outer:
     container_name: favr_bot_outer
@@ -43,4 +43,3 @@ volumes:
   send_to_list:
   user_db_inner:
   user_db_outer:
-

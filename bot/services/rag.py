@@ -19,9 +19,9 @@ CREDENTIALS = os.getenv('CREDENTIALS', '0')
 
 ABS_PATH = os.path.dirname(os.path.abspath(__file__))
 if db_name.db_name == 'inner':
-    DB_DIR = os.path.join(ABS_PATH, "../db")
+    DB_DIR = "/app/bot/db"
 elif db_name.db_name == 'outer':
-    DB_DIR = os.path.join(ABS_PATH, "../db_citizens")
+    DB_DIR = "/app/bot/db_citizens"
 else:
     raise Exception("Ошибка с инициализацией имени базы данных")
 
