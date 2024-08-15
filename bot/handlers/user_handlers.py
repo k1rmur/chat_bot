@@ -1,6 +1,6 @@
 from aiogram import Router, F, Bot
 from aiogram.types import Message
-from aiogram.filters import Command, CommandStart, Filter
+from aiogram.filters import Command, CommandStart
 from aiogram.enums.parse_mode import ParseMode
 from lexicon.lexicon_outer import LEXICON_RU
 from langchain_community.chat_message_histories import ChatMessageHistory
@@ -12,17 +12,6 @@ from services.converter import recognize_voice, clear_temp
 from aiogram.types import FSInputFile
 from database import Database
 
-
-
-
-fire_list = ['ГосУслуги', 'Оптимизированный стандарт', 'Описание целевого состояния', 'Назад', 'Водный реестр', 'Право пользования', 'Договоры', 'Земельный участок', 'Допустимые нормы', 'Обратная связь', 'Виртуальный собеседник', 'Структура Росводресурсов', 'Бюджетные сметы', 'Субвенции', 'Субсидии на иные цели', 'Капитальный ремонт', 'Капитальное строительство', 'Регламенты ПКИ', 'Электронный протокол', 'Оперативная информация о водохозяйственной обстановке']
-
-class MyFilter(Filter):
-    def __init__(self, my_text: str) -> None:
-        self.my_text = my_text
-
-    async def __call__(self, message: Message) -> bool:
-        return message.text in fire_list
 
 load_dotenv(find_dotenv())
 mode = os.getenv("MODE")
@@ -59,7 +48,6 @@ async def process_clear_command(message: Message):
 
 @router.message((F.text | F.voice) & ~F.text.startswith('/') & F.text != ADD_USER_PASSWORD)
 async def send(message: Message, bot: Bot):
-    print("Вызвали send")
     session_id = message.from_user.id
     if message.text in LEXICON_RU:
         answer_text, reply_markup, files = LEXICON_RU[message.text]
