@@ -60,7 +60,7 @@ async def main():
     if mode == 'inner':
         app.add_handler(MessageHandler(video_protocols.send_protocol, filters=filters.video | filters.audio | filters.document))
         scheduler = AsyncIOScheduler()
-        scheduler.add_job(send_documents.send_message_on_time, "cron", day_of_week='mon', hour=13, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot,))
+        scheduler.add_job(send_documents.send_message_on_time, "cron", day_of_week='thursday', hour=11, minute=55, timezone=timezone(timedelta(hours=+3)), args=(bot,))
         scheduler.start()
         await app.start()
 
