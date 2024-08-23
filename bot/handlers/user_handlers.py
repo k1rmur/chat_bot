@@ -59,8 +59,9 @@ async def send(message: Message, bot: Bot):
             if mode == 'inner':
                 files = filter(os.path.isfile, os.listdir(DOCUMENTS_SENT))
                 files = [os.path.join(DOCUMENTS_SENT, f) for f in files]
-                files.sort(key=lambda x: os.path.getmtime(x))
-                files = [files[-1],]
+                if files:
+                    files.sort(key=lambda x: os.path.getmtime(x))
+                    files = [files[-1],]
             else:
                 answer_text = 'Недоступно'
 
