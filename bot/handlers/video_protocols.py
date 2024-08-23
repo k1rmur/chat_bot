@@ -32,7 +32,7 @@ async def send_protocol(app: Client, message: Message):
     if not is_audio(extension) and not is_video(extension):
         return
     
-    message_to_delete = await message.reply("Медиафайл получен, готовится транскрипция...")
+    message_to_delete = await message.reply("Медиафайл получен, началась расшифровка текста...")
 
     try:
         audio_destination = f'./tmp/{file_id}.wav'

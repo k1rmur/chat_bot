@@ -114,7 +114,7 @@ async def recognize(file_id, extension):
 
     doc_transcription.save(f"./tmp/{file_id}.docx")
 
-    return f"./tmp/{file_id}.docx", "Транскрипция.docx", '\n'.join(text_for_summary)
+    return f"./tmp/{file_id}.docx", "Расшифровка_текста.docx", '\n'.join(text_for_summary)
 
 
 def clear_temp():
