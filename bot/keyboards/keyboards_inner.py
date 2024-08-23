@@ -29,7 +29,7 @@ def gosuslugi_menu():
 def reglament_menu():
     btn_doc1 = KeyboardButton(text='''Бюджетные сметы''')
     btn_doc2 = KeyboardButton(text='''Субвенции''')
-    btn_doc3 = KeyboardButton(text='''Субсидии на иные цели''')
+    btn_doc3 = KeyboardButton(text='''Подведомственные учреждения''')
     btn_doc5 = KeyboardButton(text='''Капитальный ремонт''')
     btn_doc4 = KeyboardButton(text='''Капитальное строительство''')
     btn_back = KeyboardButton(text='''Назад''')
