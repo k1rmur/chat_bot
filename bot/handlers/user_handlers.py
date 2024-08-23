@@ -17,6 +17,8 @@ load_dotenv(find_dotenv())
 mode = os.getenv("MODE")
 print(mode)
 ADD_USER_PASSWORD = os.getenv("ADD_USER_PASSWORD")
+DOCUMENTS_SENT = "/app/documents_sent"
+
 
 if mode == 'inner':
     from lexicon.lexicon_inner import LEXICON_RU, LEXICON_COMMANDS_RU
@@ -51,6 +53,17 @@ async def send(message: Message, bot: Bot):
     session_id = message.from_user.id
     if message.text in LEXICON_RU:
         answer_text, reply_markup, files = LEXICON_RU[message.text]
+
+        # Оперативная информация - загружаем последний отправленный документ
+        if message.text=='Оперативная информация о водохозяйственной обстановке':
+            if mode == 'inner':
+                files = filter(os.path.isfile, os.listdir(DOCUMENTS_SENT))
+                files = [os.path.join(DOCUMENTS_SENT, f) for f in files]
+                files.sort(key=lambda x: os.path.getmtime(x))
+                files = [files[-1],]
+            else:
+                answer_text = 'Недоступно'
+
         await message.answer(text=answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
         if files:
             for file in files:

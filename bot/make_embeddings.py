@@ -1,5 +1,5 @@
 import os
-from langchain_community.document_loaders import PDFMinerLoader, CSVLoader, Docx2txtLoader
+from langchain_community.document_loaders import PDFMinerLoader, CSVLoader, Docx2txtLoader, WikipediaLoader
 from langchain.text_splitter import (
     RecursiveCharacterTextSplitter,
 )
@@ -19,10 +19,10 @@ CSV_LOADER = CSVLoader
 DOCX_LOADER = Docx2txtLoader
 print("Loading data...")
 if mode == "inner":
-    folder_path = "./data/"
+    folder_path = "/app/bot/data/"
     DB_DIR = os.path.join(ABS_PATH, "db")
 else:
-    folder_path = "./data_citizens/"
+    folder_path = "/app/bot/data_citizens/"
     DB_DIR = os.path.join(ABS_PATH, "db_citizens")
 
 
@@ -36,16 +36,17 @@ def load_embeddings():
     csv_loaders = [CSV_LOADER(os.path.join(folder_path, fn), csv_args={"delimiter": ",", "quotechar": '"'}, encoding='utf-8-sig') for fn in csv_files]
     docx_loaders = [DOCX_LOADER(os.path.join(folder_path, fn)) for fn in docx_files]
     loaders = pdf_loaders + csv_loaders + docx_loaders
+    loaders.append(WikipediaLoader(query="Росводресурсы", load_max_docs=1, lang='ru'))
 
     all_documents = []
 
     for loader in loaders:
-        print("Loading raw document..." + loader.file_path)
+        print("Loading raw document...")
         raw_documents = loader.load()
         if loader.__class__ != CSVLoader:
             print("Splitting text...")
             text_splitter = RecursiveCharacterTextSplitter(
-                chunk_size=256,
+                chunk_size=512,
                 chunk_overlap=64,
             )
             documents = text_splitter.split_documents(raw_documents)

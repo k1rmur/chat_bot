@@ -13,7 +13,6 @@ from langchain_community.chat_models import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 
-
 load_dotenv()
 CREDENTIALS = os.getenv('CREDENTIALS', '0')
 
@@ -39,7 +38,7 @@ db = Chroma(
 db.get()
 
 
-llm = ChatOllama(model='llama3.1', temperature=0.2, base_url="http://ollama-container:11434", keep_alive=-1, num_ctx=2048, num_thread=8, num_gpu=0)
+llm = ChatOllama(model='llama3.1', temperature=0, base_url="http://ollama-container:11434", keep_alive=-1, num_ctx=2048*2, num_thread=8, num_gpu=0)
 
 retriever = db.as_retriever()
 
@@ -65,7 +64,7 @@ if db_name.db_name == 'inner':
     Используй ТОЛЬКО следующий контекст для ответа на вопрос. \
     Если ответа нет в базе данных, НИ В КОЕМ СЛУЧАЕ не пиши ответ на него, \
     скажи, что не знаешь ответ на этот вопрос.
-    Отвечай кратко и ёмко. С 25 февраля 2019 года Росводресурсы (ФАВР) возглавляет Дмитрий Кириллов. \
+    Отвечай кратко и ёмко. \
 
     Контекст:
     {context}
@@ -76,7 +75,7 @@ else:
     Используй ТОЛЬКО следующий контекст для ответа на вопрос. \
     Если ответа нет в базе данных, НИ В КОЕМ СЛУЧАЕ не пиши ответ на него, \
     скажи, что не знаешь ответ на этот вопрос.
-    Отвечай кратко и ёмко. С 25 февраля 2019 года Росводресурсы (ФАВР) возглавляет Дмитрий Кириллов. \
+    Отвечай кратко и ёмко. \
 
     Контекст:
     {context}
