@@ -32,6 +32,18 @@ services:
       - outer_logs:/app/logs/
       - user_db_outer:/user_db/
 
+  ollama-container:
+    container_name: ollama-container
+    hostname: ollama-container
+    image: ollama/ollama:latest
+    environment:
+      - OLLAMA_KEEP_ALIVE=-1
+      - OLLAMA_HOST=0.0.0.0
+    volumes:
+      - ollama:/root/.ollama
+    command:
+      serve
+
 
 volumes:
   embeddings_inner:
@@ -43,4 +55,5 @@ volumes:
   send_to_list:
   user_db_inner:
   user_db_outer:
+  ollama:
 

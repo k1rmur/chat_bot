@@ -11,8 +11,6 @@ RUN pip install -r requirements.txt
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ffmpeg
 
-RUN pip install langchain_huggingface aiosqlite alembic==1.8.1 Mako==1.2.4
-
 COPY . /app
 
 RUN sh -c "pip install protobuf==3.19.4 && cp ./builder.py /usr/local/lib/python3.10/site-packages/google/protobuf/internal/"

@@ -36,12 +36,6 @@ config: Config = load_config()
 
 async def main():
 
-    app = Client(
-        "DA_bot_test",
-        api_id=config.tg_bot.api_id, api_hash=config.tg_bot.api_hash,
-        bot_token=config.tg_bot.token
-    )
-
     engine = create_async_engine(url=config.db_url, echo=True)
     session = async_sessionmaker(engine, expire_on_commit=False)
 
@@ -58,6 +52,11 @@ async def main():
 
 
     if mode == 'inner':
+        app = Client(
+            "DA_bot_test",
+            api_id=config.tg_bot.api_id, api_hash=config.tg_bot.api_hash,
+            bot_token=config.tg_bot.token
+        )
         app.add_handler(MessageHandler(video_protocols.send_protocol, filters=filters.video | filters.audio | filters.document))
         scheduler = AsyncIOScheduler()
         scheduler.add_job(send_documents.send_message_on_time, "cron", day_of_week='thu', hour=12, minute=30, timezone=timezone(timedelta(hours=+3)), args=(bot,))

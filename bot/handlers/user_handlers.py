@@ -1,13 +1,12 @@
 from aiogram import Router, F, Bot
 from aiogram.types import Message
-from aiogram.filters import Command, CommandStart
+from aiogram.filters import CommandStart
 from aiogram.enums.parse_mode import ParseMode
 from lexicon.lexicon_outer import LEXICON_RU
-from langchain_community.chat_message_histories import ChatMessageHistory
 import logging
 from dotenv import load_dotenv, find_dotenv
 import os
-from services.rag import conversation_history, conversational_rag_chain
+from services.rag import index
 from services.converter import recognize_voice, clear_temp
 from aiogram.types import FSInputFile
 from database import Database
@@ -40,14 +39,6 @@ async def process_start_command(message: Message, db: Database):
     )
 
 
-@router.message(Command("clear"))
-async def process_clear_command(message: Message):
-    user_id = message.from_user.id
-    conversation_history[user_id] = ChatMessageHistory()
-    logger.info(f'Пользователь {message.from_user.username} очистил историю диалога')
-    await message.answer(text=LEXICON_COMMANDS_RU['/clear'][0])
-
-
 @router.message((F.text | F.voice) & ~F.text.startswith('/') & F.text != ADD_USER_PASSWORD)
 async def send(message: Message, bot: Bot):
     session_id = message.from_user.id
@@ -71,7 +62,6 @@ async def send(message: Message, bot: Bot):
                 print(file)
                 await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
     else:
-        session_id = message.from_user.id
         if message.voice:
             try:
                 file_id = message.voice.file_id
@@ -92,14 +82,8 @@ async def send(message: Message, bot: Bot):
                 return
 
         try:
-            chain = await conversational_rag_chain.ainvoke(
-                {"input": text},
-                config={
-                    "configurable": {"session_id": session_id}
-                }
-            )
-            answer = chain["answer"]
-            print(chain["context"])
+            chain = await index.aquery(text)
+            answer = chain.__str__()
             logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"')
             await message.reply(text=answer, parse_mode=ParseMode.MARKDOWN)
         except Exception as e:
