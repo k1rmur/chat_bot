@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 async def process_start_command(message: Message, db: Database):
     logger.info(f'Пользователь {message.from_user.username} начал диалог, код чата {message.chat.id}')
     answer_text, reply_markup, files = LEXICON_COMMANDS_RU['/start']
-    await message.answer(answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
+    await message.answer(answer_text, reply_markup=reply_markup)
     await db.add_user(
         id=message.from_user.id,
         username=message.from_user.username,
@@ -85,7 +85,7 @@ async def send(message: Message, bot: Bot):
             chain = await index.aquery(text)
             answer = chain.__str__()
             logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"')
-            await message.reply(text=answer, parse_mode=ParseMode.MARKDOWN)
+            await message.reply(text=answer, parse_mode=None)
         except Exception as e:
             error_text = f'Пользователь {message.from_user.username} получил ошибку\n{e}'
             logger.error(error_text, exc_info=True)
