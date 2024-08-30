@@ -37,16 +37,17 @@ router = Router()
 logger = logging.getLogger(__name__)
 
 
-@router.message(F.text=='Оптимизированный стандарт')
-async def send_optimized_std_menu(message: Message, state: FSMContext):
-    await message.answer("Меню ОС:", reply_markup=gosuslugi_menu())
-    await state.set_state(UserState.level_1_menu)
+if mode == 'inner':
+    @router.message(F.text=='Оптимизированный стандарт')
+    async def send_optimized_std_menu(message: Message, state: FSMContext):
+        await message.answer("Меню ОС:", reply_markup=gosuslugi_menu())
+        await state.set_state(UserState.level_1_menu)
 
 
-@router.message(F.text=='Описание целевого состояния')
-async def send_target_state_menu(message: Message, state: FSMContext):
-    await message.answer("Меню ОСЦ:", reply_markup=gosuslugi_menu())
-    await state.set_state(UserState.level_2_menu)
+    @router.message(F.text=='Описание целевого состояния')
+    async def send_target_state_menu(message: Message, state: FSMContext):
+        await message.answer("Меню ОСЦ:", reply_markup=gosuslugi_menu())
+        await state.set_state(UserState.level_2_menu)
 
 
 @router.message(CommandStart())
@@ -125,6 +126,7 @@ async def send(message: Message, bot: Bot):
 if mode == 'inner':
     @router.message(UserState.level_1_menu)
     async def handle_optimized_std_menu(message: Message, state: FSMContext):
+        await message.answer('Провалились')
         text = message.text
         if text in GOSUSLUGI_LEVEL_1:
             answer_text, reply_markup, file = GOSUSLUGI_LEVEL_1.get(text)
@@ -138,6 +140,7 @@ if mode == 'inner':
 
     @router.message(UserState.level_2_menu)
     async def handle_target_state_menu(message: Message, state: FSMContext):
+        await message.answer('Провалились')
         text = message.text
         if text in GOSUSLUGI_LEVEL_2:
             answer_text, reply_markup, file = GOSUSLUGI_LEVEL_2.get(text)
