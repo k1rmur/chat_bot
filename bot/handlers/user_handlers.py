@@ -5,8 +5,8 @@ from aiogram.enums.parse_mode import ParseMode
 from lexicon.lexicon_outer import LEXICON_RU
 import logging
 from dotenv import load_dotenv, find_dotenv
-from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 import os
 from services.rag import index
 from services.converter import recognize_voice, clear_temp
