@@ -121,7 +121,7 @@ async def send(message: Message, bot: Bot):
 
 
 if mode == 'inner':
-    @router.message(state=UserState.level_1_menu)
+    @router.message(UserState.level_1_menu)
     async def handle_optimized_std_menu(message: Message, state: FSMContext):
         text = message.text
         if text in GOSUSLUGI_LEVEL_1:
@@ -134,7 +134,7 @@ if mode == 'inner':
             await state.clear()
 
 
-    @router.message(state=UserState.level_2_menu)
+    @router.message(UserState.level_2_menu)
     async def handle_target_state_menu(message: Message, state: FSMContext):
         text = message.text
         if text in GOSUSLUGI_LEVEL_2:
