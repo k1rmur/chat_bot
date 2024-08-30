@@ -52,28 +52,26 @@ if mode == 'inner':
     
     @router.message(UserState.level_1_menu)
     async def handle_optimized_std_menu(message: Message, state: FSMContext):
-        await message.answer('Провалились')
         text = message.text
         if text in GOSUSLUGI_LEVEL_1:
             answer_text, reply_markup, file = GOSUSLUGI_LEVEL_1.get(text)
-        await message.answer(answer_text)
-        await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
+            await message.answer(answer_text)
+            await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
         if text=='Назад':
-            answer_text, reply_markup, file = LEXICON_RU.get(text)
+            answer_text, reply_markup, file = LEXICON_RU.get('Назад')
             await message.answer(answer_text, reply_markup=reply_markup)
             await state.clear()
 
 
     @router.message(UserState.level_2_menu)
     async def handle_target_state_menu(message: Message, state: FSMContext):
-        await message.answer('Провалились')
         text = message.text
         if text in GOSUSLUGI_LEVEL_2:
             answer_text, reply_markup, file = GOSUSLUGI_LEVEL_2.get(text)
-        await message.answer(answer_text)
-        await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
+            await message.answer(answer_text)
+            await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
         if text=='Назад':
-            answer_text, reply_markup, file = LEXICON_RU.get(text)
+            answer_text, reply_markup, file = LEXICON_RU.get('Назад')
             await message.answer(answer_text, reply_markup=reply_markup)
             await state.clear()
 
