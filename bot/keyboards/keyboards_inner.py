@@ -28,9 +28,9 @@ def gosuslugi_menu():
 
 
 def gosuslugi_menu_main():
-    btn_doc1 = KeyboardButton('''Оптимизированный стандарт''')
-    btn_doc2 = KeyboardButton('''Описание целевого состояния''')
-    btn_back = KeyboardButton('''Назад''')
+    btn_doc1 = KeyboardButton(text='''Оптимизированный стандарт''')
+    btn_doc2 = KeyboardButton(text='''Описание целевого состояния''')
+    btn_back = KeyboardButton(text='''Назад''')
     markup = ReplyKeyboardMarkup(
         keyboard= [[btn_doc1], [btn_doc2], [btn_back],],
         resize_keyboard=True
