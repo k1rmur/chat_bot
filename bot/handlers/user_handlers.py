@@ -54,9 +54,10 @@ if mode == 'inner':
     async def handle_optimized_std_menu(message: Message, state: FSMContext):
         text = message.text
         if text in GOSUSLUGI_LEVEL_1:
-            answer_text, reply_markup, file = GOSUSLUGI_LEVEL_1.get(text)
+            answer_text, reply_markup, files = GOSUSLUGI_LEVEL_1.get(text)
             await message.answer(answer_text)
-            await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
+            for file in files:
+                await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
         if text=='Назад':
             answer_text, reply_markup, file = LEXICON_RU.get('Назад')
             await message.answer(answer_text, reply_markup=reply_markup)
@@ -67,9 +68,10 @@ if mode == 'inner':
     async def handle_target_state_menu(message: Message, state: FSMContext):
         text = message.text
         if text in GOSUSLUGI_LEVEL_2:
-            answer_text, reply_markup, file = GOSUSLUGI_LEVEL_2.get(text)
+            answer_text, reply_markup, files = GOSUSLUGI_LEVEL_2.get(text)
             await message.answer(answer_text)
-            await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
+            for file in files:
+                await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
         if text=='Назад':
             answer_text, reply_markup, file = LEXICON_RU.get('Назад')
             await message.answer(answer_text, reply_markup=reply_markup)
