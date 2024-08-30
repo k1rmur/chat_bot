@@ -37,14 +37,14 @@ router = Router()
 logger = logging.getLogger(__name__)
 
 
-async def send_optimized_std_menu(message: Message):
+async def send_optimized_std_menu(message: Message, state: FSMContext):
     await message.answer("Меню ОС:", reply_markup=gosuslugi_menu())
-    await UserState.level_1_menu.set()
+    await state.set_state(UserState.level_1_menu)
 
 
-async def send_target_state_menu(message: Message):
+async def send_target_state_menu(message: Message, state: FSMContext):
     await message.answer("Меню ОСЦ:", reply_markup=gosuslugi_menu())
-    await UserState.level_2_menu.set()
+    await state.set_state(UserState.level_2_menu)
 
 
 @router.message(CommandStart())
