@@ -49,6 +49,34 @@ if mode == 'inner':
         await message.answer("Меню ОСЦ:", reply_markup=gosuslugi_menu())
         await state.set_state(UserState.level_2_menu)
 
+    
+    @router.message(UserState.level_1_menu)
+    async def handle_optimized_std_menu(message: Message, state: FSMContext):
+        await message.answer('Провалились')
+        text = message.text
+        if text in GOSUSLUGI_LEVEL_1:
+            answer_text, reply_markup, file = GOSUSLUGI_LEVEL_1.get(text)
+        await message.answer(answer_text)
+        await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
+        if text=='Назад':
+            answer_text, reply_markup, file = LEXICON_RU.get(text)
+            await message.answer(answer_text, reply_markup=reply_markup)
+            await state.clear()
+
+
+    @router.message(UserState.level_2_menu)
+    async def handle_target_state_menu(message: Message, state: FSMContext):
+        await message.answer('Провалились')
+        text = message.text
+        if text in GOSUSLUGI_LEVEL_2:
+            answer_text, reply_markup, file = GOSUSLUGI_LEVEL_2.get(text)
+        await message.answer(answer_text)
+        await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
+        if text=='Назад':
+            answer_text, reply_markup, file = LEXICON_RU.get(text)
+            await message.answer(answer_text, reply_markup=reply_markup)
+            await state.clear()
+
 
 @router.message(CommandStart())
 async def process_start_command(message: Message, db: Database):
@@ -120,33 +148,3 @@ async def send(message: Message, bot: Bot):
             logger.error(error_text, exc_info=True)
             await bot.send_message(322077458, error_text)
             await message.reply("Произошла ошибка при обработке Вашего запроса :(")
-
-
-
-if mode == 'inner':
-    @router.message(UserState.level_1_menu)
-    async def handle_optimized_std_menu(message: Message, state: FSMContext):
-        await message.answer('Провалились')
-        text = message.text
-        if text in GOSUSLUGI_LEVEL_1:
-            answer_text, reply_markup, file = GOSUSLUGI_LEVEL_1.get(text)
-        await message.answer(answer_text)
-        await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
-        if text=='Назад':
-            answer_text, reply_markup, file = LEXICON_RU.get(text)
-            await message.answer(answer_text, reply_markup=reply_markup)
-            await state.clear()
-
-
-    @router.message(UserState.level_2_menu)
-    async def handle_target_state_menu(message: Message, state: FSMContext):
-        await message.answer('Провалились')
-        text = message.text
-        if text in GOSUSLUGI_LEVEL_2:
-            answer_text, reply_markup, file = GOSUSLUGI_LEVEL_2.get(text)
-        await message.answer(answer_text)
-        await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
-        if text=='Назад':
-            answer_text, reply_markup, file = LEXICON_RU.get(text)
-            await message.answer(answer_text, reply_markup=reply_markup)
-            await state.clear()
