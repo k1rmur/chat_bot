@@ -12,6 +12,7 @@ from services.rag import index
 from services.converter import recognize_voice, clear_temp
 from aiogram.types import FSInputFile
 from database import Database
+from keyboards.keyboards_inner import gosuslugi_menu
 
 
 class UserState(StatesGroup):
@@ -36,11 +37,13 @@ router = Router()
 logger = logging.getLogger(__name__)
 
 
-async def send_optimized_std_menu():
+async def send_optimized_std_menu(message: Message):
+    await message.answer("Меню ОС:", reply_markup=gosuslugi_menu())
     await UserState.level_1_menu.set()
 
 
-async def send_target_state_menu():
+async def send_target_state_menu(message: Message):
+    await message.answer("Меню ОСЦ:", reply_markup=gosuslugi_menu())
     await UserState.level_2_menu.set()
 
 
@@ -118,7 +121,7 @@ async def send(message: Message, bot: Bot):
 
 
 if mode == 'inner':
-    @router.message(state=UserState.optimized_std_menu)
+    @router.message(state=UserState.level_1_menu)
     async def handle_optimized_std_menu(message: Message, state: FSMContext):
         text = message.text
         if text in GOSUSLUGI_LEVEL_1:
@@ -131,7 +134,7 @@ if mode == 'inner':
             await state.clear()
 
 
-    @router.message(state=UserState.target_state_menu)
+    @router.message(state=UserState.level_2_menu)
     async def handle_target_state_menu(message: Message, state: FSMContext):
         text = message.text
         if text in GOSUSLUGI_LEVEL_2:
