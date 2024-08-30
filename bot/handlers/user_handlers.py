@@ -37,11 +37,13 @@ router = Router()
 logger = logging.getLogger(__name__)
 
 
+@router.message(F.text=='Оптимизированный стандарт')
 async def send_optimized_std_menu(message: Message, state: FSMContext):
     await message.answer("Меню ОС:", reply_markup=gosuslugi_menu())
     await state.set_state(UserState.level_1_menu)
 
 
+@router.message(F.text=='Описание целевого состояния')
 async def send_target_state_menu(message: Message, state: FSMContext):
     await message.answer("Меню ОСЦ:", reply_markup=gosuslugi_menu())
     await state.set_state(UserState.level_2_menu)
@@ -62,11 +64,11 @@ async def process_start_command(message: Message, db: Database):
 async def send(message: Message, bot: Bot):
     session_id = message.from_user.id
 
-    if message.text == 'Оптимизированный стандарт':
-        await send_optimized_std_menu(message)
-    elif message.text == 'Описание целевого состояния':
-        await send_target_state_menu(message)
-
+#    if message.text == 'Оптимизированный стандарт':
+#        await send_optimized_std_menu(message)
+#    elif message.text == 'Описание целевого состояния':
+#        await send_target_state_menu(message)
+#
     if message.text in LEXICON_RU:
         answer_text, reply_markup, files = LEXICON_RU[message.text]
 
