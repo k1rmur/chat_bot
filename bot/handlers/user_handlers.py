@@ -5,11 +5,18 @@ from aiogram.enums.parse_mode import ParseMode
 from lexicon.lexicon_outer import LEXICON_RU
 import logging
 from dotenv import load_dotenv, find_dotenv
+from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters.state import State, StatesGroup
 import os
 from services.rag import index
 from services.converter import recognize_voice, clear_temp
 from aiogram.types import FSInputFile
 from database import Database
+
+
+class UserState(StatesGroup):
+    level_1_menu = State()
+    level_2_menu = State()
 
 
 load_dotenv(find_dotenv())
@@ -20,13 +27,22 @@ DOCUMENTS_SENT = "/app/documents_sent"
 
 
 if mode == 'inner':
-    from lexicon.lexicon_inner import LEXICON_RU, LEXICON_COMMANDS_RU
+    from lexicon.lexicon_inner import LEXICON_RU, LEXICON_COMMANDS_RU, GOSUSLUGI_LEVEL_1, GOSUSLUGI_LEVEL_2
 else:
     from lexicon.lexicon_outer import LEXICON_RU, LEXICON_COMMANDS_RU
 
 router = Router()
 
 logger = logging.getLogger(__name__)
+
+
+async def send_optimized_std_menu():
+    await UserState.level_1_menu.set()
+
+
+async def send_target_state_menu():
+    await UserState.level_2_menu.set()
+
 
 @router.message(CommandStart())
 async def process_start_command(message: Message, db: Database):
@@ -42,12 +58,19 @@ async def process_start_command(message: Message, db: Database):
 @router.message((F.text | F.voice) & ~F.text.startswith('/') & F.text != ADD_USER_PASSWORD)
 async def send(message: Message, bot: Bot):
     session_id = message.from_user.id
+
+    if message.text == 'Оптимизированный стандарт':
+        await send_optimized_std_menu(message)
+    elif message.text == 'Описание целевого состояния':
+        await send_target_state_menu(message)
+
     if message.text in LEXICON_RU:
         answer_text, reply_markup, files = LEXICON_RU[message.text]
 
         # Оперативная информация - загружаем последний отправленный документ
         if message.text=='Оперативная информация о водохозяйственной обстановке':
             if mode == 'inner':
+                answer_text= 'Последняя информация:'
                 files = filter(os.path.isfile, os.listdir(DOCUMENTS_SENT))
                 files = [os.path.join(DOCUMENTS_SENT, f) for f in files]
                 if files:
@@ -91,3 +114,31 @@ async def send(message: Message, bot: Bot):
             logger.error(error_text, exc_info=True)
             await bot.send_message(322077458, error_text)
             await message.reply("Произошла ошибка при обработке Вашего запроса :(")
+
+
+
+if mode == 'inner':
+    @router.message(state=UserState.optimized_std_menu)
+    async def handle_optimized_std_menu(message: Message, state: FSMContext):
+        text = message.text
+        if text in GOSUSLUGI_LEVEL_1:
+            answer_text, reply_markup, file = GOSUSLUGI_LEVEL_1.get(text)
+        await message.answer(answer_text)
+        await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
+        if text=='Назад':
+            answer_text, reply_markup, file = LEXICON_RU.get(text)
+            await message.answer(answer_text, reply_markup=reply_markup)
+            await state.clear()
+
+
+    @router.message(state=UserState.target_state_menu)
+    async def handle_target_state_menu(message: Message, state: FSMContext):
+        text = message.text
+        if text in GOSUSLUGI_LEVEL_2:
+            answer_text, reply_markup, file = GOSUSLUGI_LEVEL_2.get(text)
+        await message.answer(answer_text)
+        await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
+        if text=='Назад':
+            answer_text, reply_markup, file = LEXICON_RU.get(text)
+            await message.answer(answer_text, reply_markup=reply_markup)
+            await state.clear()

@@ -26,6 +26,18 @@ def gosuslugi_menu():
     )
     return markup
 
+
+def gosuslugi_menu_main():
+    btn_doc1 = KeyboardButton('''Оптимизированный стандарт''')
+    btn_doc2 = KeyboardButton('''Описание целевого состояния''')
+    btn_back = KeyboardButton('''Назад''')
+    markup = ReplyKeyboardMarkup(
+        keyboard= [[btn_doc1], [btn_doc2], [btn_back],],
+        resize_keyboard=True
+    )
+    return markup
+
+
 def reglament_menu():
     btn_doc1 = KeyboardButton(text='''Бюджетные сметы''')
     btn_doc2 = KeyboardButton(text='''Субвенции''')
