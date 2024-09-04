@@ -50,6 +50,12 @@ async def main():
     dp = Dispatcher()
     dp.include_router(send_documents.router)
 
+    app = Client(
+        "DA_bot_test",
+        api_id=config.tg_bot.api_id, api_hash=config.tg_bot.api_hash,
+        bot_token=config.tg_bot.token
+    )
+    scheduler = AsyncIOScheduler()
 
     if mode == 'inner':
         app = Client(
@@ -58,10 +64,14 @@ async def main():
             bot_token=config.tg_bot.token
         )
         app.add_handler(MessageHandler(video_protocols.send_protocol, filters=filters.video | filters.audio | filters.document))
-        scheduler = AsyncIOScheduler()
-        scheduler.add_job(send_documents.send_message_on_time, "cron", day_of_week='thu', hour=12, minute=30, timezone=timezone(timedelta(hours=+3)), args=(bot,))
-        scheduler.start()
         await app.start()
+        scheduler.add_job(send_documents.send_message_on_time, "cron", day_of_week='thu', hour=12, minute=30, timezone=timezone(timedelta(hours=+3)), args=(bot,))
+    else:
+        scheduler.add_job(send_documents.ask_for_rating, "cron", day='1st wed', hour=19, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot, session))
+
+
+    scheduler.add_job(send_documents.send_intro_message, "cron", day='1st wed', hour=19, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot, session))
+    scheduler.start()
 
     dp.include_router(user_handlers.router)
     dp.update.middleware(DatabaseMiddleware(session=session))

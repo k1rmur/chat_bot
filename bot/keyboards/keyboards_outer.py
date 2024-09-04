@@ -1,4 +1,4 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 
 
 def general_menu():
@@ -23,6 +23,16 @@ def gosuslugi_menu():
     btn_back = KeyboardButton(text='''Назад''')
     markup = ReplyKeyboardMarkup(
         keyboard= [[btn_doc1], [btn_doc2], [btn_doc3], [btn_doc4], [btn_doc5], [btn_back]],
+        resize_keyboard=True
+    )
+    return markup
+
+
+def inline_rating_keyboard():
+
+    btns = [[InlineKeyboardButton(text=str(i), callback_data=str(i)),] for i in range(1,11)]
+    markup = InlineKeyboardMarkup(
+        inline_keyboard=btns,
         resize_keyboard=True
     )
     return markup

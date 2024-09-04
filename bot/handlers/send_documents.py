@@ -1,5 +1,5 @@
 from aiogram import Router, F, Bot
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 from functools import wraps
 import os
@@ -11,11 +11,21 @@ import logging
 import json
 from database import Database
 import asyncio
+import random
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 DOCUMENTS_TO_SEND = "/app/documents_to_send"
 DOCUMENTS_SENT = "/app/documents_sent"
 SEND_TO_FILE = "/app/send_to/send_to_list.json"
+
+mode = os.getenv("MODE")
+
+if mode == 'inner':
+    from lexicon.lexicon_inner import INTRO_MESSAGES
+else:
+    from lexicon.lexicon_outer import INTRO_MESSAGES
+
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +50,7 @@ class DocumentStates(StatesGroup):
     waiting_for_document = State()
     waiting_for_password = State()
     waiting_for_text = State()
+    waiting_for_rating = State()
 
 
 def load_send_to():
@@ -186,3 +197,40 @@ async def send_message_on_time(bot: Bot):
                 logger.error(e, exc_info=True)
         shutil.copy(file_path, os.path.join(DOCUMENTS_SENT, filename))
         os.remove(file_path)
+
+
+async def send_intro_message(bot: Bot, session: AsyncSession):
+
+    async with session() as current_session:
+        db = Database(session=current_session)
+
+    text = random.choice(INTRO_MESSAGES)
+    result = await db.get_chat_ids()
+    tasks = [bot.send_message(chat_id=chat_id, text=text) for chat_id in result]
+    await asyncio.gather(*tasks)
+    await bot.send_message(chat_id=322077458, text=f'Прошла рассылка сообщения:\n\n{text}')
+
+
+async def ask_for_rating(bot: Bot, session: AsyncSession):
+
+    from keyboards.keyboards_outer import inline_rating_keyboard
+
+    async with session() as current_session:
+        db = Database(session=current_session)
+
+    text = "Пожалуйста, оцените нашу деятельность по шкале от 1 до 10."
+    result = await db.get_chat_ids()
+    tasks = [bot.send_message(chat_id=chat_id, text=text, reply_markup=inline_rating_keyboard()) for chat_id in result]
+    await asyncio.gather(*tasks)
+    await bot.send_message(chat_id=322077458, text=f'Прошла рассылка сообщения:\n\n{text}')
+
+
+@router.callback_query()
+async def process_rating(bot: Bot, callback: CallbackQuery):
+
+    await callback.answer()
+    rating = callback.data
+    await bot.delete_message(chat_id=callback.from_user.id, message_id=callback.message.message_id)
+    await bot.send_message(chat_id=callback.from_user.id, text='Спасибо за Вашу оценку!')
+
+    logger.info(f'Поставлена оценка {rating}')
