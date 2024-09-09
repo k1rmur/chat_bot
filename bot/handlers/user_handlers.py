@@ -8,7 +8,7 @@ from dotenv import load_dotenv, find_dotenv
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 import os
-from services.rag import index
+from services.rag import query_engine
 from services.converter import recognize_voice, clear_temp
 from aiogram.types import FSInputFile
 from database import Database
@@ -139,7 +139,7 @@ async def send(message: Message, bot: Bot):
                 return
 
         try:
-            chain = await index.aquery(text)
+            chain = await query_engine.aquery(text)
             answer = chain.__str__()
             logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"')
             await message.reply(text=answer, parse_mode=None)

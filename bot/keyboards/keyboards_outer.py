@@ -30,9 +30,15 @@ def gosuslugi_menu():
 
 def inline_rating_keyboard():
 
-    btns = [[InlineKeyboardButton(text=str(i), callback_data=str(i)),] for i in range(1,11)]
+    btns = [InlineKeyboardButton(text=str(i), callback_data=str(i)) for i in range(1,11)]
     markup = InlineKeyboardMarkup(
-        inline_keyboard=btns,
+        inline_keyboard=[
+            [btns[0], btns[1]],
+            [btns[2], btns[3]],
+            [btns[4], btns[5]],
+            [btns[6], btns[7]],
+            [btns[8], btns[9]],
+        ],
         resize_keyboard=True
     )
     return markup

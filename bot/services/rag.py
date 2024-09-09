@@ -3,6 +3,19 @@ from langchain_core.prompts import ChatPromptTemplate
 from make_embeddings import vector_index, embeddings
 from llama_index.core import Settings
 from llama_index.core import ChatPromptTemplate
+from llama_index.retrievers.bm25 import BM25Retriever
+from llama_index.core.retrievers import QueryFusionRetriever
+from llama_index.core.query_engine import RetrieverQueryEngine
+
+
+QUERY_GEN_PROMPT = (
+    "Ты полезный ассистент федерального агенства по водным ресурсам (ФАВР), генерирующий несколько запросов, основываясь на "
+    "единственном введённом запросе. Сгенерируй {num_queries} поисковых запросов, по одному на каждой строке, "
+    "связанные со следующим запросом:\n"
+    "Запрос: {query}\n"
+    "Запросы:\n"
+)
+
 
 
 qa_prompt_str = (
@@ -46,13 +59,25 @@ chat_refine_msgs = [
 refine_template = ChatPromptTemplate.from_messages(chat_refine_msgs)
 
 
-llm = ChatOllama(model='llama3.1', temperature=0.1, base_url="http://ollama-container:11434", keep_alive=-1, num_ctx=2048*2, num_thread=8, num_gpu=0)
+llm = ChatOllama(model='llama3.1', temperature=0.1, base_url="http://ollama-container:11434", keep_alive=-1, num_ctx=2048*4, num_thread=8, num_gpu=0)
 Settings.llm = llm
 Settings.embed_model = embeddings
 
 
-index = vector_index.as_query_engine(
-    text_qa_template=text_qa_template,
-    refine_template=refine_template,
-    llm=llm,
+vector_retriever = vector_index.as_retriever(similarity_top_k=4)
+
+bm25_retriever = BM25Retriever.from_defaults(
+    docstore=vector_index.docstore, similarity_top_k=4
 )
+
+retriever = QueryFusionRetriever(
+    [vector_retriever, bm25_retriever],
+    similarity_top_k=4,
+    num_queries=4,
+    mode="reciprocal_rerank",
+    use_async=True,
+    verbose=True,
+    query_gen_prompt=QUERY_GEN_PROMPT,
+)
+
+query_engine = RetrieverQueryEngine.from_args(retriever)
