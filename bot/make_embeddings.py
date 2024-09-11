@@ -3,6 +3,8 @@ from optparse import OptionParser
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core import SimpleDirectoryReader, Settings, StorageContext, VectorStoreIndex
 from langchain_community.chat_models import ChatOllama
+from llama_index.core.storage.docstore import SimpleDocumentStore
+from llama_index.core.node_parser import SentenceSplitter
 import torch
 import chromadb
 from llama_index.vector_stores.chroma import ChromaVectorStore
@@ -34,13 +36,18 @@ Settings.embed_model = embeddings
 Settings.chunk_size = 512
 Settings.chunk_overlap = 128
 
+documents = reader.load_data()
+parser = SentenceSplitter()
+nodes = parser.get_nodes_from_documents(documents)
+docstore = SimpleDocumentStore()
+docstore.add_documents(nodes)
+
 
 if __name__ == '__main__':
 
     llm = ChatOllama(model='llama3.1', temperature=0.1, base_url="http://ollama-container-gpu:11434", keep_alive=-1, num_ctx=1024, num_gpu=33)
     Settings.llm = llm
 
-    documents = reader.load_data()
 
     try:
         os.remove(f'{DB_DIR}/chroma.sqlite3')
@@ -49,7 +56,10 @@ if __name__ == '__main__':
     db = chromadb.PersistentClient(path=DB_DIR)
     chroma_collection = db.create_collection("embeddings")
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
-    storage_context = StorageContext.from_defaults(vector_store=vector_store)
+    storage_context = StorageContext.from_defaults(
+        docstore=docstore,
+        vector_store=vector_store
+    )
 
     vector_index = VectorStoreIndex.from_documents(
         documents, storage_context=storage_context
@@ -62,7 +72,10 @@ else:
     chroma_collection = db.get_or_create_collection("embeddings")
 
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
-    storage_context = StorageContext.from_defaults(vector_store=vector_store)
+    storage_context = StorageContext.from_defaults(
+        docstore=docstore,
+        vector_store=vector_store
+    )
 
     vector_index = VectorStoreIndex.from_vector_store(
         vector_store, storage_context=storage_context
