@@ -13,6 +13,7 @@ from services.converter import recognize_voice, clear_temp
 from aiogram.types import FSInputFile
 from database import Database
 from keyboards.keyboards_inner import gosuslugi_menu
+from services.log_actions import log_action, allowed_actions
 
 
 class UserState(StatesGroup):
@@ -80,6 +81,7 @@ if mode == 'inner':
 
 @router.message(CommandStart())
 async def process_start_command(message: Message, db: Database):
+    log_action(message, allowed_actions['start'])
     logger.info(f'Пользователь {message.from_user.username} начал диалог, код чата {message.chat.id}')
     answer_text, reply_markup, files = LEXICON_COMMANDS_RU['/start']
     await message.answer(answer_text, reply_markup=reply_markup)
@@ -91,14 +93,8 @@ async def process_start_command(message: Message, db: Database):
 
 @router.message((F.text | F.voice) & ~F.text.startswith('/') & F.text != ADD_USER_PASSWORD)
 async def send(message: Message, bot: Bot):
-    session_id = message.from_user.id
-
-#    if message.text == 'Оптимизированный стандарт':
-#        await send_optimized_std_menu(message)
-#    elif message.text == 'Описание целевого состояния':
-#        await send_target_state_menu(message)
-#
     if message.text in LEXICON_RU:
+        log_action(message, allowed_actions['menu'])
         answer_text, reply_markup, files = LEXICON_RU[message.text]
 
         # Оперативная информация - загружаем последний отправленный документ
@@ -119,6 +115,7 @@ async def send(message: Message, bot: Bot):
                 print(file)
                 await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
     else:
+        log_action(message, allowed_actions['ai'])
         if message.voice:
             try:
                 file_id = message.voice.file_id

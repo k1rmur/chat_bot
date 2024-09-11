@@ -226,8 +226,7 @@ async def ask_for_rating(bot: Bot, session: AsyncSession):
 
 
 @router.callback_query()
-async def process_rating(bot: Bot, callback: CallbackQuery):
-
+async def process_rating(callback: CallbackQuery, bot: Bot):
     await callback.answer()
     rating = callback.data
     await bot.delete_message(chat_id=callback.from_user.id, message_id=callback.message.message_id)
