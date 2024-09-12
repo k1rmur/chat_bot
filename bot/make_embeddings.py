@@ -8,6 +8,7 @@ from llama_index.core.node_parser import SentenceSplitter
 import torch
 import chromadb
 from llama_index.vector_stores.chroma import ChromaVectorStore
+from llama_index.retrievers.bm25 import BM25Retriever
 
 
 parser = OptionParser()
@@ -37,6 +38,17 @@ Settings.chunk_size = 256
 Settings.chunk_overlap = 64
 
 
+documents = reader.load_data()
+parser = SentenceSplitter()
+nodes = parser.get_nodes_from_documents(documents)
+docstore = SimpleDocumentStore()
+docstore.add_documents(nodes)
+
+bm25_retriever = BM25Retriever.from_defaults(
+    docstore=docstore, similarity_top_k=4
+)
+
+
 if __name__ == '__main__':
 
     try:
@@ -44,26 +56,17 @@ if __name__ == '__main__':
     except:
         pass
 
-    documents = reader.load_data()
-    parser = SentenceSplitter()
-    nodes = parser.get_nodes_from_documents(documents)
-    docstore = SimpleDocumentStore()
-    docstore.add_documents(nodes)
-
 
     db = chromadb.PersistentClient(path=DB_DIR)
     chroma_collection = db.create_collection("embeddings")
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
     storage_context = StorageContext.from_defaults(
-        docstore=docstore,
         vector_store=vector_store
     )
 
     vector_index = VectorStoreIndex.from_documents(
         documents, storage_context=storage_context
     )
-
-    storage_context.docstore.persist(f"{DB_DIR}/docstore.json")
 
 else:
 
@@ -72,9 +75,7 @@ else:
     chroma_collection = db.get_or_create_collection("embeddings")
 
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
-    docstore = SimpleDocumentStore.from_persist_path(f"{DB_DIR}/docstore.json")
     storage_context = StorageContext.from_defaults(
-        docstore=docstore,
         vector_store=vector_store
     )
 

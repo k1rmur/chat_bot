@@ -1,9 +1,8 @@
 from langchain_community.chat_models import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
-from make_embeddings import vector_index, embeddings
+from make_embeddings import vector_index, embeddings, bm25_retriever
 from llama_index.core import Settings
 from llama_index.core import ChatPromptTemplate
-from llama_index.retrievers.bm25 import BM25Retriever
 from llama_index.core.retrievers import QueryFusionRetriever
 from llama_index.core.query_engine import RetrieverQueryEngine
 
@@ -15,7 +14,6 @@ QUERY_GEN_PROMPT = (
     "Запрос: {query}\n"
     "Запросы:\n"
 )
-
 
 
 qa_prompt_str = (
@@ -66,15 +64,10 @@ Settings.embed_model = embeddings
 
 vector_retriever = vector_index.as_retriever(similarity_top_k=4)
 
-print(vector_index.docstore)
-bm25_retriever = BM25Retriever.from_defaults(
-    docstore=vector_index.docstore, similarity_top_k=4
-)
-
 retriever = QueryFusionRetriever(
     [vector_retriever, bm25_retriever],
     similarity_top_k=4,
-    num_queries=4,
+    num_queries=1,
     mode="reciprocal_rerank",
     use_async=True,
     verbose=True,
