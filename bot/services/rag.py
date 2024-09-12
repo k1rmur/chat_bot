@@ -62,11 +62,11 @@ Settings.llm = llm
 Settings.embed_model = embeddings
 
 
-vector_retriever = vector_index.as_retriever(similarity_top_k=4)
+vector_retriever = vector_index.as_retriever(similarity_top_k=10)
 
 retriever = QueryFusionRetriever(
     [vector_retriever, bm25_retriever],
-    similarity_top_k=4,
+    similarity_top_k=10,
     num_queries=1,
     mode="reciprocal_rerank",
     use_async=True,
