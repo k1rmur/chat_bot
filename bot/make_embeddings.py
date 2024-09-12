@@ -33,26 +33,24 @@ device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 print("DEVICE:", device)
 embeddings = HuggingFaceEmbedding(model_name="intfloat/multilingual-e5-small", device=device)
 Settings.embed_model = embeddings
-Settings.chunk_size = 512
-Settings.chunk_overlap = 128
-
-documents = reader.load_data()
-parser = SentenceSplitter()
-nodes = parser.get_nodes_from_documents(documents)
-docstore = SimpleDocumentStore()
-docstore.add_documents(nodes)
+Settings.chunk_size = 256
+Settings.chunk_overlap = 64
 
 
 if __name__ == '__main__':
-
-    llm = ChatOllama(model='llama3.1', temperature=0.1, base_url="http://ollama-container-gpu:11434", keep_alive=-1, num_ctx=1024, num_gpu=33)
-    Settings.llm = llm
-
 
     try:
         os.remove(f'{DB_DIR}/chroma.sqlite3')
     except:
         pass
+
+    documents = reader.load_data()
+    parser = SentenceSplitter()
+    nodes = parser.get_nodes_from_documents(documents)
+    docstore = SimpleDocumentStore()
+    docstore.add_documents(nodes)
+
+
     db = chromadb.PersistentClient(path=DB_DIR)
     chroma_collection = db.create_collection("embeddings")
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
@@ -65,6 +63,8 @@ if __name__ == '__main__':
         documents, storage_context=storage_context
     )
 
+    storage_context.docstore.persist(f"{DB_DIR}/docstore.json")
+
 else:
 
     db = chromadb.PersistentClient(path=DB_DIR)
@@ -72,6 +72,7 @@ else:
     chroma_collection = db.get_or_create_collection("embeddings")
 
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+    docstore = SimpleDocumentStore.from_persist_path(f"{DB_DIR}/docstore.json")
     storage_context = StorageContext.from_defaults(
         docstore=docstore,
         vector_store=vector_store
