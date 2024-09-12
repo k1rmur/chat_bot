@@ -66,6 +66,7 @@ Settings.embed_model = embeddings
 
 vector_retriever = vector_index.as_retriever(similarity_top_k=4)
 
+print(vector_index.docstore)
 bm25_retriever = BM25Retriever.from_defaults(
     docstore=vector_index.docstore, similarity_top_k=4
 )
