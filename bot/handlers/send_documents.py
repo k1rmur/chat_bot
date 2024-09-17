@@ -82,6 +82,12 @@ async def help_command(message: Message):
     await message.reply(help_text)
 
 
+@router.message(Command("statistics"))
+@allowed_users_only
+async def statistics(message: Message):
+    await message.reply_document(FSInputFile("/app/logs/stats.csv"))
+
+
 @router.message(Command("subscribe"))
 async def add_user_command(message: Message, state: FSMContext):
     await message.reply("Пожалуйста, введите пароль для добавления в список рассылки.")
