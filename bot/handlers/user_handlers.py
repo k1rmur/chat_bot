@@ -81,7 +81,10 @@ if mode == 'inner':
 
 @router.message(CommandStart())
 async def process_start_command(message: Message, db: Database):
-    log_action(message, allowed_actions['start'])
+    try:
+    	log_action(message, allowed_actions['start'])
+    except Exception as e:
+        logger.error(e, exc_info=True)
     logger.info(f'Пользователь {message.from_user.username} начал диалог, код чата {message.chat.id}')
     answer_text, reply_markup, files = LEXICON_COMMANDS_RU['/start']
     await message.answer(answer_text, reply_markup=reply_markup)
