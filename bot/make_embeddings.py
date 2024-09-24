@@ -45,7 +45,7 @@ docstore = SimpleDocumentStore()
 docstore.add_documents(nodes)
 
 bm25_retriever = BM25Retriever.from_defaults(
-    docstore=docstore, similarity_top_k=10
+    docstore=docstore, similarity_top_k=20
 )
 
 

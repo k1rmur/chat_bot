@@ -12,7 +12,7 @@ QUERY_GEN_PROMPT = (
     "единственном введённом запросе. Сгенерируй {num_queries} поисковых запросов, по одному на каждой строке, "
     "связанные со следующим запросом:\n"
     "Запрос: {query}\n"
-    "Запросы:\n"
+    "Поисковые запросы:\n"
 )
 
 
@@ -62,12 +62,12 @@ Settings.llm = llm
 Settings.embed_model = embeddings
 
 
-vector_retriever = vector_index.as_retriever(similarity_top_k=10)
+vector_retriever = vector_index.as_retriever(similarity_top_k=20)
 
 retriever = QueryFusionRetriever(
     [vector_retriever, bm25_retriever],
     similarity_top_k=10,
-    num_queries=1,
+    num_queries=4,
     mode="reciprocal_rerank",
     use_async=True,
     verbose=True,
