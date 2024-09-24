@@ -18,6 +18,5 @@ def log_action(message, action):
         if username is None:
             username='Скрыт'
         mydate = datetime.datetime.now()
-        csvstr = datetime.datetime.strftime(mydate, '%Y, %m, %d, %H, %M, %S')
 
-        file.write(",".join([user_id, username, csvstr, action])+'\n')
+        file.write(",".join([str(user_id), username, str(mydate), action])+'\n')
