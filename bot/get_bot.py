@@ -1,95 +1,57 @@
-import logging
 import asyncio
+import logging
 import logging.config
-from logging_settings import logging_config
-from aiogram import Bot, Dispatcher
-from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ParseMode
-from config_data.config import Config, load_config
-from optparse import OptionParser
-import services.initialize_db_name as db
-from handlers import video_protocols
 import os
+from datetime import timedelta, timezone
+
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from datetime import timezone, timedelta
-from dotenv import load_dotenv, find_dotenv
-from pyrogram import Client, filters
-from pyrogram.handlers import MessageHandler
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from middlewares import DatabaseMiddleware
+from config_data.config import db_url, labeler, state_dispenser, token
 from database import Base
+from handlers import message_handlers
+from logging_settings import logging_config
+from middlewares import DatabaseMiddleware
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from vkbottle import Bot
+from vkbottle.bot import Message
 
-
-load_dotenv(find_dotenv())
-mode = os.getenv("MODE")
-
-
-parser = OptionParser()
-parser.add_option('--Mode', type=str, default="inner")
-
-db.initialize_db(mode)
-from handlers import user_handlers, send_documents
+mode = "outer"
 
 logging.config.dictConfig(logging_config)
-config: Config = load_config()
+
+bot = Bot(
+    token=token,
+#    labeler=labeler,
+#    state_dispenser=state_dispenser,
+)
+
+
+@bot.on.private_message(text="test")
+async def hi_handler(message: Message):
+    users_info = await bot.api.users.get(message.from_id)
+    await message.answer("Привет, {}".format(str(users_info)))
 
 
 async def main():
 
-    engine = create_async_engine(url=config.db_url, echo=True)
+    engine = create_async_engine(url=db_url, echo=True)
     session = async_sessionmaker(engine, expire_on_commit=False)
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-
-
-    bot = Bot(
-        token=config.tg_bot.token,
-        default=DefaultBotProperties(parse_mode=ParseMode.HTML)
-    )
-    dp = Dispatcher()
-    dp.include_router(send_documents.router)
-
-    app = Client(
-        "DA_bot_test",
-        api_id=config.tg_bot.api_id, api_hash=config.tg_bot.api_hash,
-        bot_token=config.tg_bot.token
-    )
     scheduler = AsyncIOScheduler()
 
-    if mode == 'inner':
-        app = Client(
-            "DA_bot_test",
-            api_id=config.tg_bot.api_id, api_hash=config.tg_bot.api_hash,
-            bot_token=config.tg_bot.token
-        )
-        app.add_handler(MessageHandler(video_protocols.send_protocol, filters=filters.video | filters.audio | filters.document))
-        await app.start()
-        scheduler.add_job(send_documents.send_message_on_time, "cron", day_of_week='thu', hour=12, minute=30, timezone=timezone(timedelta(hours=+3)), args=(bot,))
-    else:
-        scheduler.add_job(send_documents.ask_for_rating, "cron", day='1st wed, 3rd wed', hour=19, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot, session))
+    scheduler.add_job(message_handlers.ask_for_rating, "cron", day='1st wed, 3rd wed', hour=19, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot, session))
+    scheduler.add_job(message_handlers.send_intro_message, "cron", day='1st wed, 3rd wed', hour=19, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot, session))
 
-
-    scheduler.add_job(send_documents.send_intro_message, "cron", day='1st wed, 3rd wed', hour=19, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot, session))
     scheduler.start()
-
-    dp.include_router(user_handlers.router)
-    dp.update.middleware(DatabaseMiddleware(session=session))
-
-    await bot.delete_webhook(drop_pending_updates=True)
-    await bot.send_message(322077458, "Я запустился")
-    await dp.start_polling(bot)
+#    bot.labeler.message_view.register_middleware(DatabaseMiddleware)
 
 
 if __name__ == '__main__':
-    print("Бот запускается")
     if not os.path.exists("./tmp"):
         os.mkdir("./tmp")
-    if mode=='inner':
-        if not os.path.exists("./documents_to_send"):
-            os.mkdir("./documents_to_send")
-        if not os.path.exists("./documents_sent"):
-            os.mkdir("./documents_sent")
-        if not os.path.exists("./send_to"):
-            os.mkdir("./send_to")
-    asyncio.run(main())
+    loop = asyncio.get_event_loop()
+    loop.create_task(main())
+    bot.loop_wrapper.add_task(bot.run_polling())
+    bot.loop_wrapper.add_task(main())
+    bot.loop_wrapper.run()
