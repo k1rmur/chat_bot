@@ -41,7 +41,7 @@ send_message_from = list(map(int, os.getenv("SEND_MESSAGE_FROM").split(",")))
 def allowed_users_only(func):
     @wraps(func)
     async def wrapper(message: Message, *args, **kwargs):
-        if message.peer_id not in send_message_from:
+        if message.from_id not in send_message_from:
             await message.answer("У вас нет прав для использования этой команды.")
             return
         return await func(message, *args, **kwargs)
@@ -172,4 +172,3 @@ async def send(message: Message, bot: Bot):
             logger.error(error_text, exc_info=True)
             await bot.api.messages.send(peer_id=322077458, message=error_text, random_id=random.randint(1, 1e6))
             await message.answer("Произошла ошибка при обработке Вашего запроса :(")
-

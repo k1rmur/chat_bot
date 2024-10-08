@@ -1,59 +1,25 @@
 services:
-  bot-inner:
-    container_name: favr_bot_inner
-    build:
-      context: .
-      dockerfile: Dockerfile
-    env_file: ./.env_inner
-    environment:
-      MODE: "inner"
-    command: 
-      python3 /app/bot/get_bot.py --Mode inner
-    volumes:
-      - embeddings_inner:/app/bot/db/
-      - whisper:/root/.cache/whisper/
-      - inner_logs:/app/logs/
-      - docs_to_send:/app/documents_to_send/
-      - send_to_list:/app/send_to/
-      - user_db_inner:/user_db/
   bot-outer:
     container_name: favr_bot_outer
     build:
       context: .
       dockerfile: Dockerfile
-    env_file: ./.env_outer
+    env_file: ./.env
     environment:
       MODE: "outer"
     command:
       python3 /app/bot/get_bot.py --Mode outer
     volumes:
       - embeddings_outer:/app/bot/db_citizens/
-      - whisper:/root/.cache/whisper/
       - outer_logs:/app/logs/
       - user_db_outer:/user_db/
-
-  ollama-container:
-    container_name: ollama-container
-    hostname: ollama-container
-    image: ollama/ollama:latest
-    environment:
-      - OLLAMA_KEEP_ALIVE=-1
-      - OLLAMA_HOST=0.0.0.0
-    volumes:
-      - ollama:/root/.ollama
-    command:
-      serve
+      - local_models:/tmp/llama_index/
 
 
 volumes:
-  embeddings_inner:
   embeddings_outer:
-  whisper:
   outer_logs:
-  inner_logs:
-  docs_to_send:
   send_to_list:
-  user_db_inner:
   user_db_outer:
-  ollama:
+  local_models:
 

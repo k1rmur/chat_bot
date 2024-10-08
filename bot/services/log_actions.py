@@ -13,7 +13,7 @@ allowed_actions = {
 
 def log_action(message, action):
     with open(CSV_LOG_PATH, 'a') as file:
-        user_id = message.peer_id
+        user_id = message.from_id
         mydate = datetime.datetime.now()
 
         file.write(",".join([str(user_id), str(mydate), action])+'\n')

@@ -55,7 +55,7 @@ chat_refine_msgs = [
 refine_template = ChatPromptTemplate.from_messages(chat_refine_msgs)
 
 
-llm = GigaChat(verify_ssl_certs=False, credentials='NTdkMzNkMjMtOTAyZC00ZDYzLWJjMzktOTk4MTI3Yjg4N2NjOmJlM2M4NjdlLTgwZWQtNDJmZC1iMjVmLTQzNGU2ZmQyNTdhZg==', scope="GIGACHAT_API_CORP", model="GigaChat-Plus")
+llm = GigaChat(verify_ssl_certs=False, credentials='cresd', scope="GIGACHAT_API_CORP", model="GigaChat-Plus")
 Settings.llm = llm
 Settings.embed_model = embeddings
 
