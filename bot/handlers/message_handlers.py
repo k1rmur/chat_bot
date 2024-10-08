@@ -5,6 +5,7 @@ import random
 from functools import wraps
 
 from database import Database
+from config_data.config import token, db_url
 from dotenv import find_dotenv, load_dotenv
 from keyboards.keyboards import inline_rating_keyboard
 from lexicon.lexicon import INTRO_MESSAGES, LEXICON_COMMANDS_RU, LEXICON_RU
@@ -15,12 +16,18 @@ from vkbottle import BaseStateGroup, DocMessagesUploader, PhotoMessageUploader
 from vkbottle.bot import Bot, Message, MessageEvent
 from vkbottle_types.events import GroupEventType
 from vkbottle.bot import BotLabeler
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 
 class DocumentStates(BaseStateGroup):
     waiting_for_text = 0
     waiting_for_rating = 1
 
+
+bot = Bot(token)
+
+engine = create_async_engine(url=db_url, echo=True) 
+session = async_sessionmaker(engine, expire_on_commit=False)
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +73,7 @@ async def help_command(message):
 
 @labeler.message(command="statistics")
 @allowed_users_only
-async def statistics(message: Message, bot: Bot):
+async def statistics(message: Message):
     photo_uploader = PhotoMessageUploader(bot.api)
     doc = photo_uploader.upload(
         file_source="/app/logs/stats.csv",
@@ -94,10 +101,11 @@ async def send_to_everyone(message: Message, db: Database):
     await message.state_dispenser.delete(message.peer_id)
 
 
-async def send_intro_message(message: Message, session: AsyncSession):
+async def send_intro_message(message: Message):
 
     async with session() as current_session:
         db = Database(session=current_session)
+
 
     text = random.choice(INTRO_MESSAGES)
     result = await db.get_chat_ids()
@@ -106,7 +114,7 @@ async def send_intro_message(message: Message, session: AsyncSession):
     await message.ctx_api.messages.send(peer_id=322077458, message=f'Прошла рассылка сообщения:\n\n{text}', random_id=random.randint(1, 1e6))
 
 
-async def ask_for_rating(message: Message, session: AsyncSession):
+async def ask_for_rating(message: Message):
 
     async with session() as current_session:
         db = Database(session=current_session)
@@ -128,7 +136,12 @@ async def process_rating(event: MessageEvent, bot: Bot):
 
 
 @labeler.message(command='start')
-async def process_start_command(message: Message, db: Database):
+async def process_start_command(message: Message):
+
+
+    async with session() as current_session:
+        db = Database(session=current_session)
+
     try:
         log_action(message, allowed_actions['start'])
     except Exception as e:
@@ -142,7 +155,7 @@ async def process_start_command(message: Message, db: Database):
 
 
 @labeler.message()
-async def send(message: Message, bot: Bot):
+async def send(message: Message):
 
     doc_uploader = DocMessagesUploader(bot.api)
     if message.text in LEXICON_RU:

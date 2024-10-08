@@ -28,11 +28,6 @@ for custom_labeler in labelers:
 
 async def main():
 
-    engine = create_async_engine(url=db_url, echo=True) # MOVE SOMEWHERE
-    session = async_sessionmaker(engine, expire_on_commit=False)
-
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
     scheduler = AsyncIOScheduler()
 
     scheduler.add_job(message_handlers.ask_for_rating, "cron", day='1st wed, 3rd wed', hour=19, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot, session))
