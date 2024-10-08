@@ -1,11 +1,9 @@
-from langchain_community.chat_models import ChatOllama
+from langchain_community.chat_models import ChatOllama, GigaChat
 from langchain_core.prompts import ChatPromptTemplate
-from make_embeddings import vector_index, embeddings, bm25_retriever
-from llama_index.core import Settings
-from llama_index.core import ChatPromptTemplate
-from llama_index.core.retrievers import QueryFusionRetriever
+from llama_index.core import ChatPromptTemplate, Settings
 from llama_index.core.query_engine import RetrieverQueryEngine
-
+from llama_index.core.retrievers import QueryFusionRetriever
+from make_embeddings import bm25_retriever, embeddings, vector_index
 
 QUERY_GEN_PROMPT = (
     "Ты полезный ассистент федерального агенства по водным ресурсам (ФАВР), генерирующий несколько запросов, основываясь на "
@@ -57,7 +55,7 @@ chat_refine_msgs = [
 refine_template = ChatPromptTemplate.from_messages(chat_refine_msgs)
 
 
-llm = ChatOllama(model='llama3.1', temperature=0.1, base_url="http://ollama-container:11434", keep_alive=-1, num_ctx=2048*4, num_thread=8, num_gpu=0)
+llm = GigaChat(verify_ssl_certs=False, credentials='NTdkMzNkMjMtOTAyZC00ZDYzLWJjMzktOTk4MTI3Yjg4N2NjOmJlM2M4NjdlLTgwZWQtNDJmZC1iMjVmLTQzNGU2ZmQyNTdhZg==', scope="GIGACHAT_API_CORP", model="GigaChat-Plus")
 Settings.llm = llm
 Settings.embed_model = embeddings
 

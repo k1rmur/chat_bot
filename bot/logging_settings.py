@@ -1,5 +1,4 @@
-from log_filters import InfoLogFilter, ExceptionLogFilter
-
+from log_filters import ExceptionLogFilter, InfoLogFilter
 
 logging_config = {
     'version': 1,
@@ -44,17 +43,9 @@ logging_config = {
             'level': 'DEBUG',
             'handlers': ['error_file', 'info_file']
         },
-        'handlers.user_handlers': {
+        'handlers.message_handlers': {
             'level': 'DEBUG',
             'handlers': ['error_file', 'info_file']
         },
-        'handlers.user_handlers': {
-            'level': 'DEBUG',
-            'handlers': ['error_file', 'info_file']
-        },
-        'handlers.send_documents': {
-            'level': 'DEBUG',
-            'handlers': ['error_file', 'info_file']
-        }
     },
 }
