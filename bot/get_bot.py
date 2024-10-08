@@ -5,7 +5,7 @@ import os
 from datetime import timedelta, timezone
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from config_data.config import db_url, labeler, state_dispenser, token
+from config_data.config import db_url, state_dispenser, token
 from database import Base
 from handlers import message_handlers
 from logging_settings import logging_config
@@ -13,6 +13,7 @@ from middlewares import DatabaseMiddleware
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from vkbottle import Bot
 from vkbottle.bot import Message
+from handlers import labelers
 
 mode = "outer"
 
@@ -20,15 +21,11 @@ logging.config.dictConfig(logging_config)
 
 bot = Bot(
     token=token,
-#    labeler=labeler,
-#    state_dispenser=state_dispenser,
+    state_dispenser=state_dispenser,
 )
 
-
-@bot.on.private_message(text="test")
-async def hi_handler(message: Message):
-    users_info = await bot.api.users.get(message.from_id)
-    await message.answer("Привет, {}".format(str(users_info)))
+for custom_labeler in labelers:
+    bot.labeler.load(custom_labeler)
 
 
 async def main():

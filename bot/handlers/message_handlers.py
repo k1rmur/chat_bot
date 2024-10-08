@@ -4,7 +4,6 @@ import os
 import random
 from functools import wraps
 
-from config_data.config import labeler
 from database import Database
 from dotenv import find_dotenv, load_dotenv
 from keyboards.keyboards import inline_rating_keyboard
@@ -15,8 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from vkbottle import BaseStateGroup, DocMessagesUploader, PhotoMessageUploader
 from vkbottle.bot import Bot, Message, MessageEvent
 from vkbottle_types.events import GroupEventType
-
-logger = logging.getLogger(__name__)
+from vkbottle.bot import BotLabeler
 
 
 class DocumentStates(BaseStateGroup):
@@ -24,10 +22,20 @@ class DocumentStates(BaseStateGroup):
     waiting_for_rating = 1
 
 
+logger = logging.getLogger(__name__)
+
+labeler = BotLabeler()
+
+
+@labeler.message(text="test")
+async def hi_handler(message: Message):
+    await message.answer("Привет")
+
+
 load_dotenv(find_dotenv())
 mode = "outer"
 
-send_message_from = list(map(int, os.getenv("SEND_MESSAGE_FROM").split(","))) 
+send_message_from = list(map(int, os.getenv("SEND_MESSAGE_FROM").split(",")))
 
 
 def allowed_users_only(func):
@@ -39,31 +47,6 @@ def allowed_users_only(func):
         return await func(message, *args, **kwargs)
     return wrapper
 
-
-def users_from_group_only(func):
-    """
-    Wrapper for access restriction to only those who are members of a particular group
-    """
-
-    @wraps(func)
-    async def wrapper(message: Message, *args, **kwargs):
-        user_status = await message.bot.get_chat_member(
-            chat_id="-1001843125623", user_id=message.from_user.id
-        )
-        print(user_status)
-        if not isinstance(
-            user_status,
-            (
-                ChatMemberOwner,
-                ChatMemberAdministrator,
-                ChatMemberMember,
-            ),
-        ):
-            await message.reply("У вас нет прав для использования этого бота.")
-            return
-        return await func(message, *args, **kwargs)
-
-    return wrapper
 
 
 @labeler.message(command="help")

@@ -1,3 +1,4 @@
-from .message_handlers import labeler
+from . import message_handlers
 
-__all__ = ("labeler",)
+
+labelers = [message_handlers.labeler,]
