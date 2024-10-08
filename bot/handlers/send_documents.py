@@ -13,6 +13,7 @@ from database import Database
 import asyncio
 import random
 from sqlalchemy.ext.asyncio import AsyncSession
+from filters.filters import allowed_users_only
 
 
 DOCUMENTS_TO_SEND = "/app/documents_to_send"
@@ -32,18 +33,7 @@ logger = logging.getLogger(__name__)
 
 router = Router()
 
-send_message_from = list(map(int, os.getenv("SEND_MESSAGE_FROM").split(","))) 
 ADD_USER_PASSWORD = os.getenv("ADD_USER_PASSWORD")
-
-
-def allowed_users_only(func):
-    @wraps(func)
-    async def wrapper(message: Message, *args, **kwargs):
-        if message.from_user.id not in send_message_from:
-            await message.reply("У вас нет прав для использования этой команды.")
-            return
-        return await func(message, *args, **kwargs)
-    return wrapper
 
 
 class DocumentStates(StatesGroup):

@@ -1,5 +1,5 @@
 from aiogram import Router, F, Bot
-from aiogram.types import Message
+from aiogram.types import Message, ChatMemberAdministrator, ChatMemberMember, ChatMemberOwner
 from aiogram.filters import CommandStart
 from aiogram.enums.parse_mode import ParseMode
 from lexicon.lexicon_outer import LEXICON_RU
