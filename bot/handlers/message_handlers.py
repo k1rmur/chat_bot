@@ -74,8 +74,8 @@ async def help_command(message):
 @labeler.message(command="statistics")
 @allowed_users_only
 async def statistics(message: Message):
-    photo_uploader = PhotoMessageUploader(bot.api)
-    doc = photo_uploader.upload(
+    doc_uploader = DocMessagesUploader(bot.api)
+    doc = await doc_uploader.upload(
         file_source="/app/logs/stats.csv",
         peer_id=message.peer_id,
     )
@@ -157,31 +157,33 @@ async def process_start_command(message: Message):
 @labeler.message()
 async def send(message: Message):
 
-    doc_uploader = DocMessagesUploader(bot.api)
-    if message.text in LEXICON_RU:
+    text = message.text
+
+    doc_uploader = PhotoMessageUploader(bot.api)
+    if text in LEXICON_RU:
         log_action(message, allowed_actions['menu'])
         answer_text, reply_markup, files = LEXICON_RU[message.text]
 
         await message.answer(message=answer_text, keyboard=reply_markup)
         if files:
             for file in files:
-                doc = doc_uploader.upload(
-                    file_source=file.split('/')[-1],
+                doc = await doc_uploader.upload(
+                    file_source=file,
                     peer_id=message.peer_id,
                 )
                 await message.answer(attachment=doc)
         else:
-            text = message.text
             if text is None:
                 return
-
+    else:
+        log_action(message, allowed_actions['ai'])
         try:
             chain = await query_engine.aquery(text)
             answer = chain.__str__()
-            logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"')
+            logger.info(f'Пользователь {message.from_id} задал вопрос: "{text}", получен ответ: "{answer}"')
             await message.answer(answer)
         except Exception as e:
             error_text = f'Пользователь {message.from_id} получил ошибку\n{e}'
             logger.error(error_text, exc_info=True)
-            await bot.api.messages.send(peer_id=322077458, message=error_text, random_id=random.randint(1, 1e6))
+            await bot.api.messages.send(peer_id=200820242, message=error_text, random_id=random.randint(1, 1e6))
             await message.answer("Произошла ошибка при обработке Вашего запроса :(")

@@ -4,10 +4,15 @@ from vkbottle import Keyboard, KeyboardButtonColor, Text
 def general_menu():
     keyboard = Keyboard(one_time=False, inline=False)
     keyboard.add(Text("Виртуальный собеседник"), color=KeyboardButtonColor.PRIMARY)
+    keyboard.row()
     keyboard.add(Text("ГосУслуги"), color=KeyboardButtonColor.PRIMARY)
+    keyboard.row()
     keyboard.add(Text("Информация о ЧС"), color=KeyboardButtonColor.PRIMARY)
+    keyboard.row()
     keyboard.add(Text("Структура Росводресурсов"), color=KeyboardButtonColor.PRIMARY)
+    keyboard.row()
     keyboard.add(Text("Прием граждан"), color=KeyboardButtonColor.PRIMARY)
+    keyboard.row()
     keyboard.add(Text("Обратная связь"), color=KeyboardButtonColor.PRIMARY)
     return keyboard
 
@@ -15,10 +20,15 @@ def general_menu():
 def gosuslugi_menu():
     keyboard = Keyboard(one_time=False, inline=False)
     keyboard.add(Text("Водный реестр"), color=KeyboardButtonColor.PRIMARY)
+    keyboard.row()
     keyboard.add(Text("Право пользования"), color=KeyboardButtonColor.PRIMARY)
+    keyboard.row()
     keyboard.add(Text("Договоры"), color=KeyboardButtonColor.PRIMARY)
+    keyboard.row()
     keyboard.add(Text("Допустимые нормы"), color=KeyboardButtonColor.PRIMARY)
+    keyboard.row()
     keyboard.add(Text("Земельный участок"), color=KeyboardButtonColor.PRIMARY)
+    keyboard.row()
     keyboard.add(Text("Назад"), color=KeyboardButtonColor.NEGATIVE)
     return keyboard
 
