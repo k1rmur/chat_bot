@@ -5,10 +5,9 @@ def general_menu():
     btn_gouslugi = KeyboardButton(text="Электронный протокол")
     btn_struct_rosvodres = KeyboardButton(text="Регламенты ПКИ")
     btn_faq = KeyboardButton(text="ГосУслуги")
-    btn_chs = KeyboardButton(text="Оперативная информация о водохозяйственной обстановке")
     btn_priem = KeyboardButton(text="Обратная связь")
     markup = ReplyKeyboardMarkup(
-        keyboard= [[btn_vod_obj], [btn_gouslugi], [btn_chs], [btn_struct_rosvodres], [btn_priem], [btn_faq]],
+        keyboard= [[btn_vod_obj, btn_gouslugi], [btn_struct_rosvodres, btn_priem], [btn_faq]],
         resize_keyboard=True
     )
     return markup 

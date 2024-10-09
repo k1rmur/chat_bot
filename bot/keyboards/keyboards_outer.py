@@ -2,14 +2,15 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardBut
 
 
 def general_menu():
+    bth_about = KeyboardButton(text="О боте")
     btn_vod_obj = KeyboardButton(text="Виртуальный собеседник")
     btn_gouslugi = KeyboardButton(text="ГосУслуги")
-    btn_struct_rosvodres = KeyboardButton(text="Структура Росводресурсов")
+#    btn_struct_rosvodres = KeyboardButton(text="Структура Росводресурсов")
     btn_faq = KeyboardButton(text="Обратная связь")
-    btn_chs = KeyboardButton(text="Информация о ЧС")
+#    btn_chs = KeyboardButton(text="Информация о ЧС")
     btn_priem = KeyboardButton(text="Прием граждан")
     markup = ReplyKeyboardMarkup(
-        keyboard= [[btn_vod_obj], [btn_gouslugi], [btn_chs], [btn_struct_rosvodres], [btn_priem], [btn_faq]],
+        keyboard= [[bth_about, btn_vod_obj], [btn_gouslugi, btn_priem], [btn_faq]],
         resize_keyboard=True
     )
     return markup 
