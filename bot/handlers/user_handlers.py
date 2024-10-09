@@ -101,7 +101,7 @@ async def send(message: Message, bot: Bot):
         answer_text, reply_markup, files = LEXICON_RU[message.text]
 
         # Оперативная информация - загружаем последний отправленный документ
-        if message.text=='Оперативная информация о водохозяйственной обстановке':
+        if message.text=='Обстановка':
             if mode == 'inner':
                 answer_text= 'Последняя информация:'
                 files = filter(os.path.isfile, os.listdir(DOCUMENTS_SENT))
