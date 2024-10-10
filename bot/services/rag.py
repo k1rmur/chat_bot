@@ -86,4 +86,6 @@ query_engine = RetrieverQueryEngine.from_args(
     retriever,
     text_qa_template=text_qa_template,
     refine_template=refine_template,
+    response_mode="simple_summarize",
+    simple_template=text_qa_template,
 )
