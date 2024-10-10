@@ -9,7 +9,7 @@ from langchain_community.chat_models import GigaChat
 from dotenv import load_dotenv, find_dotenv
 import os
 
-load_dotenv(find__dotenv())
+load_dotenv(find_dotenv())
 
 CREDENTIALS = os.getenv("CREDENTIALS")
 
