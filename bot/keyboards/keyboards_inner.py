@@ -63,8 +63,7 @@ def instruments_menu():
     btn_doc4 = KeyboardButton(text='''Назад''')
 
     markup = ReplyKeyboardMarkup(
-        keyboard=[[btn_doc1], [btn_doc2], [btn_doc3], [btn_doc4],],
+        keyboard=[[btn_doc1, btn_doc2], [btn_doc3, btn_doc4],],
         resize_keyboard=True
     )
     return markup
-
