@@ -16,6 +16,40 @@ from keyboards.keyboards_inner import gosuslugi_menu
 from services.log_actions import log_action, allowed_actions
 
 
+
+def stringify_context(
+    result: dict,
+) -> list[str]:
+    """
+    Displays given context as a list of strings of size <= 4096 symbols
+
+    Args:
+        context: list of documents from RAG chain
+
+    Returns:
+        Returns a list of strings that fit into a single telegram message
+    """
+
+    chunks = []
+    nodes = result.source_nodes
+    result = "Источники:\n"
+    for idx, doc in enumerate(nodes):
+        current_source = ""
+        current_source += f"#{idx + 1}\n"
+        for metadata_key, metadata_value in doc.metadata.items():
+            current_source += str(metadata_key) + ": " + str(metadata_value) + "\n"
+        current_source += doc.text + "\n"
+        if len(result) + len(current_source) >= 4096:
+            chunks.append(result)
+            result = current_source
+        else:
+            result += current_source
+
+    chunks.append(result)
+
+
+    return chunks
+
 class UserState(StatesGroup):
     level_1_menu = State()
     level_2_menu = State()
@@ -106,6 +140,7 @@ async def send(message: Message, bot: Bot):
                 answer_text= 'Последняя информация:'
                 files = filter(os.path.isfile, os.listdir(DOCUMENTS_SENT))
                 files = [os.path.join(DOCUMENTS_SENT, f) for f in files]
+                await message.answer(str(os.listdir(DOCUMENTS_SENT)))
                 if files:
                     files.sort(key=lambda x: os.path.getmtime(x))
                     files = [files[-1],]
@@ -143,6 +178,10 @@ async def send(message: Message, bot: Bot):
             answer = chain.__str__()
             logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"')
             await message.reply(text=answer, parse_mode=None)
+            chunks = stringify_context(chain)
+#            for chunk in chunks:
+#                print(chunk)
+#                await message.reply(text=chunk, parse_mode=None)
         except Exception as e:
             error_text = f'Пользователь {message.from_user.username} получил ошибку\n{e}'
             logger.error(error_text, exc_info=True)

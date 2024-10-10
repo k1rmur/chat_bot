@@ -6,6 +6,12 @@ from llama_index.core import ChatPromptTemplate
 from llama_index.core.retrievers import QueryFusionRetriever
 from llama_index.core.query_engine import RetrieverQueryEngine
 from langchain_community.chat_models import GigaChat
+from dotenv import load_dotenv, find_dotenv
+import os
+
+load_dotenv(find__dotenv())
+
+CREDENTIALS = os.getenv("CREDENTIALS")
 
 
 QUERY_GEN_PROMPT = (
@@ -59,16 +65,16 @@ refine_template = ChatPromptTemplate.from_messages(chat_refine_msgs)
 
 
 #llm = ChatOllama(model='llama3.1', temperature=0.1, base_url="http://ollama-container:11434", keep_alive=-1, num_ctx=2048*4, num_thread=8, num_gpu=0)
-llm = GigaChat(verify_ssl_certs=False, credentials='', scope="GIGACHAT_API_CORP", model="GigaChat-Plus")
+llm = GigaChat(verify_ssl_certs=False, credentials=CREDENTIALS, scope="GIGACHAT_API_CORP", model="GigaChat-Plus")
 Settings.llm = llm
 Settings.embed_model = embeddings
 
 
-vector_retriever = vector_index.as_retriever(similarity_top_k=5)
+vector_retriever = vector_index.as_retriever(similarity_top_k=10)
 
 retriever = QueryFusionRetriever(
     [vector_retriever, bm25_retriever],
-    similarity_top_k=10,
+    similarity_top_k=20,
     num_queries=1,
     mode="simple",
     use_async=True,

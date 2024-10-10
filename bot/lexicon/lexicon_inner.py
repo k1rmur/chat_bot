@@ -2,6 +2,7 @@ from keyboards.keyboards_inner import general_menu, gosuslugi_menu, reglament_me
 
 
 LEXICON_RU: dict[str, str] = {
+    'Обстановка': ["", general_menu(), []],
     'О боте': ['''🌊 ФАВРик - ИИ ассистент сотрудника Росводресурсов
 
 Помогу вам:
