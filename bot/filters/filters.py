@@ -16,7 +16,7 @@ def users_from_group_only(func):
     @wraps(func)
     async def wrapper(message: Message, *args, **kwargs):
         user_status = await message.bot.get_chat_member(
-            chat_id="-1001843125623", user_id=message.from_user.id
+            chat_id="-1002409517684", user_id=message.from_user.id
         )
         print(user_status)
         if not isinstance(

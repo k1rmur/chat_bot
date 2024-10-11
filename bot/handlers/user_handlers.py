@@ -14,7 +14,7 @@ from aiogram.types import FSInputFile
 from database import Database
 from keyboards.keyboards_inner import gosuslugi_menu
 from services.log_actions import log_action, allowed_actions
-
+from filters.filters import users_from_group_only
 
 
 def stringify_context(
@@ -74,18 +74,21 @@ logger = logging.getLogger(__name__)
 
 if mode == 'inner':
     @router.message(F.text=='Оптимизированный стандарт')
+    @users_from_group_only
     async def send_optimized_std_menu(message: Message, state: FSMContext):
         await message.answer("Меню ОС:", reply_markup=gosuslugi_menu())
         await state.set_state(UserState.level_1_menu)
 
 
     @router.message(F.text=='Описание целевого состояния')
+    @users_from_group_only
     async def send_target_state_menu(message: Message, state: FSMContext):
         await message.answer("Меню ОСЦ:", reply_markup=gosuslugi_menu())
         await state.set_state(UserState.level_2_menu)
 
     
     @router.message(UserState.level_1_menu)
+    @users_from_group_only
     async def handle_optimized_std_menu(message: Message, state: FSMContext):
         text = message.text
         if text in GOSUSLUGI_LEVEL_1:
@@ -100,6 +103,7 @@ if mode == 'inner':
 
 
     @router.message(UserState.level_2_menu)
+    @users_from_group_only
     async def handle_target_state_menu(message: Message, state: FSMContext):
         text = message.text
         if text in GOSUSLUGI_LEVEL_2:
@@ -114,6 +118,7 @@ if mode == 'inner':
 
 
 @router.message(CommandStart())
+@users_from_group_only
 async def process_start_command(message: Message, db: Database):
     try:
     	log_action(message, allowed_actions['start'])
@@ -129,6 +134,7 @@ async def process_start_command(message: Message, db: Database):
 
 
 @router.message((F.text | F.voice) & ~F.text.startswith('/') & F.text != ADD_USER_PASSWORD)
+@users_from_group_only
 async def send(message: Message, bot: Bot):
     if message.text in LEXICON_RU:
         log_action(message, allowed_actions['menu'])
