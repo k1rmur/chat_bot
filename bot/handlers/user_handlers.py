@@ -14,7 +14,7 @@ from aiogram.types import FSInputFile
 from database import Database
 from keyboards.keyboards_inner import gosuslugi_menu
 from services.log_actions import log_action, allowed_actions
-from filters.filters import users_from_group_only
+from filters.filters import users_from_group_only, ChatTypeFilter
 
 
 def stringify_context(
@@ -133,7 +133,7 @@ async def process_start_command(message: Message, db: Database):
     )
 
 
-@router.message((F.text | F.voice) & ~F.text.startswith('/') & F.text != ADD_USER_PASSWORD)
+@router.message((F.text | F.voice) & ~F.text.startswith('/') & F.text != ADD_USER_PASSWORD & F.chat.type.in_({"private",}))
 @users_from_group_only
 async def send(message: Message, bot: Bot):
     if message.text in LEXICON_RU:
