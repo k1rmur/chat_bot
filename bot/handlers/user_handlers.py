@@ -134,18 +134,6 @@ async def send(message: Message, bot: Bot):
         log_action(message, allowed_actions['menu'])
         answer_text, reply_markup, files = LEXICON_RU[message.text]
 
-        # Оперативная информация - загружаем последний отправленный документ
-        if message.text=='Обстановка':
-            if mode == 'inner':
-                answer_text= 'Последняя информация:'
-                files = filter(os.path.isfile, os.listdir(DOCUMENTS_SENT))
-                files = [os.path.join(DOCUMENTS_SENT, f) for f in files]
-                await message.answer(str(os.listdir(DOCUMENTS_SENT)))
-                if files:
-                    files.sort(key=lambda x: os.path.getmtime(x))
-                    files = [files[-1],]
-            else:
-                answer_text = 'Недоступно'
 
         await message.answer(text=answer_text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
         if files:
@@ -178,7 +166,7 @@ async def send(message: Message, bot: Bot):
             answer = chain.__str__()
             logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"')
             await message.reply(text=answer, parse_mode=None)
-            chunks = stringify_context(chain)
+#            chunks = stringify_context(chain)
 #            for chunk in chunks:
 #                print(chunk)
 #                await message.reply(text=chunk, parse_mode=None)

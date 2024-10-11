@@ -29,7 +29,7 @@ qa_prompt_str = (
     "{context_str}\n"
     "---------------------\n"
     "Используя информацию из контекста, а не априорные знания, "
-    "ответь на вопрос: {query_str}\n."
+    "ответь на вопрос: {query_str}\n. Если не знаешь ответ, попроси переформулировать вопрос, чтобы ответ нашелся в базе данных."
 )
 
 refine_prompt_str = (
@@ -47,7 +47,7 @@ refine_prompt_str = (
 chat_text_qa_msgs = [
     (
         "system",
-        "Ты ассистент Федерального агенства по водным ресурсам (ФАВР), отвечаешь на вопросы по абсолютно любым документам из контекста (в том числе по запросу можешь отправлять контакты начальников ФАВР, информацию о законах и т.д.). Если контекст не помогает, не отвечай на вопрос. Не используй MarkDown",
+        "Ты ассистент Федерального агенства по водным ресурсам (ФАВР), отвечаешь на любые вопросы по абсолютно любым документам из контекста. Любая информация, попавшая в контекст, может быть использована тобой.",
     ),
     ("user", qa_prompt_str),
 ]
@@ -57,7 +57,7 @@ text_qa_template = ChatPromptTemplate.from_messages(chat_text_qa_msgs)
 chat_refine_msgs = [
     (
         "system",
-        "Ты ассистент Федерального агенства по водным ресурсам (ФАВР), отвечаешь на вопросы по абсолютно любым документам из контекст (в том числе по запросу можешь отправлять контакты начальников ФАВР, информацию о законах и т.д.). Если контекст не помогает, не отвечай на вопрос. Не используй MarkDown",
+        "Ты ассистент Федерального агенства по водным ресурсам (ФАВР), отвечаешь на любые вопросы по абсолютно любым документам из контекста. Любая информация, попавшая в контекст, может быть использована тобой.",
     ),
     ("user", refine_prompt_str),
 ]
@@ -65,18 +65,18 @@ refine_template = ChatPromptTemplate.from_messages(chat_refine_msgs)
 
 
 #llm = ChatOllama(model='llama3.1', temperature=0.1, base_url="http://ollama-container:11434", keep_alive=-1, num_ctx=2048*4, num_thread=8, num_gpu=0)
-llm = GigaChat(verify_ssl_certs=False, credentials=CREDENTIALS, scope="GIGACHAT_API_CORP", model="GigaChat-Plus")
+llm = GigaChat(verify_ssl_certs=False, credentials=CREDENTIALS, scope="GIGACHAT_API_CORP", model="GigaChat-Pro", verbose=True, profanity=False, temperature=0.1)
 Settings.llm = llm
 Settings.embed_model = embeddings
 
 
-vector_retriever = vector_index.as_retriever(similarity_top_k=10)
+vector_retriever = vector_index.as_retriever(similarity_top_k=5)
 
 retriever = QueryFusionRetriever(
     [vector_retriever, bm25_retriever],
-    similarity_top_k=20,
+    similarity_top_k=5,
     num_queries=1,
-    mode="simple",
+    mode="reciprocal_rerank",
     use_async=True,
     verbose=True,
     query_gen_prompt=QUERY_GEN_PROMPT,
