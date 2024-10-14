@@ -1,42 +1,192 @@
+import asyncio
+import logging
 import os
 
-from langchain.chains.llm import LLMChain
+import torch
 from docx import Document
-from dotenv import load_dotenv, find_dotenv
-from langchain_community.chat_models import ChatOllama
-from langchain_core.prompts import ChatPromptTemplate
+from docx.enum.style import WD_STYLE_TYPE
+from docx.shared import Pt
+from dotenv import find_dotenv, load_dotenv
+from langchain.chains.llm import LLMChain
+from langchain_community.chat_models import GigaChat
+from langchain_core.prompts import PromptTemplate
+from langchain_text_splitters import CharacterTextSplitter
 
+from .prompt_templates import (CONTENT_PROMPT, EXTRACT_MAIN_QUESTIONS_PROMPT,
+                               EXTRACT_SHORT_RESUME_PROMPT, ORDER_PROMPT,
+                               REFINE_CONTENT_PROMPT, REFINE_ORDERS_PROMPT)
+from .rag import llm
+
+logger = logging.getLogger(__name__)
+CONTEXT_LENGTH = 8192*4
 
 load_dotenv(find_dotenv())
 
-sys_prompt = """Перед тобой стенограмма совещания сотрудников Федерального агенства по водным ресурсам, напиши по ним следующие разделы, каждый раздел протокола должен иметь название и должен быть разделен отступом:
-1) Вопрос совещания: основной вопрос, который обсуждался на совещании. Формулировка вопроса должна содержать не более 10 слов. 
-2) Краткое резюме совещания: должен содержать краткий пересказ ключевых тем, поручений и решений совещания. Раздел должен состоять как минимум из трёх предложений.
-3) Поручения: список поручений, которые были даны сотрудникам в ходе совещания. При формулировке каждого поручения необходимо указать сотрудника, кому было дано поручение, а также дату, к которой поручение необходимо исполнить. Формулировка каждого поручения должна содержать не менее 10 слов.
-4) Содержание встречи:  не менее 3 основных тем, которые обсуждались на встрече. По каждой теме необходимо сформировать абзац, который будет иметь следующую структуру: первое предложение – тема, которая обсуждалась на встрече. Последующие предложения – информация по теме, которая содержится в стенограмме. Абзац в совокупности должен содержать не менее 4 предложений.
-"""
 
-prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            sys_prompt,
-        ),
-        ("human", "Начало стенограммы:\n {input}\nКонец стенограммы."),
-    ]
-)
+async def process_chunk(order_chain, content_chain, chunk):
+    tasks = [chain.ainvoke({"chunk": chunk}) for chain in [order_chain, content_chain]]
+    orders, contents = await asyncio.gather(*tasks)
+    return orders, contents
 
 
 ABS_PATH = os.path.dirname(os.path.abspath(__file__))
 
-llm = ChatOllama(model='llama3.1', temperature=0.2, base_url="http://ollama-container:11434", keep_alive=-1, num_ctx=2048, num_thread=8, num_gpu=0)
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print("OLLAMA DEVICE:", device)
+if device == "cuda":
+    n_gpu_layers = 33
+    num_thread = None
+    base_url = "http://ollama-container-gpu:11434"
+else:
+    n_gpu_layers = None
+    num_thread = 8
+    base_url = "http://ollama-container:11434"
 
-llm_chain = LLMChain(llm=llm, prompt=prompt)
+#llm = ChatOllama(
+#    model='llama3.1:8b-instruct-q4_K_M',
+#    temperature=0.1,
+#    base_url=base_url,
+#    keep_alive=-1,
+#    num_ctx=CONTEXT_LENGTH,
+#    num_thread=num_thread,
+#    n_gpu_layers=n_gpu_layers,
+#    verbose=True,
+#    system="Ты ассистент, анализирующий стенограммы встреч, не оставляющий своих комментариев и не выдумывающий поручения и темы обсуждения, если они не оговорены.",
+#)
+
+llm = GigaChat(verify_ssl_certs=False, credentials=os.getenv("CREDENTIALS"), scope="GIGACHAT_API_CORP", model="GigaChat-Plus")
 
 
-async def get_summary(file_id, text):
+def length_function(text) -> int:
+    """Get number of tokens for input contents."""
+    return llm.get_num_tokens(text)
+
+
+REFINE_ORDERS_PROMPT_LENGTH = length_function(REFINE_ORDERS_PROMPT)
+REFINE_CONTENT_PROMPT_LENGTH = length_function(REFINE_CONTENT_PROMPT)
+EXTRACT_MAIN_QUESTIONS_PROMPT_LENGTH = length_function(EXTRACT_MAIN_QUESTIONS_PROMPT)
+EXTRACT_SHORT_RESUME_PROMPT_LENGTH = length_function(EXTRACT_SHORT_RESUME_PROMPT)
+CONTENT_PROMPT_LENGTH = length_function(CONTENT_PROMPT)
+ORDER_PROMPT_LENGTH = length_function(ORDER_PROMPT)
+
+
+refine_orders_prompt = PromptTemplate.from_template(REFINE_ORDERS_PROMPT)
+
+refine_content_prompt = PromptTemplate.from_template(REFINE_CONTENT_PROMPT)
+
+extract_main_questions_prompt = PromptTemplate.from_template(EXTRACT_MAIN_QUESTIONS_PROMPT)
+
+extract_short_resume_prompt = PromptTemplate.from_template(EXTRACT_SHORT_RESUME_PROMPT)
+
+
+content_template = PromptTemplate(
+    input_variables=["chunk"],
+    template=CONTENT_PROMPT
+)
+order_template = PromptTemplate(
+    input_variables=["chunk"],
+    template=ORDER_PROMPT
+)
+
+async def get_summary(file_id, text, message):
+
+    prompt_length = max(CONTENT_PROMPT_LENGTH, ORDER_PROMPT_LENGTH)
+
+    text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
+        chunk_size=CONTEXT_LENGTH-prompt_length-500, chunk_overlap=100
+    )
+
+    chunks = text_splitter.split_text(text)
+
+    logger.info(f'Чанки: {" ".join(chunks)}')
+
+    order_chain = order_template | llm
+    content_chain = content_template | llm
+    tasks = [process_chunk(order_chain, content_chain, chunk) for chunk in chunks]
+    results = await asyncio.gather(*tasks)
+
+    logger.info(f'Results: {results}')
+    raw_orders = []
+    raw_content = []
+    for ord, cont in results:
+        if ord:
+            ord = ord.content
+            raw_orders.append(ord)
+        if cont:
+            cont = cont.content
+            raw_content.append(cont)
+
+    raw_orders = '\n'.join(raw_orders)
+    raw_content = '\n'.join(raw_content)
+
+    logger.info(f'raw_orders: {raw_orders}\n{len(raw_orders)}')
+    logger.info(f'raw_content: {raw_content}\n{len(raw_content)}')
+
+    recursion_content = 0
+    while True:
+        content_chunks = text_splitter.split_text(raw_content)
+        tasks = [content_chain.ainvoke({"chunk": chunk}) for chunk in content_chunks]
+        results = await asyncio.gather(*tasks)
+        raw_content = "\n".join([cont.content for cont in results])
+        logger.info(f'refined_content: {raw_content}\n{len(raw_content)}')
+        recursion_content += 1
+        if length_function(raw_content) < CONTEXT_LENGTH - REFINE_CONTENT_PROMPT_LENGTH - 500 or recursion_content > 10:
+            break
+
+
+    recursion_orders = 0
+    while True:
+        order_chunks = text_splitter.split_text(raw_orders)
+        tasks = [order_chain.ainvoke({"chunk": chunk}) for chunk in order_chunks]
+        results = await asyncio.gather(*tasks)
+        raw_orders = "\n".join([ord.content for ord in results])
+        logger.info(f'refined_orders: {raw_orders}\n{len(raw_orders)}')
+        recursion_orders += 1
+        if length_function(raw_orders) < CONTEXT_LENGTH - REFINE_CONTENT_PROMPT_LENGTH - 500 or recursion_orders > 10:
+            break
+
+
+    content = await LLMChain(llm=llm, prompt=refine_content_prompt).ainvoke(raw_content)
+    content = content['text']
+    orders = await LLMChain(llm=llm, prompt=refine_orders_prompt).ainvoke(raw_orders)
+    orders = orders['text']
+
+    logger.info(f'orders: {orders}')
+    logger.info(f'content: {content}')
+
+    main_question = await LLMChain(llm=llm, prompt=extract_main_questions_prompt).ainvoke(f'Темы разговора и принятые решения:{content}\nПоручения сотрудникам:{orders}')
+    resume = await LLMChain(llm=llm, prompt=extract_short_resume_prompt).ainvoke(f'Темы разговора и принятые решения:{content}\nПоручения сотрудникам:{orders}')
+
     doc = Document()
-    protocol = await llm_chain.arun(text)
-    doc.add_paragraph(protocol)
-    doc.save(f"./tmp/{file_id}.docx")  
+    obj_styles = doc.styles
+    obj_charstyle = obj_styles.add_style('CommentsStyle', WD_STYLE_TYPE.CHARACTER)
+    obj_font = obj_charstyle.font
+    obj_font.size = Pt(12)
+    obj_font.name = 'Times New Roman'
+
+    heading = doc.add_paragraph()
+    heading.add_run('Основной вопрос', style='CommentsStyle').bold = True
+    heading = doc.add_paragraph()
+    heading.add_run(f'{main_question["text"]}', style='CommentsStyle')
+    doc.add_paragraph('')
+
+    heading = doc.add_paragraph()
+    heading.add_run('Краткое резюме', style='CommentsStyle').bold = True
+    heading = doc.add_paragraph()
+    heading.add_run(f'{resume["text"]}', style='CommentsStyle')
+    doc.add_paragraph('')
+
+    heading = doc.add_paragraph()
+    heading.add_run('Поручения', style='CommentsStyle').bold = True
+    heading = doc.add_paragraph()
+    heading.add_run(f'{orders}', style='CommentsStyle')
+    doc.add_paragraph('')
+
+    heading = doc.add_paragraph()
+    heading.add_run('Содержание встречи', style='CommentsStyle').bold = True
+    heading = doc.add_paragraph()
+    heading.add_run(content, style='CommentsStyle')
+
+    doc.save(f"./tmp/{file_id}.docx")
+
     return f"./tmp/{file_id}.docx", "Протокол.docx"

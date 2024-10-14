@@ -1,14 +1,14 @@
-import os
-import glob
-import torch
-import moviepy.editor as mp
-from docx import Document
-from pyannote.audio import Pipeline
-from dotenv import load_dotenv, find_dotenv
 import asyncio
 import functools
-import whisperx
+import glob
+import os
 
+import moviepy.editor as mp
+import torch
+import whisperx
+from docx import Document
+from dotenv import find_dotenv, load_dotenv
+from pyrogram.types import Message
 
 load_dotenv(find_dotenv())
 
@@ -23,33 +23,33 @@ def change_speaker_name(string: str | None):
 
 HF_TOKEN = os.getenv('HF_TOKEN')
 
-
-device = "cuda" if torch.cuda.is_available() else "cpu"
+#device = "cuda" if torch.cuda.is_available() else "cpu"
+device = "cpu"
 print(device)
-compute_type = "int8"
-batch_size = 16
+if device == 'cuda':
+    batch_size = 1
+else:
+    batch_size = 16
 
+
+compute_type = "float16"
 model_dir = "/app/services/models/"
-model_name = 'medium'
+model_name = "medium"
 
 model = whisperx.load_model(model_name, device=device, compute_type=compute_type, download_root=model_dir, language='ru')
 
 
-async def recognize_voice(file_id):
-    audiofile = f'./tmp/{file_id}.wav'
-    loop = asyncio.get_event_loop()
-#    audio = whisperx.load_audio(audiofile)
-
-    result = await loop.run_in_executor(None, functools.partial(model.transcribe, audiofile, language='ru', batch_size=batch_size))
-    segments = result['segments']
-    text_massive = []
-    for segment in segments:
-        text = segment['text']
-        segment = f"{text[1:] if text[0] == ' ' else text}"
-        text_massive.append(segment)
-    text = text_massive
-
-    return ' '.join(text)
+def clear_temp(file_id):
+    files = glob.glob('./tmp/*')
+    for f in files:
+        if file_id in f:
+            print(f'Deleting {f}...')
+            os.remove(f)
+    files = glob.glob('app/bot/tmp/*')
+    for f in files:
+        if file_id in f:
+            print(f'Deleting {f}...')
+            os.remove(f)
 
 
 def is_video(extension):
@@ -90,15 +90,22 @@ def convert(video_path, audio_path):
     clip.audio.write_audiofile(audio_path, ffmpeg_params=["-ac", "1"])
 
 
-async def recognize(file_id, extension):
+lock = asyncio.Lock()
+
+
+async def recognize(file_id: str, extension: str, message: Message) -> None:
     loop = asyncio.get_event_loop()
-    audiofile = f'./tmp/{file_id}.{extension}'
+    audiofile = f'/app/bot/tmp/{file_id}.{extension}'
     audio = whisperx.load_audio(audiofile)
-    transcription_result = await loop.run_in_executor(None, functools.partial(model.transcribe, audiofile, language='ru', batch_size=batch_size))
+
+    async with lock:
+        transcription_result = await loop.run_in_executor(None, functools.partial(model.transcribe, audiofile, language='ru', batch_size=batch_size))
     model_a, metadata = whisperx.load_align_model(language_code='ru', device=device)
-    result = await loop.run_in_executor(None, functools.partial(whisperx.align, transcription_result["segments"], model_a, metadata, audio, device, return_char_alignments=False))
-    diarize_model = whisperx.DiarizationPipeline(use_auth_token=HF_TOKEN, device=device)
-    diarize_segments = await loop.run_in_executor(None, functools.partial(diarize_model, audio))
+    async with lock:
+        result = await loop.run_in_executor(None, functools.partial(whisperx.align, transcription_result["segments"], model_a, metadata, audio, device, return_char_alignments=False))
+    diarize_model = whisperx.DiarizationPipeline(use_auth_token=HF_TOKEN, device=device, model_name="pyannote/speaker-diarization-3.1")
+    async with lock:
+        diarize_segments = await loop.run_in_executor(None, functools.partial(diarize_model, audio))
     result = whisperx.assign_word_speakers(diarize_segments, result)
 
     text_for_summary = []
@@ -107,17 +114,15 @@ async def recognize(file_id, extension):
     for segment in result["segments"]:
         speaker = change_speaker_name(segment.get("speaker"))
         line_massive = f"[{segment.get('start'):.3f} --> {segment.get('end'):.3f}] {speaker}: {segment.get('text')}"
-        line_summary = f"{speaker}: {segment.get('text')}\n"
+        line_summary = f"{speaker.split()[-1]}: {segment.get('text')}\n"
         text_for_summary.append(line_summary)
         doc_transcription.add_paragraph(line_massive)
 
-
     doc_transcription.save(f"./tmp/{file_id}.docx")
 
-    return f"./tmp/{file_id}.docx", "Расшифровка_текста.docx", '\n'.join(text_for_summary)
+    full_transcript = '\n'.join(text_for_summary)
 
+    with open(f'./tmp/{file_id}.txt', 'w') as file:
+        file.write(full_transcript)
 
-def clear_temp():
-    files = glob.glob('./tmp/*')
-    for f in files:
-        os.remove(f)
+    return f"./tmp/{file_id}.docx", "Транскрипция.docx", full_transcript
