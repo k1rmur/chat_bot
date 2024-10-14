@@ -6,11 +6,10 @@ import aiohttp
 from aiogram import Router
 from dotenv import find_dotenv, load_dotenv
 from pyrogram import Client
-from pyrogram.types import Message
+from pyrogram.types import Message, ChatMember
 from services.converter import (clear_temp, convert, is_audio, is_video,
                                 recognize)
 from services.summarization import get_summary
-from filters.filters import users_from_group_only_pyrogram
 
 
 class NoWordsRecognizedError(Exception):
@@ -95,8 +94,19 @@ async def get_protocol_from_txt(
     await get_protocol(app, message, file_id, text)
 
 
-@users_from_group_only_pyrogram
 async def send_protocol(app: Client, message: Message):
+    user_status = await message.bot.get_chat_member(
+        chat_id="-1002409517684", user_id=message.from_user.id
+    )
+    print(user_status)
+    if not isinstance(
+        user_status,
+        (
+            ChatMember
+        ),
+    ):
+        await message.reply("У вас нет прав для использования этого бота.")
+        return
 
     result = await download_file(message)
     if result is None:
