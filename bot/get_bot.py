@@ -1,24 +1,24 @@
-import logging
 import asyncio
+import logging
 import logging.config
-from logging_settings import logging_config
+import os
+from datetime import timedelta, timezone
+from optparse import OptionParser
+
+import services.initialize_db_name as db
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from config_data.config import Config, load_config
-from optparse import OptionParser
-import services.initialize_db_name as db
-from handlers import video_protocols
-import os
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from datetime import timezone, timedelta
-from dotenv import load_dotenv, find_dotenv
+from config_data.config import Config, load_config
+from database import Base
+from dotenv import find_dotenv, load_dotenv
+from handlers import video_protocols, docsummary
+from logging_settings import logging_config
+from middlewares import DatabaseMiddleware
 from pyrogram import Client, filters
 from pyrogram.handlers import MessageHandler
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from middlewares import DatabaseMiddleware
-from database import Base
-
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 load_dotenv(find_dotenv())
 mode = os.getenv("MODE")
@@ -28,7 +28,7 @@ parser = OptionParser()
 parser.add_option('--Mode', type=str, default="inner")
 
 db.initialize_db(mode)
-from handlers import user_handlers, send_documents
+from handlers import send_documents, user_handlers
 
 logging.config.dictConfig(logging_config)
 config: Config = load_config()
@@ -63,9 +63,10 @@ async def main():
             api_id=config.tg_bot.api_id, api_hash=config.tg_bot.api_hash,
             bot_token=config.tg_bot.token
         )
-        app.add_handler(MessageHandler(video_protocols.send_protocol, filters=filters.video | filters.audio | filters.document))
+#        app.add_handler(MessageHandler(video_protocols.send_protocol, filters=filters.video | filters.audio | filters.document))
         await app.start()
         scheduler.add_job(send_documents.send_message_on_time, "cron", hour=10, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot,))
+        dp.include_router(docsummary.router)
     else:
         scheduler.add_job(send_documents.ask_for_rating, "cron", day='2nd fri, 3rd wed', hour=16, minute=30, timezone=timezone(timedelta(hours=+3)), args=(bot, session))
 
