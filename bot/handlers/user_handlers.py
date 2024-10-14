@@ -1,20 +1,20 @@
-from aiogram import Router, F, Bot
-from aiogram.types import Message, ChatMemberAdministrator, ChatMemberMember, ChatMemberOwner
-from aiogram.filters import CommandStart
-from aiogram.enums.parse_mode import ParseMode
-from lexicon.lexicon_outer import LEXICON_RU
 import logging
-from dotenv import load_dotenv, find_dotenv
+import os
+
+from aiogram import Bot, F, Router
+from aiogram.enums.parse_mode import ParseMode
+from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-import os
-from services.rag import query_engine
-from services.converter import recognize_voice, clear_temp
-from aiogram.types import FSInputFile
+from aiogram.types import (ChatMemberAdministrator, ChatMemberMember,
+                           ChatMemberOwner, FSInputFile, Message)
 from database import Database
-from keyboards.keyboards_inner import gosuslugi_menu
-from services.log_actions import log_action, allowed_actions
+from dotenv import find_dotenv, load_dotenv
 from filters.filters import users_from_group_only
+from keyboards.keyboards_inner import gosuslugi_menu
+from services.converter import clear_temp
+from services.log_actions import allowed_actions, log_action
+from services.rag import query_engine
 
 
 def stringify_context(
@@ -63,9 +63,10 @@ DOCUMENTS_SENT = "/app/documents_sent"
 
 
 if mode == 'inner':
-    from lexicon.lexicon_inner import LEXICON_RU, LEXICON_COMMANDS_RU, GOSUSLUGI_LEVEL_1, GOSUSLUGI_LEVEL_2
+    from lexicon.lexicon_inner import (GOSUSLUGI_LEVEL_1, GOSUSLUGI_LEVEL_2,
+                                       LEXICON_COMMANDS_RU, LEXICON_RU)
 else:
-    from lexicon.lexicon_outer import LEXICON_RU, LEXICON_COMMANDS_RU
+    from lexicon.lexicon_outer import LEXICON_COMMANDS_RU, LEXICON_RU
 
 router = Router()
 
