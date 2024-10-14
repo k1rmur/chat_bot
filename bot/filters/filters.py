@@ -50,30 +50,6 @@ def users_from_group_only(func):
     return wrapper
 
 
-def users_from_group_only_pyrogram(func):
-    """
-    Wrapper for access restriction to only those who are members of a particular group
-    """
-
-    @wraps(func)
-    async def wrapper(app: Client, message: types.Message, *args, **kwargs):
-        user_status = await message.bot.get_chat_member(
-            chat_id="-1002409517684", user_id=message.from_user.id
-        )
-        print(user_status)
-        if not isinstance(
-            user_status,
-            (
-                types.ChatMember
-            ),
-        ):
-            await message.reply("У вас нет прав для использования этого бота.")
-            return
-        return await func(message, *args, **kwargs)
-
-    return wrapper
-
-
 def allowed_users_only(func):
     """
     Wrapper for access restriction to only those who are in some list
