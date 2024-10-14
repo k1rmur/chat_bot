@@ -14,7 +14,7 @@ from aiogram.types import FSInputFile
 from database import Database
 from keyboards.keyboards_inner import gosuslugi_menu
 from services.log_actions import log_action, allowed_actions
-from filters.filters import users_from_group_only, ChatTypeFilter
+from filters.filters import users_from_group_only
 
 
 def stringify_context(

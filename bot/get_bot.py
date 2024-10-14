@@ -65,7 +65,7 @@ async def main():
         )
         app.add_handler(MessageHandler(video_protocols.send_protocol, filters=filters.video | filters.audio | filters.document))
         await app.start()
-        scheduler.add_job(send_documents.send_message_on_time, "cron", day_of_week='thu', hour=12, minute=30, timezone=timezone(timedelta(hours=+3)), args=(bot,))
+        scheduler.add_job(send_documents.send_message_on_time, "cron", hour=10, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot,))
     else:
         scheduler.add_job(send_documents.ask_for_rating, "cron", day='2nd fri, 3rd wed', hour=16, minute=30, timezone=timezone(timedelta(hours=+3)), args=(bot, session))
 

@@ -12,7 +12,7 @@ def general_menu():
 #    btn_struct_rosvodres = KeyboardButton(text="Регламенты ПКИ")
     btn_priem = KeyboardButton(text="Обратная связь")
     markup = ReplyKeyboardMarkup(
-        keyboard=[[btn_about, btn_vod_obj], [btn_faq, btn_instr], [btn_obstanovka, btn_docs], [btn_contacts, btn_priem]],
+        keyboard=[[btn_about, btn_vod_obj], [btn_faq, btn_instr], [btn_docs, btn_contacts], [btn_priem]],
         resize_keyboard=True
     )
     return markup 
