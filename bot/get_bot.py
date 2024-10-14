@@ -63,7 +63,7 @@ async def main():
             api_id=config.tg_bot.api_id, api_hash=config.tg_bot.api_hash,
             bot_token=config.tg_bot.token
         )
-#        app.add_handler(MessageHandler(video_protocols.send_protocol, filters=filters.video | filters.audio | filters.document))
+        app.add_handler(MessageHandler(video_protocols.send_protocol, filters=filters.video | filters.voice | filters.audio | filters.document))
         await app.start()
         scheduler.add_job(send_documents.send_message_on_time, "cron", hour=10, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot,))
         dp.include_router(docsummary.router)
