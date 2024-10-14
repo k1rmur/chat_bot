@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 @users_from_group_only
 async def send_document_command(message: Message, state: FSMContext):
     await message.reply(
-        "Пожалуйста, отправьте один или несколько документов. Отправьте любой текст, чтобы начать их обработку."
+        "Пожалуйста, отправьте один или несколько документов. Отправьте /process, чтобы начать их обработку."
     )
     await state.set_state(SummaryStates.waiting_for_document_summary)
 
@@ -64,7 +64,7 @@ async def document_handler(message: Message, state: FSMContext):
         await message.reply(str(e))
 
     await message.answer(
-        f"Текст из документа '{document.file_name}' сохранен. Отправьте еще документы или текстовое сообщение для завершения."
+        f"Текст из документа '{document.file_name}' сохранен. Отправьте еще документы или /process для обработки."
     )
 
 
