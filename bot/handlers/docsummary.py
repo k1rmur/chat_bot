@@ -17,8 +17,8 @@ router = Router()
 config: Config = load_config()
 
 
-class DocumentStates(StatesGroup):
-    waiting_for_document = State()
+class SummaryStates(StatesGroup):
+    waiting_for_document_summary = State()
 
 
 load_dotenv(find_dotenv())
@@ -32,7 +32,7 @@ async def send_document_command(message: Message, state: FSMContext):
     await message.reply(
         "Пожалуйста, отправьте один или несколько документов. Отправьте любой текст, чтобы начать их обработку."
     )
-    await state.set_state(DocumentStates.waiting_for_document)
+    await state.set_state(SummaryStates.waiting_for_document_summary)
 
 
 @router.message(Command("clear"))
@@ -44,7 +44,7 @@ async def clear_command(message: Message, state: FSMContext):
     await state.clear()
 
 
-@router.message(DocumentStates.waiting_for_document, F.document)
+@router.message(SummaryStates.waiting_for_document_summary, F.document)
 async def document_handler(message: Message, state: FSMContext):
 
     document = message.document
@@ -68,7 +68,7 @@ async def document_handler(message: Message, state: FSMContext):
     )
 
 
-@router.message(DocumentStates.waiting_for_document, F.text)
+@router.message(SummaryStates.waiting_for_document_summary, Command("process"))
 async def text_message_handler(message: Message, state: FSMContext):
 
     data = await state.get_data()
