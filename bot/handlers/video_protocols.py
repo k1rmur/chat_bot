@@ -10,6 +10,7 @@ from pyrogram.types import Message
 from services.converter import (clear_temp, convert, is_audio, is_video,
                                 recognize)
 from services.summarization import get_summary
+from filters.filters import users_from_group_only_pyrogram
 
 
 class NoWordsRecognizedError(Exception):
@@ -22,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 
 load_dotenv(find_dotenv())
-ADMIN_LIST = os.getenv("ADMIN_LIST").split(",")
 
 
 async def download_file(message: Message):
@@ -95,6 +95,7 @@ async def get_protocol_from_txt(
     await get_protocol(app, message, file_id, text)
 
 
+@users_from_group_only_pyrogram
 async def send_protocol(app: Client, message: Message):
 
     result = await download_file(message)

@@ -32,7 +32,8 @@ else:
     batch_size = 16
 
 
-compute_type = "float16"
+#compute_type = "float16"
+compute_type = "int8"
 model_dir = "/app/services/models/"
 model_name = "medium"
 
