@@ -1,19 +1,18 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup,
+                           KeyboardButton, ReplyKeyboardMarkup)
 
 
 def general_menu():
     bth_about = KeyboardButton(text="🌊 О боте")
     btn_vod_obj = KeyboardButton(text="🤖 ИИ Собеседник")
     btn_gouslugi = KeyboardButton(text="💻 Госуслуги")
-#    btn_struct_rosvodres = KeyboardButton(text="Структура Росводресурсов")
     btn_faq = KeyboardButton(text="Обратная связь")
-#    btn_chs = KeyboardButton(text="Информация о ЧС")
     btn_priem = KeyboardButton(text="📞 Прием граждан")
     markup = ReplyKeyboardMarkup(
         keyboard= [[bth_about, btn_vod_obj], [btn_gouslugi, btn_priem], [btn_faq]],
         resize_keyboard=True
     )
-    return markup 
+    return markup
 
 def gosuslugi_menu():
     btn_doc1 = KeyboardButton(text='''Водный реестр''')

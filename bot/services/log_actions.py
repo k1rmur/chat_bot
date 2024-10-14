@@ -12,11 +12,14 @@ allowed_actions = {
 
 
 def log_action(message, action):
-    with open(CSV_LOG_PATH, 'a') as file:
-        user_id = message.from_user.id
-        username = message.from_user.username
-        if username is None:
-            username='Скрыт'
-        mydate = datetime.datetime.now()
+    try:
+        with open(CSV_LOG_PATH, 'a') as file:
+            user_id = message.from_user.id
+            username = message.from_user.username
+            if username is None:
+                username='Скрыт'
+            mydate = datetime.datetime.now()
 
-        file.write(",".join([str(user_id), username, str(mydate), action])+'\n')
+            file.write(",".join([str(user_id), username, str(mydate), action])+'\n')
+    except Exception as e:
+        print(e)
