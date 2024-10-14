@@ -149,24 +149,23 @@ async def send(message: Message, bot: Bot):
                 await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
     else:
         log_action(message, allowed_actions['ai'])
-        if message.voice:
-            try:
-                file_id = message.voice.file_id
-                file = await bot.get_file(file_id=file_id)
-                file_path = file.file_path
-                audio_destination = f'./tmp/{file_id}.wav'
-                await bot.download_file(file_path, audio_destination)
-                text = await recognize_voice(file_id)
-                clear_temp()
-            except Exception as e:
-                await message.reply("Произошла ошибка при распознавании голосового сообщения :(")
-                logger.error(e, exc_info=True)
-                clear_temp()
-                return
-        else:
-            text = message.text
-            if text is None:
-                return
+#        if message.voice:
+#            try:
+#                file_id = message.voice.file_id
+#                file = await bot.get_file(file_id=file_id)
+#                file_path = file.file_path
+#                audio_destination = f'./tmp/{file_id}.wav'
+#                await bot.download_file(file_path, audio_destination)
+#                clear_temp()
+#            except Exception as e:
+#                await message.reply("Произошла ошибка при распознавании голосового сообщения :(")
+#                logger.error(e, exc_info=True)
+#                clear_temp()
+#                return
+#        else:
+        text = message.text
+        if text is None:
+            return
 
         try:
             chain = await query_engine.aquery(text)
