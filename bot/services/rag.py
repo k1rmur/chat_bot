@@ -44,7 +44,7 @@ vector_retriever = vector_index.as_retriever(similarity_top_k=5)
 retriever = QueryFusionRetriever(
     [vector_retriever, bm25_retriever],
     similarity_top_k=10,
-    num_queries=1,
+    num_queries=4,
     mode="reciprocal_rerank",
     use_async=True,
     verbose=True,
@@ -54,8 +54,8 @@ query_engine = RetrieverQueryEngine.from_args(
     retriever,
     text_qa_template=text_qa_template,
     refine_template=refine_template,
-    num_queries=5,
-    query_gen_prompt=QUERY_GEN_PROMPT
+    query_gen_prompt=QUERY_GEN_PROMPT,
+    verbose=True,
 #    response_mode="simple_summarize",
 #    simple_template=text_qa_template,
 )
