@@ -15,7 +15,6 @@ from langchain_text_splitters import CharacterTextSplitter
 from .prompt_templates import (CONTENT_PROMPT, EXTRACT_MAIN_QUESTIONS_PROMPT,
                                EXTRACT_SHORT_RESUME_PROMPT, ORDER_PROMPT,
                                REFINE_CONTENT_PROMPT, REFINE_ORDERS_PROMPT)
-from .rag import llm
 
 logger = logging.getLogger(__name__)
 CONTEXT_LENGTH = 8192*4

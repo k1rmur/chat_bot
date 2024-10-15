@@ -12,7 +12,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_text_splitters import CharacterTextSplitter
 from langgraph.constants import Send
 from langgraph.graph import END, START, StateGraph
-from .rag import llm
+from langchain_community.chat_models import ChatOllama, GigaChat
 
 
 def clear_temp(file_id):
@@ -28,9 +28,9 @@ def clear_temp(file_id):
             os.remove(f)
 
 
-CONTEXT_LENGTH = 8192
+CONTEXT_LENGTH = 8192*4
 
-
+llm = GigaChat(verify_ssl_certs=False, credentials=os.getenv("CREDENTIALS"), scope="GIGACHAT_API_CORP", model="GigaChat-Plus")
 
 map_template = "Напиши краткое, но с сохранением главной информации обобщение следующего текста:\n{context}\n\nОбобщение:\n\n"
 
@@ -59,7 +59,7 @@ def length_function(documents: List[Document]) -> int:
     return sum(llm.get_num_tokens(doc) for doc in documents)
 
 
-token_max = 7000
+token_max = 7000*4
 
 
 class OverallState(TypedDict):
