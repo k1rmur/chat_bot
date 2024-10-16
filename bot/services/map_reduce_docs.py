@@ -150,6 +150,6 @@ async def return_summary(documents):
         {"contents": [doc.page_content for doc in split_docs]},
         {"recursion_limit": 50},
     ):
-#        print(step)
+        _ = step
     if step:
         return step["generate_final_summary"]["final_summary"]
