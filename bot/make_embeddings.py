@@ -9,6 +9,7 @@ import torch
 import chromadb
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.retrievers.bm25 import BM25Retriever
+from llama_index.core.node_parser import SimpleFileNodeParser
 
 
 parser = OptionParser()
@@ -46,7 +47,7 @@ if __name__ == '__main__':
         pass
 
     documents = reader.load_data()
-    parser = SentenceSplitter()
+    parser = SimpleFileNodeParser()
     nodes = parser.get_nodes_from_documents(documents)
     print(nodes)
     docstore = SimpleDocumentStore()
