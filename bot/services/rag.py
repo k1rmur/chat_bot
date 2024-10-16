@@ -1,7 +1,7 @@
 import os
 
 from dotenv import find_dotenv, load_dotenv
-from langchain_community.chat_models import ChatOllama, GigaChat
+from langchain_community.chat_models import GigaChat
 from langchain_core.prompts import ChatPromptTemplate
 from llama_index.core import ChatPromptTemplate, Settings
 from llama_index.core.query_engine import RetrieverQueryEngine
@@ -44,7 +44,7 @@ vector_retriever = vector_index.as_retriever(similarity_top_k=5)
 retriever = QueryFusionRetriever(
     [vector_retriever, bm25_retriever],
     similarity_top_k=10,
-    num_queries=4,
+    num_queries=1,
     mode="reciprocal_rerank",
     use_async=True,
     verbose=True,
