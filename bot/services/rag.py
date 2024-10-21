@@ -1,13 +1,29 @@
 import os
 
 from dotenv import find_dotenv, load_dotenv
-from langchain_community.chat_models import GigaChat
+from llama_index.llms.gigachat import GigaChatLLM
 from langchain_core.prompts import ChatPromptTemplate
 from llama_index.core import ChatPromptTemplate, Settings
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.retrievers import QueryFusionRetriever
 from make_embeddings import bm25_retriever, embeddings, vector_index
 from .prompt_templates import QA_PROMPT_STR, REFINE_PROMPT_STR, QA_SYSTEM_PROMPT, QUERY_GEN_PROMPT
+
+
+async def get_context_str(text):
+    documents = await retriever.aretrieve(text)
+    doc_list = []
+    current_string = ""
+    for i, node in enumerate(documents):
+        current_string += f"Документ {i+1}\n"
+        for metadata_key in node.metadata:
+            current_string += f"{node.metadata[metadata_key]}\n"
+
+        doc_list.append(current_string)
+        current_string = ""
+
+    return "\n\n".join(doc_list)
+
 
 load_dotenv(find_dotenv())
 
@@ -34,9 +50,10 @@ chat_refine_msgs = [
 refine_template = ChatPromptTemplate.from_messages(chat_refine_msgs)
 
 
-llm = GigaChat(verify_ssl_certs=False, credentials=CREDENTIALS, scope="GIGACHAT_API_CORP", model="GigaChat-Pro", verbose=True, profanity=False, temperature=0.1)
+llm = GigaChatLLM(verify_ssl_certs=False, credentials=CREDENTIALS, scope="GIGACHAT_API_CORP", model="GigaChat-Pro", verbose=True, profanity=False, temperature=0.1)
 Settings.llm = llm
 Settings.embed_model = embeddings
+Settings.context_window = 32768
 
 
 vector_retriever = vector_index.as_retriever(similarity_top_k=5)

@@ -1,14 +1,18 @@
 import os
 from optparse import OptionParser
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.core import SimpleDirectoryReader, Settings, StorageContext, VectorStoreIndex
-from langchain_community.chat_models import ChatOllama
-from llama_index.core.storage.docstore import SimpleDocumentStore
-from llama_index.core.node_parser import SentenceSplitter
-import torch
+
 import chromadb
-from llama_index.vector_stores.chroma import ChromaVectorStore
+import torch
+from langchain_community.chat_models import ChatOllama
+from llama_index.core import (Settings, SimpleDirectoryReader, StorageContext,
+                              VectorStoreIndex)
+from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core.storage.docstore import SimpleDocumentStore
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.retrievers.bm25 import BM25Retriever
+from llama_index.vector_stores.chroma import ChromaVectorStore
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from llama_index.core.node_parser import LangchainNodeParser
 
 
 parser = OptionParser()
@@ -46,7 +50,12 @@ if __name__ == '__main__':
         pass
 
     documents = reader.load_data()
-    parser = SentenceSplitter()
+    parser = LangchainNodeParser(
+        RecursiveCharacterTextSplitter(
+            chunk_size=1024,
+            chunk_overlap=256,
+        )
+    )
     nodes = parser.get_nodes_from_documents(documents)
     print(nodes)
     docstore = SimpleDocumentStore()
