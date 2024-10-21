@@ -134,7 +134,7 @@ async def process_start_command(message: Message, db: Database):
     )
 
 
-@router.message((F.text | F.voice) & ~F.text.startswith('/') & F.text != ADD_USER_PASSWORD & F.chat.type.in_({"private",}))
+@router.message(F.text & ~F.text.startswith('/') & F.chat.type.in_({"private",}))
 @users_from_group_only
 async def send(message: Message, bot: Bot):
     if message.text in LEXICON_RU:
@@ -171,7 +171,7 @@ async def send(message: Message, bot: Bot):
             chain = await query_engine.aquery(text)
             answer = chain.__str__()
             logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"')
-            await message.reply(text=answer, parse_mode=None)
+            await message.reply(text=answer)
 #            chunks = stringify_context(chain)
 #            for chunk in chunks:
 #                print(chunk)
