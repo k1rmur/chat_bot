@@ -50,11 +50,6 @@ async def main():
     dp = Dispatcher()
     dp.include_router(send_documents.router)
 
-    app = Client(
-        "DA_bot_test",
-        api_id=config.tg_bot.api_id, api_hash=config.tg_bot.api_hash,
-        bot_token=config.tg_bot.token
-    )
     scheduler = AsyncIOScheduler()
 
     if mode == 'inner':

@@ -59,8 +59,8 @@ Settings.context_window = 32768
 vector_retriever = vector_index.as_retriever(similarity_top_k=5)
 
 retriever = QueryFusionRetriever(
-    [vector_retriever, bm25_retriever],
-    similarity_top_k=10,
+    [bm25_retriever, vector_retriever],
+    similarity_top_k=6,
     num_queries=1,
     mode="reciprocal_rerank",
     use_async=True,
