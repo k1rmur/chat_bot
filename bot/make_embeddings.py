@@ -3,20 +3,15 @@ from optparse import OptionParser
 
 import chromadb
 import torch
-from langchain_community.chat_models import ChatOllama
 from llama_index.core import (Settings, SimpleDirectoryReader, StorageContext,
                               VectorStoreIndex)
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.storage.docstore import SimpleDocumentStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.retrievers.bm25 import BM25Retriever
-<<<<<<< HEAD
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from llama_index.core.node_parser import LangchainNodeParser
-=======
-from llama_index.core.node_parser import SimpleFileNodeParser
->>>>>>> 1d70cf5c24f547da02dfa3eb1be913c09871f39f
 
 
 parser = OptionParser()
@@ -25,10 +20,7 @@ parser.add_option('--Mode', type=str, default="inner")
 mode = Opts.Mode
 
 ABS_PATH = os.path.dirname(os.path.abspath(__file__))
-#PDF_LOADER = PDFMinerLoader
-#CSV_LOADER = CSVLoader
-#DOCX_LOADER = Docx2txtLoader
-#print("Loading data...")
+
 if mode == "inner":
     folder_path = "/app/bot/data/"
     DB_DIR = os.path.join(ABS_PATH, "db")
@@ -54,16 +46,12 @@ if __name__ == '__main__':
         pass
 
     documents = reader.load_data()
-<<<<<<< HEAD
     parser = LangchainNodeParser(
         RecursiveCharacterTextSplitter(
             chunk_size=1024,
             chunk_overlap=256,
         )
     )
-=======
-    parser = SimpleFileNodeParser()
->>>>>>> 1d70cf5c24f547da02dfa3eb1be913c09871f39f
     nodes = parser.get_nodes_from_documents(documents)
     print(nodes)
     docstore = SimpleDocumentStore()

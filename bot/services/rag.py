@@ -1,7 +1,7 @@
 import os
 
 from dotenv import find_dotenv, load_dotenv
-from llama_index.llms.gigachat import GigaChatLLM
+from langchain_community.chat_models import GigaChat
 from langchain_core.prompts import ChatPromptTemplate
 from llama_index.core import ChatPromptTemplate, Settings
 from llama_index.core.query_engine import RetrieverQueryEngine
@@ -16,8 +16,9 @@ async def get_context_str(text):
     current_string = ""
     for i, node in enumerate(documents):
         current_string += f"Документ {i+1}\n"
-        for metadata_key in node.metadata:
-            current_string += f"{node.metadata[metadata_key]}\n"
+        current_string += f"Имя файла: {node.metadata.get('file_name', '')}\nСодержание:\n"
+
+        current_string += node.text
 
         doc_list.append(current_string)
         current_string = ""
@@ -50,7 +51,7 @@ chat_refine_msgs = [
 refine_template = ChatPromptTemplate.from_messages(chat_refine_msgs)
 
 
-llm = GigaChatLLM(verify_ssl_certs=False, credentials=CREDENTIALS, scope="GIGACHAT_API_CORP", model="GigaChat-Pro", verbose=True, profanity=False, temperature=0.1)
+llm = GigaChat(verify_ssl_certs=False, credentials=CREDENTIALS, scope="GIGACHAT_API_CORP", model="GigaChat-Pro", verbose=True, profanity=False, temperature=0.1)
 Settings.llm = llm
 Settings.embed_model = embeddings
 Settings.context_window = 32768
@@ -65,14 +66,4 @@ retriever = QueryFusionRetriever(
     mode="reciprocal_rerank",
     use_async=True,
     verbose=True,
-)
-
-query_engine = RetrieverQueryEngine.from_args(
-    retriever,
-    text_qa_template=text_qa_template,
-    refine_template=refine_template,
-    query_gen_prompt=QUERY_GEN_PROMPT,
-    verbose=True,
-#    response_mode="simple_summarize",
-#    simple_template=text_qa_template,
 )

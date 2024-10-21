@@ -6,49 +6,15 @@ from aiogram.enums.parse_mode import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import (ChatMemberAdministrator, ChatMemberMember,
-                           ChatMemberOwner, FSInputFile, Message)
+from aiogram.types import FSInputFile, Message
 from database import Database
 from dotenv import find_dotenv, load_dotenv
 from filters.filters import users_from_group_only
 from keyboards.keyboards_inner import gosuslugi_menu
-from services.converter import clear_temp
 from services.log_actions import allowed_actions, log_action
-from services.rag import query_engine
+from services.rag import llm, get_context_str, text_qa_template
+from services.prompt_templates import QUERY_GEN_PROMPT
 
-
-def stringify_context(
-    result: dict,
-) -> list[str]:
-    """
-    Displays given context as a list of strings of size <= 4096 symbols
-
-    Args:
-        context: list of documents from RAG chain
-
-    Returns:
-        Returns a list of strings that fit into a single telegram message
-    """
-
-    chunks = []
-    nodes = result.source_nodes
-    result = "Источники:\n"
-    for idx, doc in enumerate(nodes):
-        current_source = ""
-        current_source += f"#{idx + 1}\n"
-        for metadata_key, metadata_value in doc.metadata.items():
-            current_source += str(metadata_key) + ": " + str(metadata_value) + "\n"
-        current_source += doc.text + "\n"
-        if len(result) + len(current_source) >= 4096:
-            chunks.append(result)
-            result = current_source
-        else:
-            result += current_source
-
-    chunks.append(result)
-
-
-    return chunks
 
 class UserState(StatesGroup):
     level_1_menu = State()
@@ -122,7 +88,7 @@ if mode == 'inner':
 @users_from_group_only
 async def process_start_command(message: Message, db: Database):
     try:
-    	log_action(message, allowed_actions['start'])
+        log_action(message, allowed_actions['start'])
     except Exception as e:
         logger.error(e, exc_info=True)
     logger.info(f'Пользователь {message.from_user.username} начал диалог, код чата {message.chat.id}')
@@ -149,33 +115,18 @@ async def send(message: Message, bot: Bot):
                 await message.answer_document(FSInputFile(file, filename=file.split('/')[-1]))
     else:
         log_action(message, allowed_actions['ai'])
-#        if message.voice:
-#            try:
-#                file_id = message.voice.file_id
-#                file = await bot.get_file(file_id=file_id)
-#                file_path = file.file_path
-#                audio_destination = f'./tmp/{file_id}.wav'
-#                await bot.download_file(file_path, audio_destination)
-#                clear_temp()
-#            except Exception as e:
-#                await message.reply("Произошла ошибка при распознавании голосового сообщения :(")
-#                logger.error(e, exc_info=True)
-#                clear_temp()
-#                return
-#        else:
         text = message.text
         if text is None:
             return
 
         try:
-            chain = await query_engine.aquery(text)
-            answer = chain.__str__()
+            query = await llm.ainvoke(QUERY_GEN_PROMPT.format(query=text))
+            context_str = await get_context_str(query.content)
+            prompt = text_qa_template.format(context_str=context_str, query_str=text)
+            chain = await llm.ainvoke(prompt)
+            answer = chain.content
             logger.info(f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"')
             await message.reply(text=answer)
-#            chunks = stringify_context(chain)
-#            for chunk in chunks:
-#                print(chunk)
-#                await message.reply(text=chunk, parse_mode=None)
         except Exception as e:
             error_text = f'Пользователь {message.from_user.username} получил ошибку\n{e}'
             logger.error(error_text, exc_info=True)
