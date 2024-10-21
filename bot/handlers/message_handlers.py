@@ -10,13 +10,14 @@ from dotenv import find_dotenv, load_dotenv
 from keyboards.keyboards import inline_rating_keyboard
 from lexicon.lexicon import INTRO_MESSAGES, LEXICON_COMMANDS_RU, LEXICON_RU
 from services.log_actions import allowed_actions, log_action
-from services.rag import query_engine
 from sqlalchemy.ext.asyncio import AsyncSession
 from vkbottle import BaseStateGroup, DocMessagesUploader, PhotoMessageUploader
 from vkbottle.bot import Bot, Message, MessageEvent
 from vkbottle_types.events import GroupEventType
 from vkbottle.bot import BotLabeler
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from services.rag import llm, get_context_str, text_qa_template
+from services.prompt_templates import QUERY_GEN_PROMPT
 
 
 class DocumentStates(BaseStateGroup):
@@ -54,21 +55,6 @@ def allowed_users_only(func):
         return await func(message, *args, **kwargs)
     return wrapper
 
-
-
-@labeler.message(command="help")
-@allowed_users_only
-async def help_command(message):
-    help_text = """
-Доступные команды:
-/help - Показать список доступных команд
-/send_document - Отправить новый документ
-/delete_documents - Удалить все документы из папки для отправки
-/check_documents - Проверить список документов в папке для отправки
-/subscribe - Добавить себя в список рассылки (требуется пароль)
-/send_to_everyone - Отправить всем сообщение
-    """
-    await message.answer(help_text)
 
 
 @labeler.message(command="statistics")
@@ -178,8 +164,16 @@ async def send(message: Message):
     else:
         log_action(message, allowed_actions['ai'])
         try:
-            chain = await query_engine.aquery(text)
-            answer = chain.__str__()
+            query = await llm.ainvoke(QUERY_GEN_PROMPT.format(query=text))
+            await message.answer(query.content)
+            context_str = await get_context_str(query.content)
+            try:
+                await message.answer(context_str)
+            except:
+                pass
+            prompt = text_qa_template.format(context_str=context_str, query_str=text)
+            chain = await llm.ainvoke(prompt)
+            answer = chain.content
             logger.info(f'Пользователь {message.from_id} задал вопрос: "{text}", получен ответ: "{answer}"')
             await message.answer(answer)
         except Exception as e:

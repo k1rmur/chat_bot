@@ -3,15 +3,11 @@ from vkbottle import Keyboard, KeyboardButtonColor, Text
 
 def general_menu():
     keyboard = Keyboard(one_time=False, inline=False)
-    keyboard.add(Text("Виртуальный собеседник"), color=KeyboardButtonColor.PRIMARY)
+    keyboard.add(Text("🌊 О боте"), color=KeyboardButtonColor.PRIMARY)
+    keyboard.add(Text("🤖 ИИ Собеседник"), color=KeyboardButtonColor.PRIMARY)
     keyboard.row()
-    keyboard.add(Text("ГосУслуги"), color=KeyboardButtonColor.PRIMARY)
-    keyboard.row()
-    keyboard.add(Text("Информация о ЧС"), color=KeyboardButtonColor.PRIMARY)
-    keyboard.row()
-    keyboard.add(Text("Структура Росводресурсов"), color=KeyboardButtonColor.PRIMARY)
-    keyboard.row()
-    keyboard.add(Text("Прием граждан"), color=KeyboardButtonColor.PRIMARY)
+    keyboard.add(Text("💻 Госуслуги"), color=KeyboardButtonColor.PRIMARY)
+    keyboard.add(Text("📞 Прием граждан"), color=KeyboardButtonColor.PRIMARY)
     keyboard.row()
     keyboard.add(Text("Обратная связь"), color=KeyboardButtonColor.PRIMARY)
     return keyboard

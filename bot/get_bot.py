@@ -5,11 +5,8 @@ import os
 from datetime import timedelta, timezone
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from config_data.config import db_url, state_dispenser, token
-from database import Base
+from config_data.config import state_dispenser, token
 from handlers import message_handlers
-from logging_settings import logging_config
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from vkbottle import Bot
 from handlers import labelers
 
@@ -28,13 +25,10 @@ for custom_labeler in labelers:
 
 async def main():
 
-    engine = create_async_engine(url=db_url, echo=True) # MOVE SOMEWHERE
-    session = async_sessionmaker(engine, expire_on_commit=False)
-
     scheduler = AsyncIOScheduler()
 
-    scheduler.add_job(message_handlers.ask_for_rating, "cron", day='1st wed, 3rd wed', hour=19, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot, session))
-    scheduler.add_job(message_handlers.send_intro_message, "cron", day='1st wed, 3rd wed', hour=19, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot, session))
+    scheduler.add_job(message_handlers.ask_for_rating, "cron", day='1st wed, 3rd wed', hour=19, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot,))
+    scheduler.add_job(message_handlers.send_intro_message, "cron", day='1st wed, 3rd wed', hour=19, minute=00, timezone=timezone(timedelta(hours=+3)), args=(bot,))
 
     scheduler.start()
 
