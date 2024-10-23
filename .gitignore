@@ -3,3 +3,7 @@ __pycache__/
 *.log
 venv/
 *.pyc
+data/
+data_citizens/
+db/
+db_citizens/
