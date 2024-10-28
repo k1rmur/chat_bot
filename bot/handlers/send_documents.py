@@ -235,9 +235,16 @@ async def process_dialog_calendar(callback_query: CallbackQuery, callback_data: 
 
         documents = os.listdir(DOCUMENTS_TO_SEND)
 
+        sent = False
+
         for file_name in documents:
             document_path = os.path.join(DOCUMENTS_TO_SEND, file_name)
             if file_name.startswith(date_string):
+                sent = True
                 await callback_query.message.answer_document(
                     FSInputFile(document_path)
+                )
+        if not sent:
+            await callback_query.message.answer(
+                    "Нет отчетов на выбранную дату"
                 )
