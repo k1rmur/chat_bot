@@ -74,19 +74,3 @@ def instruments_menu():
         resize_keyboard=True
     )
     return markup
-
-
-def inline_report_keyboard():
-
-    btns = [
-        InlineKeyboardButton(
-            text=text, callback_data=REPORT_TYPES[text]
-        ) for text in REPORT_TYPES
-    ]
-    markup = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [btns[0], btns[1]],
-        ],
-        resize_keyboard=True
-    )
-    return markup

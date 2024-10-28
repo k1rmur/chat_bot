@@ -1,12 +1,11 @@
 from aiogram import Router, F, Bot
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
-from functools import wraps
 import os
-import shutil
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import FSInputFile
+from aiogram.filters.callback_data import CallbackData
 import logging
 import json
 from database import Database
@@ -14,10 +13,10 @@ import asyncio
 import random
 from sqlalchemy.ext.asyncio import AsyncSession
 from filters.filters import allowed_users_only
+from aiogram_calendar import DialogCalendar, DialogCalendarCallback
 
 
 DOCUMENTS_TO_SEND = "/app/documents_to_send"
-DOCUMENTS_SENT = "/app/documents_sent"
 SEND_TO_FILE = "/app/send_to/send_to_list.json"
 
 mode = os.getenv("MODE")
@@ -49,6 +48,7 @@ def load_send_to():
             return json.load(f)
     return []
 
+
 def save_send_to(send_to):
     with open(SEND_TO_FILE, 'w') as f:
         json.dump(send_to, f)
@@ -68,6 +68,7 @@ async def help_command(message: Message):
 /check_documents - Проверить список документов в папке для отправки
 /subscribe - Добавить себя в список рассылки (требуется пароль)
 /send_to_everyone - Отправить всем сообщение
+/get_report - Получить отчет
     """
     await message.reply(help_text)
 
@@ -127,8 +128,17 @@ async def send_document_command(message: Message, state: FSMContext):
         await message.reply("Файл уже добавлен.")
         return
 
-    await message.reply("Пожалуйста, отправьте документ.")
+    await message.reply("Пожалуйста, отправьте документ.\nЕго имя должно быть в формате DD_MM_YYYY_{другая информация}.расширение")
     await state.set_state(DocumentStates.waiting_for_document)
+
+
+@router.message(Command("get_report"))
+async def get_report_command(message: Message):
+    if message.from_user.id in load_send_to():
+        await message.answer(
+            "Пожалуйста, выберите дату.",
+            reply_markup=await DialogCalendar().start_calendar(year=2024)
+        )
 
 
 @router.message(DocumentStates.waiting_for_document, F.document)
@@ -136,8 +146,8 @@ async def send_document_command(message: Message, state: FSMContext):
 async def handle_document(message: Message, state: FSMContext):
 
     document = message.document
-    if not document:
-        await message.reply("Пожалуйста, отправьте документ.")
+    if not document or not re.match(r'^\d{2}_\d{2}_\d{4}', document.file_name):
+        await message.reply("Пожалуйста, отправьте правильный документ.")
         return
 
     file = await message.bot.get_file(document.file_id)
@@ -146,7 +156,6 @@ async def handle_document(message: Message, state: FSMContext):
 
     await message.reply(f"Документ '{document.file_name}' успешно получен и сохранен.")
     await state.clear()
-
 
 
 @router.message(DocumentStates.waiting_for_document)
@@ -162,7 +171,7 @@ async def delete_documents_command(message: Message):
         for filename in os.listdir(DOCUMENTS_TO_SEND):
             file_path = os.path.join(DOCUMENTS_TO_SEND, filename)
             os.remove(file_path)
-        
+
         await message.reply("Все документы в папке для отправки были удалены.")
     except Exception as e:
         await message.reply(f"Произошла ошибка при удалении документов: {e}")
@@ -181,7 +190,6 @@ async def check_documents_command(message: Message, state: FSMContext, bot: Bot)
             await bot.send_document(message.from_user.id, FSInputFile(document_path))
 
 
-
 async def send_message_on_time(bot: Bot):
     for filename in os.listdir(DOCUMENTS_TO_SEND):
         file_path = os.path.join(DOCUMENTS_TO_SEND, filename)
@@ -191,8 +199,6 @@ async def send_message_on_time(bot: Bot):
                 await bot.send_document(user_id, FSInputFile(file_path))
             except Exception as e:
                 logger.error(e, exc_info=True)
-        shutil.copy(file_path, os.path.join(DOCUMENTS_SENT, filename))
-        os.remove(file_path)
 
 
 async def send_intro_message(bot: Bot, session: AsyncSession):
@@ -221,11 +227,17 @@ async def ask_for_rating(bot: Bot, session: AsyncSession):
     await bot.send_message(chat_id=322077458, text=f'Прошла рассылка сообщения:\n\n{text}')
 
 
-@router.callback_query()
-async def process_rating(callback: CallbackQuery, bot: Bot):
-    await callback.answer()
-    rating = callback.data
-    await bot.delete_message(chat_id=callback.from_user.id, message_id=callback.message.message_id)
-    await bot.send_message(chat_id=callback.from_user.id, text='Спасибо за Вашу оценку!')
+@router.callback_query(DialogCalendarCallback.filter())
+async def process_dialog_calendar(callback_query: CallbackQuery, callback_data: CallbackData):
+    selected, date = await DialogCalendar().process_selection(callback_query, callback_data)
+    if selected:
+        date_string = date.strftime("%d_%m_%Y")
 
-    logger.info(f'Поставлена оценка {rating}')
+        documents = os.listdir(DOCUMENTS_TO_SEND)
+
+        for file_name in documents:
+            document_path = os.path.join(DOCUMENTS_TO_SEND, file_name)
+            if file_name.startswith(date_string):
+                await callback_query.message.answer_document(
+                    FSInputFile(document_path)
+                )

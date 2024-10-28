@@ -11,7 +11,7 @@ RUN pip install -r requirements.txt
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ffmpeg
 
-RUN pip install gigachat
+RUN pip install gigachat aiogram_calendar
 
 COPY . /app
 
