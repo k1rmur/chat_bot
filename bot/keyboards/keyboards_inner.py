@@ -60,11 +60,11 @@ def reglament_menu():
 def instruments_menu():
     btn_doc1 = KeyboardButton(text='''Видео / аудио -> протокол''')
     btn_doc3 = KeyboardButton(text='''Стенограмма -> протокол''')
-    btn_doc2 = KeyboardButton(text='''Суммаризация''')
+#    btn_doc2 = KeyboardButton(text='''Суммаризация''')
     btn_doc4 = KeyboardButton(text='''Назад''')
 
     markup = ReplyKeyboardMarkup(
-        keyboard=[[btn_doc1, btn_doc2], [btn_doc3, btn_doc4],],
+        keyboard=[[btn_doc1, btn_doc3], [btn_doc4],],
         resize_keyboard=True
     )
     return markup
