@@ -1,4 +1,10 @@
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
+
+
+REPORT_TYPES = {
+    "Тип 1": "report_type_1",
+    "Тип 2": "report_type_2",
+}
 
 
 def general_menu():
@@ -65,6 +71,22 @@ def instruments_menu():
 
     markup = ReplyKeyboardMarkup(
         keyboard=[[btn_doc1, btn_doc3], [btn_doc4],],
+        resize_keyboard=True
+    )
+    return markup
+
+
+def inline_report_keyboard():
+
+    btns = [
+        InlineKeyboardButton(
+            text=text, callback_data=REPORT_TYPES[text]
+        ) for text in REPORT_TYPES
+    ]
+    markup = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [btns[0], btns[1]],
+        ],
         resize_keyboard=True
     )
     return markup
