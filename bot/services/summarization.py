@@ -22,9 +22,12 @@ CONTEXT_LENGTH = 8192*4
 load_dotenv(find_dotenv())
 
 
-async def process_chunk(order_chain, content_chain, chunk):
-    tasks = [chain.ainvoke({"chunk": chunk}) for chain in [order_chain, content_chain]]
-    orders, contents = await asyncio.gather(*tasks)
+async def process_chunk(order_chain, content_chain, chunks):
+    orders = []
+    contents = []
+    for chunk in chunks:
+        orders.append(await order_chain.ainvoke({"chunk": chunk}))
+        contents.append(await content_chain.ainvoke({"chunk": chunk}))
     return orders, contents
 
 
@@ -101,8 +104,7 @@ async def get_summary(file_id, text, message):
 
     order_chain = order_template | llm
     content_chain = content_template | llm
-    tasks = [process_chunk(order_chain, content_chain, chunk) for chunk in chunks]
-    results = await asyncio.gather(*tasks)
+    results = await process_chunk(order_chain, content_chain, chunks)
 
     logger.info(f'Results: {results}')
     raw_orders = []
