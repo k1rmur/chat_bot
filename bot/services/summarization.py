@@ -104,15 +104,15 @@ async def get_summary(file_id, text, message):
 
     order_chain = order_template | llm
     content_chain = content_template | llm
-    results = await process_chunk(order_chain, content_chain, chunks)
+    orders, contents = await process_chunk(order_chain, content_chain, chunks)
 
-    logger.info(f'Results: {results}')
     raw_orders = []
     raw_content = []
-    for ord, cont in results:
+    for ord in orders:
         if ord:
             ord = ord.content
             raw_orders.append(ord)
+    for cont in contents:
         if cont:
             cont = cont.content
             raw_content.append(cont)
