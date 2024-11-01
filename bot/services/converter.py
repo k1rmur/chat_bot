@@ -129,7 +129,7 @@ async def recognize(file_id: str, extension: str, message: Message) -> None:
     return f"./tmp/{file_id}.docx", "Транскрипция.docx", full_transcript
 
 
-async def salute_recognize(file_id: str, extension: str):
+def salute_recognize(file_id: str, extension: str):
 
     audiofile = f'/app/bot/tmp/{file_id}.{extension}'
     text_file = f'./tmp/{file_id}.txt'

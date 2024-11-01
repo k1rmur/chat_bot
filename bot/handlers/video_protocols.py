@@ -44,7 +44,7 @@ async def recognize_from_audio(
     message: Message,
 ):
 
-    document, file_name, text = await salute_recognize(
+    document, file_name, text = salute_recognize(
         file_id, extension
     )
     if len(text.strip()) < 10:
