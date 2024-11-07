@@ -165,12 +165,12 @@ async def send(message: Message):
         log_action(message, allowed_actions['ai'])
         try:
             query = await llm.ainvoke(QUERY_GEN_PROMPT.format(query=text))
-            await message.answer(query.content)
+#            await message.answer(query.content)
             context_str = await get_context_str(query.content)
-            try:
-                await message.answer(context_str)
-            except:
-                pass
+#            try:
+#                await message.answer(context_str)
+#            except:
+#                pass
             prompt = text_qa_template.format(context_str=context_str, query_str=text)
             chain = await llm.ainvoke(prompt)
             answer = chain.content
