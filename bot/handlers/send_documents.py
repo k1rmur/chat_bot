@@ -126,9 +126,9 @@ async def handle_password(message: Message, state: FSMContext):
 @router.message(Command("send_document"))
 @allowed_users_only
 async def send_document_command(message: Message, state: FSMContext):
-    if len(os.listdir(DOCUMENTS_TO_SEND)) != 0:
-        await message.reply("Файл уже добавлен.")
-        return
+#    if len(os.listdir(DOCUMENTS_TO_SEND)) != 0:
+#        await message.reply("Файл уже добавлен.")
+#        return
 
     await message.reply("Пожалуйста, отправьте документ.\nЕго имя должно быть в формате DD_MM_YYYY_{другая информация}.расширение")
     await state.set_state(DocumentStates.waiting_for_document)

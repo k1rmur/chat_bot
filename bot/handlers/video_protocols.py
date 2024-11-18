@@ -96,7 +96,7 @@ async def get_protocol_from_txt(
 
 async def send_protocol(app: Client, message: Message):
     try:
-    	user_status = await app.get_chat_member(
+        user_status = await app.get_chat_member(
             chat_id="-1002409517684", user_id=message.from_user.id
         )
     except Exception as e:
