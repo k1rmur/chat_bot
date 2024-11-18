@@ -1,3 +1,4 @@
+from datetime import datetime
 import re
 
 from aiogram import Router, F, Bot
@@ -193,14 +194,29 @@ async def check_documents_command(message: Message, state: FSMContext, bot: Bot)
 
 
 async def send_message_on_time(bot: Bot):
-    for filename in os.listdir(DOCUMENTS_TO_SEND):
-        file_path = os.path.join(DOCUMENTS_TO_SEND, filename)
+    sent = False
+    try:
         send_message_to = load_send_to()
+        date_string = datetime.now().strftime("%d_%m_%Y")
+        documents = os.listdir(DOCUMENTS_TO_SEND)
         for user_id in send_message_to:
-            try:
-                await bot.send_document(user_id, FSInputFile(file_path))
-            except Exception as e:
-                logger.error(e, exc_info=True)
+            for file_name in documents:
+                document_path = os.path.join(DOCUMENTS_TO_SEND, file_name)
+                if file_name.startswith(date_string):
+                    sent = True
+                    await bot.send_document(
+                        user_id,
+                        FSInputFile(document_path)
+                    )
+    except Exception as e:
+        logger.error(e, exc_info=True)
+
+    if sent:
+        text = 'Прошла рассылка опер. дежурного.'
+    else:
+        text = 'Никому ничего не отправилось.'
+
+    await bot.send_message(chat_id=322077458, text=text)
 
 
 async def send_intro_message(bot: Bot, session: AsyncSession):
