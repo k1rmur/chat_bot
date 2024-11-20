@@ -17,6 +17,9 @@ import random
 from sqlalchemy.ext.asyncio import AsyncSession
 from filters.filters import allowed_users_only
 from aiogram_calendar import DialogCalendar, DialogCalendarCallback
+from services.text_extraction import extract_text_from_document
+from services.map_reduce_docs import return_summary, clear_temp
+from docx import Document
 
 
 DOCUMENTS_TO_SEND = "/app/documents_to_send"
@@ -43,6 +46,7 @@ class DocumentStates(StatesGroup):
     waiting_for_password = State()
     waiting_for_text = State()
     waiting_for_rating = State()
+    waiting_for_news = State()
 
 
 def load_send_to():
@@ -72,6 +76,7 @@ async def help_command(message: Message):
 /subscribe - Добавить себя в список рассылки (требуется пароль)
 /send_to_everyone - Отправить всем сообщение
 /get_report - Получить отчет
+/send_news - Обработать новости из .docx
     """
     await message.reply(help_text)
 
@@ -127,9 +132,6 @@ async def handle_password(message: Message, state: FSMContext):
 @router.message(Command("send_document"))
 @allowed_users_only
 async def send_document_command(message: Message, state: FSMContext):
-#    if len(os.listdir(DOCUMENTS_TO_SEND)) != 0:
-#        await message.reply("Файл уже добавлен.")
-#        return
 
     await message.reply("Пожалуйста, отправьте документ.\nЕго имя должно быть в формате DD_MM_YYYY_{другая информация}.расширение")
     await state.set_state(DocumentStates.waiting_for_document)
@@ -151,6 +153,7 @@ async def handle_document(message: Message, state: FSMContext):
     document = message.document
     if not document or not re.match(r'^\d{2}_\d{2}_\d{4}', document.file_name):
         await message.reply("Пожалуйста, отправьте правильный документ.")
+        await state.clear()
         return
 
     file = await message.bot.get_file(document.file_id)
@@ -266,3 +269,41 @@ async def process_dialog_calendar(callback_query: CallbackQuery, callback_data: 
             await callback_query.message.answer(
                     "Нет отчетов на выбранную дату"
                 )
+            
+
+@router.message(Command("send_news"))
+@allowed_users_only
+async def send_news_command(message: Message, state: FSMContext):
+
+    await message.reply("Пожалуйста, отправьте документ docx.")
+    await state.set_state(DocumentStates.waiting_for_news)
+
+
+@router.message(DocumentStates.waiting_for_news, F.document)
+@allowed_users_only
+async def handle_news(message: Message, state: FSMContext):
+
+    try:
+        document = message.document
+        if not document or not re.match(r'^\d{2}_\d{2}_\d{4}', document.file_name):
+            await message.reply("Пожалуйста, отправьте правильный документ.")
+            await state.clear()
+            return
+
+        langchain_document = await extract_text_from_document(document, message.bot)
+
+        facts = await return_summary(langchain_document, "facts")
+        world = await return_summary(langchain_document, "world")
+        conferences = await return_summary(langchain_document, "conferences")
+
+        text = f'Факты и события:\n\n{facts}\n\nВ мире: {world}\n\nКонференции и выставки:\n\n{conferences}'
+
+        doc = Document()
+        doc.add_paragraph(text)
+        doc.save(f"./tmp/{message.from_user.id}.docx")
+        await message.answer_document(FSInputFile(f"./tmp/{message.from_user.id}.docx", filename="Суммаризация.docx"))
+        await state.clear()
+    except Exception as e:
+        await message.bot.send_message(chat_id=322077458, text=str(e))
+    finally:
+        clear_temp(message.from_user.id)
