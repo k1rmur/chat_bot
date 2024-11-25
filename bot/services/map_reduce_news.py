@@ -28,8 +28,6 @@ def clear_temp(file_id):
             os.remove(f)
 
 
-CONTEXT_LENGTH = 8192*4
-
 llm = GigaChat(verify_ssl_certs=False, credentials=os.getenv("CREDENTIALS"), scope="GIGACHAT_API_CORP", model="GigaChat")
 
 map_template = """Перед тобой новости водохозяйственной сферы:
@@ -57,7 +55,7 @@ def length_function(documents: List[Document]) -> int:
     return sum(llm.get_num_tokens(doc) for doc in documents)
 
 
-token_max = 7000*4
+token_max = 7000*5
 
 
 class OverallState(TypedDict):
@@ -139,7 +137,7 @@ app = graph.compile()
 
 async def return_news_summary(documents):
     text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
-        chunk_size=20000, chunk_overlap=200
+        chunk_size=40000, chunk_overlap=200
     )
     split_docs = text_splitter.split_documents(documents)
     print(f"Generated {len(split_docs)} documents.")
