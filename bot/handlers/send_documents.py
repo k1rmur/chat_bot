@@ -278,9 +278,9 @@ async def send_news_command(message: Message, state: FSMContext):
         document = message.document
         langchain_document = await extract_text_from_document(document, message.bot)
 
-        facts = await return_summary(langchain_document, "facts")
-        world = await return_summary(langchain_document, "world")
-        conferences = await return_summary(langchain_document, "conferences")
+        facts = await return_summary([langchain_document,], "facts")
+        world = await return_summary([langchain_document,], "world")
+        conferences = await return_summary([langchain_document,], "conferences")
 
         text = f'Факты и события:\n\n{facts}\n\nВ мире: {world}\n\nКонференции и выставки:\n\n{conferences}'
 
