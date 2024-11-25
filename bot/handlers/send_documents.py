@@ -19,6 +19,7 @@ from filters.filters import allowed_users_only
 from aiogram_calendar import DialogCalendar, DialogCalendarCallback
 from services.text_extraction import extract_text_from_document
 from services.map_reduce_docs import return_summary, clear_temp
+from services.map_reduce_news import return_news_summary
 from docx import Document
 
 
@@ -278,11 +279,7 @@ async def send_news_command(message: Message, state: FSMContext):
         document = message.document
         langchain_document = await extract_text_from_document(document, message.bot)
 
-        facts = await return_summary([langchain_document,], "facts")
-        world = await return_summary([langchain_document,], "world")
-        conferences = await return_summary([langchain_document,], "conferences")
-
-        text = f'Факты и события:\n\n{facts}\n\nВ мире: {world}\n\nКонференции и выставки:\n\n{conferences}'
+        text = await return_news_summary([langchain_document,],)
 
         doc = Document()
         doc.add_paragraph(text)
