@@ -77,7 +77,7 @@ async def text_message_handler(message: Message, state: FSMContext):
         await message.answer(
             f"Началась обработка, количество документов - {len(documents)}..."
         )
-        summarized_text = await return_summary(documents)
+        summarized_text = return_summary(documents)
     except Exception as e:
         tb = traceback.format_exc()
         with open("/app/logs/error.txt", "w") as file:

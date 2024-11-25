@@ -279,7 +279,7 @@ async def send_news_command(message: Message, state: FSMContext):
         document = message.document
         langchain_document = await extract_text_from_document(document, message.bot)
 
-        text = await return_news_summary([langchain_document,],)
+        text = return_news_summary([langchain_document,],)
 
         doc = Document()
         doc.add_paragraph(text)

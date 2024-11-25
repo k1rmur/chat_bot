@@ -5,7 +5,7 @@ import os
 from typing import Annotated, List, Literal, TypedDict
 
 from docx import Document
-from langchain.chains.combine_documents.reduce import (acollapse_docs,
+from langchain.chains.combine_documents.reduce import (collapse_docs,
                                                        split_list_of_docs)
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
@@ -86,13 +86,13 @@ def map_summaries(state: OverallState):
 
 
 # Modify final summary to read off collapsed summaries
-async def generate_final_summary(state: OverallState):
-    response = await reduce_chain.ainvoke(state["collapsed_summaries"])
+def generate_final_summary(state: OverallState):
+    response = reduce_chain.invoke(state["collapsed_summaries"])
     return {"final_summary": response}
 
 
-async def generate_summary(state: SummaryState):
-    response = await map_chain.ainvoke(state["content"])
+def generate_summary(state: SummaryState):
+    response = map_chain.invoke(state["content"])
     return {"summaries": [response]}
 
 
@@ -103,13 +103,13 @@ graph.add_node("generate_final_summary", generate_final_summary)
 
 
 # Add node to collapse summaries
-async def collapse_summaries(state: OverallState):
+def collapse_summaries(state: OverallState):
     doc_lists = split_list_of_docs(
         state["collapsed_summaries"], length_function, token_max
     )
     results = []
     for doc_list in doc_lists:
-        results.append(await acollapse_docs(doc_list, reduce_chain.ainvoke))
+        results.append(collapse_docs(doc_list, reduce_chain.invoke))
 
     return {"collapsed_summaries": results}
 
@@ -135,7 +135,7 @@ graph.add_edge("generate_final_summary", END)
 app = graph.compile()
 
 
-async def return_news_summary(documents):
+def return_news_summary(documents):
     text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
         chunk_size=40000, chunk_overlap=200
     )
