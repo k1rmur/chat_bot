@@ -71,14 +71,14 @@ reduce_template = """
 """
 
 map_prompt = ChatPromptTemplate([("human", map_template)])
-map_facts_prompt = PromptTemplate(map_facts_template)
-map_world_prompt = PromptTemplate(map_world_template)
-map_conferences_prompt = PromptTemplate(map_conferences_template)
+map_facts_prompt = ChatPromptTemplate(["human", map_facts_template])
+map_world_prompt = ChatPromptTemplate(["human", map_world_template])
+map_conferences_prompt = ChatPromptTemplate(map_conferences_template)
 
 reduce_prompt = ChatPromptTemplate([("human", reduce_template)])
-reduce_facts_prompt = PromptTemplate(reduce_facts_template)
-reduce_world_prompt = PromptTemplate(reduce_world_template)
-reduce_conferences_prompt = PromptTemplate(reduce_conferences_template)
+reduce_facts_prompt = ChatPromptTemplate(["human", reduce_facts_template])
+reduce_world_prompt = ChatPromptTemplate(["human", reduce_world_template])
+reduce_conferences_prompt = ChatPromptTemplate(["human", reduce_conferences_template])
 
 map_chain = map_prompt | llm | StrOutputParser()
 map_facts_chain = map_facts_prompt | llm | StrOutputParser()
