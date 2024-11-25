@@ -73,7 +73,7 @@ reduce_template = """
 map_prompt = ChatPromptTemplate([("human", map_template)])
 map_facts_prompt = ChatPromptTemplate(["human", map_facts_template])
 map_world_prompt = ChatPromptTemplate(["human", map_world_template])
-map_conferences_prompt = ChatPromptTemplate(map_conferences_template)
+map_conferences_prompt = ChatPromptTemplate(["human",map_conferences_template])
 
 reduce_prompt = ChatPromptTemplate([("human", reduce_template)])
 reduce_facts_prompt = ChatPromptTemplate(["human", reduce_facts_template])
