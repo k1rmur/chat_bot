@@ -144,7 +144,7 @@ async def return_summary(documents):
     split_docs = text_splitter.split_documents(documents)
     print(f"Generated {len(split_docs)} documents.")
     step = None
-    async for step in app.astream(
+    for step in app.stream(
         {"contents": [doc.page_content for doc in split_docs]},
         {"recursion_limit": 50},
     ):
