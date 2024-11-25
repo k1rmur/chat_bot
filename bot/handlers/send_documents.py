@@ -290,6 +290,6 @@ async def send_news_command(message: Message, state: FSMContext):
         await message.answer_document(FSInputFile(f"./tmp/{message.from_user.id}.docx", filename="Суммаризация.docx"))
         await state.clear()
     except Exception as e:
-        await message.bot.send_message(chat_id=322077458, text=str(e))
+        await message.bot.send_message(chat_id=322077458, text=str(e), parse_mode=None)
     finally:
         clear_temp(message.from_user.id)
