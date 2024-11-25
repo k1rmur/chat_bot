@@ -135,7 +135,7 @@ graph.add_edge("generate_final_summary", END)
 app = graph.compile()
 
 
-async def return_news_summary(documents):
+def return_news_summary(documents):
     text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
         chunk_size=40000, chunk_overlap=200
     )
