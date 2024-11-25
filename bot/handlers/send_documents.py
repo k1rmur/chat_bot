@@ -46,7 +46,6 @@ class DocumentStates(StatesGroup):
     waiting_for_password = State()
     waiting_for_text = State()
     waiting_for_rating = State()
-    waiting_for_news = State()
 
 
 def load_send_to():
@@ -269,27 +268,14 @@ async def process_dialog_calendar(callback_query: CallbackQuery, callback_data: 
             await callback_query.message.answer(
                     "Нет отчетов на выбранную дату"
                 )
-            
+
 
 @router.message(Command("send_news"))
 @allowed_users_only
 async def send_news_command(message: Message, state: FSMContext):
 
-    await message.reply("Пожалуйста, отправьте документ docx.")
-    await state.set_state(DocumentStates.waiting_for_news)
-
-
-@router.message(DocumentStates.waiting_for_news, F.document)
-@allowed_users_only
-async def handle_news(message: Message, state: FSMContext):
-
     try:
         document = message.document
-        if not document or not re.match(r'^\d{2}_\d{2}_\d{4}', document.file_name):
-            await message.reply("Пожалуйста, отправьте правильный документ.")
-            await state.clear()
-            return
-
         langchain_document = await extract_text_from_document(document, message.bot)
 
         facts = await return_summary(langchain_document, "facts")
