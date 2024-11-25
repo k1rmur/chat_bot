@@ -132,7 +132,7 @@ app = graph.compile()
 
 def return_news_summary(documents):
     text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
-        chunk_size=40000, chunk_overlap=200
+        chunk_size=25000, chunk_overlap=200
     )
     split_docs = text_splitter.split_documents(documents)
     print(f"Generated {len(split_docs)} documents.")
