@@ -30,14 +30,7 @@ def clear_temp(file_id):
 
 llm = GigaChat(verify_ssl_certs=False, credentials=os.getenv("CREDENTIALS"), scope="GIGACHAT_API_CORP", model="GigaChat")
 
-map_template = """Перед тобой новости водохозяйственной сферы:
-{context}
-
-Выпиши и обобщи следующие пункты:
-
-1) Факты и события
-2) В мире
-3) Конференции и выставки"""
+map_template = """Перечисли и кратко перескажи все основные моменты из данной сводки новостей"""
 
 
 map_prompt = ChatPromptTemplate([("human", map_template)])

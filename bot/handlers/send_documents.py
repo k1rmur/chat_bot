@@ -17,7 +17,7 @@ import random
 from sqlalchemy.ext.asyncio import AsyncSession
 from filters.filters import allowed_users_only
 from aiogram_calendar import DialogCalendar, DialogCalendarCallback
-from services.text_extraction import extract_text_from_document
+from services.text_extraction import extract_text_from_document, extract_news_from_document
 from services.map_reduce_docs import return_summary, clear_temp
 from services.map_reduce_news import return_news_summary
 from docx import Document
@@ -277,9 +277,12 @@ async def send_news_command(message: Message, state: FSMContext):
 
     try:
         document = message.document
-        langchain_document = await extract_text_from_document(document, message.bot)
 
-        text = return_news_summary([langchain_document,],)
+        facts, world, conferences = await extract_news_from_document(document, message.bot)
+
+        facts, world, conferences = (return_news_summary([document,],) for document in (facts, world, conferences))
+
+        text = f"В России:\n\n{facts}\n\nВ мире:\n\n{world}\n\nКонференции:\n\n{conferences}"
 
         doc = Document()
         doc.add_paragraph(text)
