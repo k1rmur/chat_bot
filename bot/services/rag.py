@@ -14,7 +14,7 @@ async def get_context_str(text):
     doc_list = []
     current_string = ""
     for i, node in enumerate(documents):
-        current_string += f"Документ {i+1}\n"
+        current_string += "------------\n"
         current_string += f"Имя файла: {node.metadata.get('file_name', '')}\nСодержание:\n"
 
         current_string += node.text
@@ -50,7 +50,7 @@ vector_retriever = vector_index.as_retriever(similarity_top_k=5)
 
 retriever = QueryFusionRetriever(
     [bm25_retriever, vector_retriever],
-    similarity_top_k=6,
+    similarity_top_k=10,
     num_queries=1,
     mode="reciprocal_rerank",
     use_async=True,
