@@ -28,9 +28,11 @@ async def download_file(message: Message):
 
     message_to_delete = await message.reply("Скачивание медиафайла...")
     file_path = await message.download(file_name="./tmp/")
+    extension = file_path.split(".")[-1]
+    os.rename(file_path, f"./tmp/{message.id}.{extension}")
+    file_path = f"./tmp/{message.id}.{extension}"
     await message_to_delete.delete()
     file_id = Path(file_path).stem
-    extension = file_path.split(".")[-1]
     if not is_audio(extension) and not is_video(extension) and extension != "txt":
         return
 
@@ -100,7 +102,7 @@ async def send_protocol(app: Client, message: Message):
             chat_id="-1002409517684", user_id=message.from_user.id
         )
     except Exception as e:
-        await message.reply(str(e))
+        await message.reply("Нужно написать /start в беседу цифровизаторов.")
     if not isinstance(
         user_status,
         (
