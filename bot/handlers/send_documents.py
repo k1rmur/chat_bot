@@ -17,8 +17,8 @@ import random
 from sqlalchemy.ext.asyncio import AsyncSession
 from filters.filters import allowed_users_only
 from aiogram_calendar import DialogCalendar, DialogCalendarCallback
-from services.text_extraction import extract_text_from_document, extract_news_from_document
-from services.map_reduce_docs import return_summary, clear_temp
+from services.text_extraction import extract_news_from_document
+from services.map_reduce_docs import clear_temp
 from services.map_reduce_news import return_news_summary
 from docx import Document
 
@@ -47,6 +47,7 @@ class DocumentStates(StatesGroup):
     waiting_for_password = State()
     waiting_for_text = State()
     waiting_for_rating = State()
+    waiting_for_text_for_subscribers = State()
 
 
 def load_send_to():
@@ -75,6 +76,7 @@ async def help_command(message: Message):
 /check_documents - Проверить список документов в папке для отправки
 /subscribe - Добавить себя в список рассылки (требуется пароль)
 /send_to_everyone - Отправить всем сообщение
+/send_to_subscribers - Отправить сообщение подписанным на рассылку
 /get_report - Получить отчет
 /send_news - Обработать новости из .docx
     """
@@ -101,6 +103,14 @@ async def process_send_command(message: Message, state: FSMContext):
     await state.set_state(DocumentStates.waiting_for_text)
 
 
+@router.message(Command('send_to_subscribers'))
+@allowed_users_only
+async def process_send_command_to_subscribers(message: Message, state: FSMContext):
+
+    await message.reply("Пожалуйста, напишите текст для рассылки всем подписанным.")
+    await state.set_state(DocumentStates.waiting_for_text_for_subscribers)
+
+
 @router.message(DocumentStates.waiting_for_text)
 async def send_to_everyone(message: Message, db: Database, state: FSMContext):
     if message.text:
@@ -112,6 +122,17 @@ async def send_to_everyone(message: Message, db: Database, state: FSMContext):
         await message.reply("Нет текста.")
     await state.clear()
 
+
+@router.message(DocumentStates.waiting_for_text_for_subscribers)
+async def send_to_subscribers(message: Message, db: Database, state: FSMContext):
+    if message.text:
+        result = load_send_to()
+        tasks = [message.bot.send_message(chat_id=chat_id, text=message.text) for chat_id in result]
+        await asyncio.gather(*tasks)
+        await message.reply("Рассылка прошла успешно.")
+    else:
+        await message.reply("Нет текста.")
+    await state.clear()
 
 
 @router.message(DocumentStates.waiting_for_password)
