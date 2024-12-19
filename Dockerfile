@@ -11,7 +11,9 @@ RUN pip install -r requirements.txt
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ffmpeg
 
-RUN pip install gigachat langgraph validators aiogram_calendar salute-speech
+RUN pip install --upgrade gigachat langgraph validators aiogram_calendar salute-speech
+
+RUN pip install --upgrade git+https://github.com/m-bain/whisperx.git
 
 COPY . /app
 
