@@ -28,7 +28,7 @@ def clear_temp(file_id):
             os.remove(f)
 
 
-llm = GigaChat(verify_ssl_certs=False, credentials=os.getenv("CREDENTIALS"), scope="GIGACHAT_API_CORP", model="GigaChat-Pro")
+llm = GigaChat(verify_ssl_certs=False, credentials=os.getenv("CREDENTIALS"), scope="GIGACHAT_API_CORP", model="GigaChat-Max")
 
 map_template = """Перечисли и кратко перескажи все основные моменты из данной сводки новостей:
 

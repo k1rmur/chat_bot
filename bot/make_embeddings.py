@@ -33,6 +33,7 @@ reader = SimpleDirectoryReader(folder_path)
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 print("DEVICE:", device)
 embeddings = HuggingFaceEmbedding(model_name="intfloat/multilingual-e5-small", device=device)
+#Settings.Config.arbitrary_types_allowed = True
 Settings.embed_model = embeddings
 Settings.chunk_size = 256
 Settings.chunk_overlap = 64

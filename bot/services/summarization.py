@@ -56,7 +56,7 @@ else:
 #    system="Ты ассистент, анализирующий стенограммы встреч, не оставляющий своих комментариев и не выдумывающий поручения и темы обсуждения, если они не оговорены.",
 #)
 
-llm = GigaChat(verify_ssl_certs=False, credentials=os.getenv("CREDENTIALS"), scope="GIGACHAT_API_CORP", model="GigaChat")
+llm = GigaChat(verify_ssl_certs=False, credentials=os.getenv("CREDENTIALS"), scope="GIGACHAT_API_CORP", model="GigaChat-Max")
 
 
 def length_function(text) -> int:
