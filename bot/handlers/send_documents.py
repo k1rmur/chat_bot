@@ -72,13 +72,10 @@ async def help_command(message: Message):
 Доступные команды:
 /help - Показать список доступных команд
 /send_document - Отправить новый документ
-/delete_documents - Удалить все документы из папки для отправки
 /check_documents - Проверить список документов в папке для отправки
 /subscribe - Добавить себя в список рассылки (требуется пароль)
-/send_to_everyone - Отправить всем сообщение
 /send_to_subscribers - Отправить сообщение подписанным на рассылку
 /get_report - Получить отчет
-/send_news - Обработать новости из .docx
     """
     await message.reply(help_text)
 
