@@ -3,7 +3,7 @@ import os
 from dotenv import find_dotenv, load_dotenv
 from langchain_community.chat_models import GigaChat
 from langchain_core.prompts import ChatPromptTemplate
-from llama_index.core import ChatPromptTemplate, Settings
+from llama_index.core import ChatPromptTemplate, Settings, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.retrievers import QueryFusionRetriever
 from make_embeddings import bm25_retriever, embeddings, vector_index
@@ -32,11 +32,8 @@ CREDENTIALS = os.getenv("CREDENTIALS")
 
 
 chat_text_qa_msgs = [
-    (
-        "system",
-        QA_SYSTEM_PROMPT,
-    ),
-    ("user", QA_PROMPT_STR),
+    SystemMessagePromptTemplate.from_template(QA_SYSTEM_PROMPT),
+    HumanMessagePromptTemplate.from_template(QA_PROMPT_STR),
 ]
 text_qa_template = ChatPromptTemplate.from_messages(chat_text_qa_msgs)
 
