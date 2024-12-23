@@ -6,7 +6,6 @@ import langchain_core.documents
 from aiogram import Bot
 from aiogram.types import Document
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -38,7 +37,9 @@ async def extract_text_from_document(document: Document, bot: Bot):
     # Удаляем временный файл
     os.remove(temp_file_name)
 
-    langchain_document = langchain_core.documents.Document(page_content="\n".join(full_text))
+    langchain_document = langchain_core.documents.Document(
+        page_content="\n".join(full_text)
+    )
 
     return langchain_document
 
@@ -65,20 +66,28 @@ async def extract_news_from_document(document: Document, bot: Bot):
     # Извлекаем текст из документа
     doc = docx.Document(temp_file_name)
 
-    headings = ["факты и события. в россии", "в мире", "конференции", "периодические издания"]
+    headings = [
+        "факты и события. в россии",
+        "в мире",
+        "конференции",
+        "периодические издания",
+    ]
     paragraphs = doc.paragraphs
 
     indices = []
     for i in range(len(paragraphs)):
         paragraph = paragraphs[i]
-        if paragraph.style.name.startswith('Heading'):
+        if paragraph.style.name.startswith("Heading"):
             if paragraph.text.lower() in headings:
                 indices.append(i)
 
-    facts = "\n".join([par.text for par in paragraphs[indices[0]:indices[1]]])
-    world = "\n".join([par.text for par in paragraphs[indices[1]:indices[2]]])
-    conferences = "\n".join([par.text for par in paragraphs[indices[2]:indices[3]]])
+    facts = "\n".join([par.text for par in paragraphs[indices[0] : indices[1]]])
+    world = "\n".join([par.text for par in paragraphs[indices[1] : indices[2]]])
+    conferences = "\n".join([par.text for par in paragraphs[indices[2] : indices[3]]])
 
     os.remove(temp_file_name)
 
-    return tuple(langchain_core.documents.Document(page_content="\n".join(text)) for text in (facts, world, conferences))
+    return tuple(
+        langchain_core.documents.Document(page_content="\n".join(text))
+        for text in (facts, world, conferences)
+    )

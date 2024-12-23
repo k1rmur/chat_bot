@@ -6,8 +6,8 @@ import aiohttp
 from aiogram import Router
 from dotenv import find_dotenv, load_dotenv
 from pyrogram import Client
-from pyrogram.types import Message, ChatMember
-from services.converter import (clear_temp, convert, is_audio, is_video, salute_recognize)
+from pyrogram.types import ChatMember, Message
+from services.converter import clear_temp, convert, is_audio, is_video, salute_recognize
 from services.summarization import get_summary
 
 
@@ -24,7 +24,6 @@ load_dotenv(find_dotenv())
 
 
 async def download_file(message: Message):
-
     message_to_delete = await message.reply("Скачивание медиафайла...")
     file_path = await message.download(file_name="./tmp/")
     extension = file_path.split(".")[-1]
@@ -44,10 +43,7 @@ async def recognize_from_audio(
     message_to_delete: Message,
     message: Message,
 ):
-
-    document, file_name, text = salute_recognize(
-        file_id, extension
-    )
+    document, file_name, text = salute_recognize(file_id, extension)
     if len(text.strip()) < 10:
         await message_to_delete.delete()
         await message.reply("Слова в медиафайле не распознаны.")
@@ -65,7 +61,6 @@ async def recognize_from_audio(
 
 
 async def get_protocol(app: Client, message: Message, file_id: str, text: str):
-
     message_to_delete = await message.reply("Готовится протокол совещания...")
     document_sum, file_name_sum = await get_summary(file_id, text, message)
 
@@ -104,9 +99,7 @@ async def send_protocol(app: Client, message: Message):
         await message.reply("Нужно написать /start в беседу цифровизаторов.")
     if not isinstance(
         user_status,
-        (
-            ChatMember
-        ),
+        (ChatMember),
     ):
         await message.reply("У вас нет прав для использования этого бота.")
         return
@@ -159,33 +152,37 @@ async def send_protocol(app: Client, message: Message):
 
 
 async def make_protocol_from_url(app: Client, message: Message):
-    '''
+    """
     Function for URL handling.
     Checks if text is a valid URL string, then checks if text is a link to video.
     If it is, downloads a video in storage.
-    '''
+    """
 
     try:
         url = message.text.strip()
         async with aiohttp.ClientSession() as video_session:
             async with video_session.get(url) as response:
                 if response.status != 200:
-                    await message.reply("Не удалось получить доступ к видео по предоставленной ссылке.")
+                    await message.reply(
+                        "Не удалось получить доступ к видео по предоставленной ссылке."
+                    )
                     return
 
                 for key in response.headers:
-                    await message.reply(f'{key}: {response.headers[key]}')
-                content_type = response.headers.get('Content-Type', '')
-                if 'video' not in content_type:
+                    await message.reply(f"{key}: {response.headers[key]}")
+                content_type = response.headers.get("Content-Type", "")
+                if "video" not in content_type:
                     await message.reply("Ссылка не ведет на видеофайл.")
                     return
 
                 file_path = f"./tmp/{Path(url).name}"
-                with open(file_path, 'wb') as f:
+                with open(file_path, "wb") as f:
                     f.write(await response.read())
 
         message_to_delete = await message.reply("Видео успешно загружено.")
-        logger.info(f"Пользователь (username={message.from_user.username} id={message.from_user.id}) загрузил видео из URL {url}")
+        logger.info(
+            f"Пользователь (username={message.from_user.username} id={message.from_user.id}) загрузил видео из URL {url}"
+        )
         file_id = Path(file_path).stem
         audio_destination = f"/app/bot/tmp/{file_id}.wav"
         convert(file_path, audio_destination)

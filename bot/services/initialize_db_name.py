@@ -5,7 +5,7 @@ this.db_name = None
 
 
 def initialize_db(name):
-    if (this.db_name is None):
+    if this.db_name is None:
         this.db_name = name
     else:
         msg = "Database is already initialized to {0}."

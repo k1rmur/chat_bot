@@ -5,30 +5,34 @@ import os
 from typing import Annotated, List, Literal, TypedDict
 
 from docx import Document
-from langchain.chains.combine_documents.reduce import (collapse_docs,
-                                                       split_list_of_docs)
+from langchain.chains.combine_documents.reduce import collapse_docs, split_list_of_docs
+from langchain_community.chat_models import ChatOllama, GigaChat
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_text_splitters import CharacterTextSplitter
 from langgraph.constants import Send
 from langgraph.graph import END, START, StateGraph
-from langchain_community.chat_models import ChatOllama, GigaChat
 
 
 def clear_temp(file_id):
-    files = glob.glob('./tmp/*')
+    files = glob.glob("./tmp/*")
     for f in files:
         if file_id in f:
-            print(f'Deleting {f}...')
+            print(f"Deleting {f}...")
             os.remove(f)
-    files = glob.glob('app/bot/tmp/*')
+    files = glob.glob("app/bot/tmp/*")
     for f in files:
         if file_id in f:
-            print(f'Deleting {f}...')
+            print(f"Deleting {f}...")
             os.remove(f)
 
 
-llm = GigaChat(verify_ssl_certs=False, credentials=os.getenv("CREDENTIALS"), scope="GIGACHAT_API_CORP", model="GigaChat-Max")
+llm = GigaChat(
+    verify_ssl_certs=False,
+    credentials=os.getenv("CREDENTIALS"),
+    scope="GIGACHAT_API_CORP",
+    model="GigaChat-Max",
+)
 
 map_template = """Перечисли и кратко перескажи все основные моменты из данной сводки новостей:
 
@@ -50,7 +54,7 @@ def length_function(documents: List[Document]) -> int:
     return sum(llm.get_num_tokens(doc) for doc in documents)
 
 
-token_max = 7000*5
+token_max = 7000 * 5
 
 
 class OverallState(TypedDict):
@@ -66,9 +70,7 @@ class SummaryState(TypedDict):
 
 # Add node to store summaries for collapsing
 def collect_summaries(state: OverallState):
-    return {
-        "collapsed_summaries": [summary for summary in state["summaries"]]
-    }
+    return {"collapsed_summaries": [summary for summary in state["summaries"]]}
 
 
 def map_summaries(state: OverallState):

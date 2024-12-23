@@ -2,13 +2,17 @@ import os
 from functools import wraps
 from typing import Union
 
-from aiogram.filters import BaseFilter
-from aiogram.types import (ChatMemberAdministrator, ChatMemberMember,
-                           ChatMemberOwner, Message)
-from dotenv import find_dotenv, load_dotenv
-from pyrogram import filters, Client
-from validators import url
 import pyrogram.types as types
+from aiogram.filters import BaseFilter
+from aiogram.types import (
+    ChatMemberAdministrator,
+    ChatMemberMember,
+    ChatMemberOwner,
+    Message,
+)
+from dotenv import find_dotenv, load_dotenv
+from pyrogram import Client, filters
+from validators import url
 
 load_dotenv(find_dotenv())
 
@@ -16,10 +20,11 @@ send_message_from = list(map(int, os.getenv("SEND_MESSAGE_FROM").split(",")))
 
 
 async def url_func(_, __, message):
-    '''
+    """
     Function that checks if message text is a valid URL
-    '''
+    """
     return url(message.text)
+
 
 url_filter = filters.create(url_func)
 
@@ -54,12 +59,14 @@ def allowed_users_only(func):
     """
     Wrapper for access restriction to only those who are in some list
     """
+
     @wraps(func)
     async def wrapper(message: Message, *args, **kwargs):
         if message.from_user.id not in send_message_from:
             await message.reply("У вас нет прав для использования этой команды.")
             return
         return await func(message, *args, **kwargs)
+
     return wrapper
 
 

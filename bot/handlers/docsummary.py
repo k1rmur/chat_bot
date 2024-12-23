@@ -38,15 +38,12 @@ async def send_document_command(message: Message, state: FSMContext):
 @router.message(Command("clear"))
 @users_from_group_only
 async def clear_command(message: Message, state: FSMContext):
-    await message.reply(
-        "Очищено."
-    )
+    await message.reply("Очищено.")
     await state.clear()
 
 
 @router.message(SummaryStates.waiting_for_document_summary, F.document)
 async def document_handler(message: Message, state: FSMContext):
-
     document = message.document
 
     langchain_document = await extract_text_from_document(document, message.bot)
@@ -70,9 +67,8 @@ async def document_handler(message: Message, state: FSMContext):
 
 @router.message(SummaryStates.waiting_for_document_summary, Command("process"))
 async def text_message_handler(message: Message, state: FSMContext):
-
     data = await state.get_data()
-    documents = data.get('langchain_documents', dict())
+    documents = data.get("langchain_documents", dict())
     try:
         await message.answer(
             f"Началась обработка, количество документов - {len(documents)}..."
@@ -83,11 +79,12 @@ async def text_message_handler(message: Message, state: FSMContext):
         with open("/app/logs/error.txt", "w") as file:
             file.write(tb)
 
-
     doc = Document()
     doc.add_paragraph(summarized_text)
     doc.save(f"./tmp/{message.from_user.id}.docx")
-    await message.answer_document(FSInputFile(f"./tmp/{message.from_user.id}.docx", filename="Суммаризация.docx"))
+    await message.answer_document(
+        FSInputFile(f"./tmp/{message.from_user.id}.docx", filename="Суммаризация.docx")
+    )
     await state.clear()
 
     clear_temp(message.from_user.id)

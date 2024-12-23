@@ -1,10 +1,11 @@
 import logging
 
+
 class InfoLogFilter(logging.Filter):
     def filter(self, record):
-        return record.levelname == 'INFO'
+        return record.levelname == "INFO"
 
 
 class ExceptionLogFilter(logging.Filter):
     def filter(self, record):
-        return record.levelname == 'ERROR'
+        return record.levelname == "ERROR"
