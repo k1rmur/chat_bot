@@ -7,8 +7,7 @@ from aiogram import Router
 from dotenv import find_dotenv, load_dotenv
 from pyrogram import Client
 from pyrogram.types import Message, ChatMember
-from services.converter import (clear_temp, convert, is_audio, is_video,
-                                recognize, salute_recognize)
+from services.converter import (clear_temp, convert, is_audio, is_video, salute_recognize)
 from services.summarization import get_summary
 
 
