@@ -2,6 +2,7 @@ import os
 
 from dotenv import find_dotenv, load_dotenv
 from langchain_community.chat_models import GigaChat
+from llama_index.core import Settings
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate,HumanMessagePromptTemplate
 from llama_index.core.retrievers import QueryFusionRetriever
 from make_embeddings import bm25_retriever, embeddings, vector_index
