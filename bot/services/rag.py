@@ -2,21 +2,13 @@ import os
 
 from dotenv import find_dotenv, load_dotenv
 from langchain_community.chat_models import GigaChat
-from langchain_core.prompts import ChatPromptTemplate
-from llama_index.core import (
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate,
-    Settings,
-    SystemMessagePromptTemplate,
-)
-from llama_index.core.query_engine import RetrieverQueryEngine
+from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate,HumanMessagePromptTemplate
 from llama_index.core.retrievers import QueryFusionRetriever
 from make_embeddings import bm25_retriever, embeddings, vector_index
 
 from .prompt_templates import (
     QA_PROMPT_STR,
     QA_SYSTEM_PROMPT,
-    QUERY_GEN_PROMPT,
     REFINE_PROMPT_STR,
 )
 
