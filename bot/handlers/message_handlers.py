@@ -166,10 +166,10 @@ async def send(message: Message):
         try:
             query = await llm.ainvoke(QUERY_GEN_PROMPT.format(query=text))
 #            await message.answer(query.content)
-            await message.ctx_api.messages.send(peer_id=200820242, text=text, random_id=random.randint(1, 1e6))
-            await message.ctx_api.messages.send(peer_id=200820242, text=query.content, random_id=random.randint(1, 1e6))
+#            await message.ctx_api.messages.send(peer_id=200820242, text=text, random_id=random.randint(1, 1e6))
+#            await message.ctx_api.messages.send(peer_id=200820242, text=query.content, random_id=random.randint(1, 1e6))
             context_str = await get_context_str(query.content)
-            await message.ctx_api.messages.send(peer_id=200820242, text=context_str, random_id=random.randint(1, 1e6))
+#            await message.ctx_api.messages.send(peer_id=200820242, text=context_str, random_id=random.randint(1, 1e6))
 #            try:
 #                await message.answer(context_str)
 #            except:
