@@ -147,7 +147,7 @@ async def send(message: Message, bot: Bot):
             logger.info(
                 f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"'
             )
-            await message.reply(text=answer)
+            await message.reply(text=answer, parse_mode="Markdown")
         except Exception as e:
             error_text = (
                 f"Пользователь {message.from_user.username} получил ошибку\n{e}"
