@@ -3,14 +3,13 @@ from optparse import OptionParser
 
 import chromadb
 import torch
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from llama_index.core import (
     Settings,
     SimpleDirectoryReader,
     StorageContext,
     VectorStoreIndex,
 )
-from llama_index.core.node_parser import LangchainNodeParser, SentenceSplitter
+from llama_index.core.node_parser import TokenTextSplitter
 from llama_index.core.storage.docstore import SimpleDocumentStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.retrievers.bm25 import BM25Retriever
@@ -37,10 +36,7 @@ print("DEVICE:", device)
 embeddings = HuggingFaceEmbedding(
     model_name="intfloat/multilingual-e5-small", device=device
 )
-# Settings.Config.arbitrary_types_allowed = True
 Settings.embed_model = embeddings
-Settings.chunk_size = 256
-Settings.chunk_overlap = 64
 
 
 if __name__ == "__main__":
@@ -50,12 +46,7 @@ if __name__ == "__main__":
         pass
 
     documents = reader.load_data()
-    parser = LangchainNodeParser(
-        RecursiveCharacterTextSplitter(
-            chunk_size=1024,
-            chunk_overlap=256,
-        )
-    )
+    parser = TokenTextSplitter(chunk_size=1024, chunk_overlap=256)
     nodes = parser.get_nodes_from_documents(documents)
     print(nodes)
     docstore = SimpleDocumentStore()
@@ -79,7 +70,7 @@ else:
         docstore = SimpleDocumentStore.from_persist_path(f"{DB_DIR}/docstore")
     except Exception:
         documents = reader.load_data()
-        parser = SentenceSplitter()
+        parser = TokenTextSplitter(chunk_size=1024, chunk_overlap=256)
         nodes = parser.get_nodes_from_documents(documents)
         docstore = SimpleDocumentStore()
         docstore.add_documents(nodes)
