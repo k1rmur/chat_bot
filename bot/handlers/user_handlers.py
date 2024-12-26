@@ -132,8 +132,6 @@ async def send(message: Message, bot: Bot):
                     FSInputFile(file, filename=file.split("/")[-1])
                 )
     else:
-        if message.voice:
-
         log_action(message, allowed_actions["ai"])
         text = message.text
         if text is None:
