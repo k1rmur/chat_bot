@@ -1,9 +1,10 @@
 import os
 
+import langchain
 from dotenv import find_dotenv, load_dotenv
 from langchain_community.chat_models import GigaChat
 from llama_index.core import Settings
-from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate,HumanMessagePromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from llama_index.core.retrievers import QueryFusionRetriever
 from make_embeddings import bm25_retriever, embeddings, vector_index
 
@@ -14,13 +15,15 @@ from .prompt_templates import (
     QUERY_GEN_PROMPT
 )
 
+langchain.debug = True
+
 
 async def get_context_str(text):
     documents = await retriever.aretrieve(text)
     doc_list = []
     current_string = ""
     for i, node in enumerate(documents):
-        current_string += "---------\n"
+        current_string += "###\n"
         current_string += (
             f"Имя файла: {node.metadata.get('file_name', '')}\nСодержание:\n"
         )
@@ -58,7 +61,7 @@ refine_template = ChatPromptTemplate.from_messages(chat_refine_msgs)
 llm = GigaChat(
     verify_ssl_certs=False,
     credentials=CREDENTIALS,
-    scope="GIGACHAT_API_CORP",
+    scope="GIGACHAT_API_PERS",
     model="GigaChat-Pro",
     verbose=True,
     profanity=False,
