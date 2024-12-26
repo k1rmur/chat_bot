@@ -50,42 +50,36 @@ async def main():
 
     scheduler = AsyncIOScheduler()
 
-    if mode == "inner":
-        app = Client(
-            "DA_bot_test",
-            api_id=config.tg_bot.api_id,
-            api_hash=config.tg_bot.api_hash,
-            bot_token=config.tg_bot.token,
+    app = Client(
+        "DA_bot_test",
+        api_id=config.tg_bot.api_id,
+        api_hash=config.tg_bot.api_hash,
+        bot_token=config.tg_bot.token,
+    )
+    app.add_handler(
+        MessageHandler(
+            video_protocols.send_protocol,
+            filters=filters.video
+            | filters.audio
+            | filters.document,
         )
-        app.add_handler(
-            MessageHandler(
-                video_protocols.send_protocol,
-                filters=filters.video
-                | filters.voice
-                | filters.audio
-                | filters.document,
-            )
+    )
+    app.add_handler(
+        MessageHandler(
+            video_protocols.answer_to_voice,
+            filters=filters.voice
         )
-        await app.start()
-        scheduler.add_job(
-            send_documents.send_message_on_time,
-            "cron",
-            hour=10,
-            minute=00,
-            timezone=timezone(timedelta(hours=+3)),
-            args=(bot,),
-        )
-        dp.include_router(docsummary.router)
-    else:
-        scheduler.add_job(
-            send_documents.ask_for_rating,
-            "cron",
-            day="2nd fri, 3rd wed",
-            hour=16,
-            minute=30,
-            timezone=timezone(timedelta(hours=+3)),
-            args=(bot, session),
-        )
+    )
+    await app.start()
+    scheduler.add_job(
+        send_documents.send_message_on_time,
+        "cron",
+        hour=10,
+        minute=00,
+        timezone=timezone(timedelta(hours=+3)),
+        args=(bot,),
+    )
+    dp.include_router(docsummary.router)
 
     scheduler.add_job(
         send_documents.send_intro_message,

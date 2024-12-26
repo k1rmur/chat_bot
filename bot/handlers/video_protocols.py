@@ -9,7 +9,7 @@ from pyrogram import Client
 from pyrogram.types import ChatMember, Message
 from services.converter import clear_temp, convert, is_audio, is_video, salute_recognize
 from services.summarization import get_summary
-
+from services.rag import get_rag_answer
 
 class NoWordsRecognizedError(Exception):
     pass
@@ -139,6 +139,53 @@ async def send_protocol(app: Client, message: Message):
 
         await get_protocol(app, message, file_id, text)
 
+    except Exception as e:
+        error_text = f"Пользователь {message.from_user.username} отправил файл формата {extension} и получил ошибку\n{e}"
+        logger.error(error_text, exc_info=True)
+        await message.reply(
+            "Произошла ошибка при обработке Вашего файла\nИнформация отправлена разработчикам"
+        )
+        await app.send_message(322077458, error_text)
+
+    finally:
+        clear_temp(file_id)
+
+
+async def answer_to_voice(app: Client, message: Message):
+    try:
+        user_status = await app.get_chat_member(
+            chat_id="-1002409517684", user_id=message.from_user.id
+        )
+    except Exception:
+        await message.reply("Нужно написать /start в беседу цифровизаторов.")
+    if not isinstance(
+        user_status,
+        (ChatMember),
+    ):
+        await message.reply("У вас нет прав для использования этого бота.")
+        return
+
+    result = await download_file(message)
+    if result is None:
+        return
+    else:
+        file_id = result.get("file_id")
+        extension = result.get("extension")
+
+    message_to_delete = await message.reply(
+        "Голосовое сообщение получено, готовится ответ..."
+    )
+
+    try:
+
+        text = await recognize_from_audio(
+            file_id, extension, message_to_delete, message
+        )
+
+        answer = await get_rag_answer(text)
+
+        await message.reply(f"Распознанные слова: {text}\n\nОтвет:\n{answer}")
+    
     except Exception as e:
         error_text = f"Пользователь {message.from_user.username} отправил файл формата {extension} и получил ошибку\n{e}"
         logger.error(error_text, exc_info=True)

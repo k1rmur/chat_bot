@@ -11,6 +11,7 @@ from .prompt_templates import (
     QA_PROMPT_STR,
     QA_SYSTEM_PROMPT,
     REFINE_PROMPT_STR,
+    QUERY_GEN_PROMPT
 )
 
 
@@ -78,3 +79,14 @@ retriever = QueryFusionRetriever(
     use_async=True,
     verbose=True,
 )
+
+
+async def get_rag_answer(text):
+
+    query = await llm.ainvoke(QUERY_GEN_PROMPT.format(query=text))
+    context_str = await get_context_str(query.content)
+    prompt = text_qa_template.format(context_str=context_str, query_str=text)
+    chain = await llm.ainvoke(prompt)
+    answer = chain.content
+
+    return answer

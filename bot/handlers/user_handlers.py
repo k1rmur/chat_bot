@@ -13,7 +13,7 @@ from filters.filters import users_from_group_only
 from keyboards.keyboards_inner import gosuslugi_menu
 from services.log_actions import allowed_actions, log_action
 from services.prompt_templates import QUERY_GEN_PROMPT
-from services.rag import get_context_str, llm, text_qa_template
+from services.rag import get_context_str, llm, text_qa_template, get_rag_answer
 
 
 class UserState(StatesGroup):
@@ -109,8 +109,7 @@ async def process_start_command(message: Message, db: Database):
 
 
 @router.message(
-    F.text
-    & ~F.text.startswith("/")
+    ((F.text & ~F.text.startswith("/"))|F.voice)
     & F.chat.type.in_(
         {
             "private",
@@ -133,17 +132,16 @@ async def send(message: Message, bot: Bot):
                     FSInputFile(file, filename=file.split("/")[-1])
                 )
     else:
+        if message.voice:
+
         log_action(message, allowed_actions["ai"])
         text = message.text
         if text is None:
             return
 
         try:
-            query = await llm.ainvoke(QUERY_GEN_PROMPT.format(query=text))
-            context_str = await get_context_str(query.content)
-            prompt = text_qa_template.format(context_str=context_str, query_str=text)
-            chain = await llm.ainvoke(prompt)
-            answer = chain.content
+            answer = await get_rag_answer(text)
+
             logger.info(
                 f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"'
             )
