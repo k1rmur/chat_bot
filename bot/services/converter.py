@@ -68,14 +68,16 @@ lock = asyncio.Lock()
 
 
 def salute_recognize(file_id: str, extension: str):
+    audio_path = f"/app/bot/tmp/{file_id}.{extension}"
 
     if extension not in ["mp3", "wav"]:
         song = AudioSegment.from_ogg(f"/app/bot/tmp/{file_id}.{extension}")
         song.export(f"/app/bot/tmp/{file_id}.wav", format="wav")
 
-    audiofile = f"/app/bot/tmp/{file_id}.{extension}"
+        audio_path = f"/app/bot/tmp/{file_id}.wav"
+
     text_file = f"./tmp/{file_id}.txt"
-    os.system(f'salute_speech transcribe-audio "{audiofile}" -o "{text_file}"')
+    os.system(f'salute_speech transcribe-audio "{audio_path}" -o "{text_file}"')
 
     doc_transcription = Document()
 
