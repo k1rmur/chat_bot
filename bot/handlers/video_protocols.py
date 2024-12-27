@@ -130,7 +130,7 @@ async def send_protocol(app: Client, message: Message):
             return
 
         text = await recognize_from_audio(
-            file_id, extension, message_to_delete, message, reply_transription=False
+            file_id, extension, message_to_delete, message
         )
 
         await get_protocol(app, message, file_id, text)
@@ -176,7 +176,7 @@ async def answer_to_voice(app: Client, message: Message):
     try:
 
         text = await recognize_from_audio(
-            file_id, extension, message_to_delete, message
+            file_id, extension, message_to_delete, message, reply_transription=False
         )
 
         answer = await get_rag_answer(text)
