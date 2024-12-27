@@ -42,11 +42,13 @@ async def recognize_from_audio(
     extension: str,
     message_to_delete: Message,
     message: Message,
+    reply_transription=True
 ):
     document, file_name, text = salute_recognize(file_id, extension)
 
     await message_to_delete.delete()
-    await message.reply_document(document=document, file_name=file_name)
+    if reply_transription:
+        await message.reply_document(document=document, file_name=file_name)
     logger.info(
         f"Пользователю (username={message.from_user.username} id={message.from_user.id}) пришла транскрипция."
     )
@@ -128,7 +130,7 @@ async def send_protocol(app: Client, message: Message):
             return
 
         text = await recognize_from_audio(
-            file_id, extension, message_to_delete, message
+            file_id, extension, message_to_delete, message, reply_transription=False
         )
 
         await get_protocol(app, message, file_id, text)
@@ -161,7 +163,6 @@ async def answer_to_voice(app: Client, message: Message):
 
     result = await download_file(message)
 
-    await message.reply(str(result))
     if result is None:
         return
     else:
@@ -180,8 +181,8 @@ async def answer_to_voice(app: Client, message: Message):
 
         answer = await get_rag_answer(text)
 
-        await message.reply(f"Распознанные слова: {text}\n\nОтвет:\n{answer}")
-    
+        await message.reply(f"Распознанные слова:\n{text}\n\nОтвет:\n{answer}")
+
     except Exception as e:
         error_text = f"Пользователь {message.from_user.username} отправил файл формата {extension} и получил ошибку\n{e}"
         logger.error(error_text, exc_info=True)
