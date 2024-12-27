@@ -72,7 +72,7 @@ def salute_recognize(file_id: str, extension: str):
 
     if extension not in ["mp3", "wav"]:
         song = AudioSegment.from_ogg(f"./tmp/{file_id}.{extension}")
-        song.export(f"./tmp/{file_id}.wav", format="mp3")
+        song.export(f"./tmp/{file_id}.mp3", format="mp3")
 
         audio_path = f"./tmp/{file_id}.mp3"
 
