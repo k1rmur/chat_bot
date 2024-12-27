@@ -109,7 +109,7 @@ async def process_start_command(message: Message, db: Database):
 
 
 @router.message(
-    ((F.text & ~F.text.startswith("/"))|F.voice)
+    (F.text & ~F.text.startswith("/"))
     & F.chat.type.in_(
         {
             "private",

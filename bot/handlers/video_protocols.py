@@ -44,12 +44,6 @@ async def recognize_from_audio(
     message: Message,
 ):
     document, file_name, text = salute_recognize(file_id, extension)
-    if len(text.strip()) < 10:
-        await message_to_delete.delete()
-        await message.reply("Слова в медиафайле не распознаны.")
-        raise NoWordsRecognizedError(
-            f"Пользователю (username={message.from_user.username} id={message.from_user.id}) не пришла транскрипция, не распознаны слова."
-        )
 
     await message_to_delete.delete()
     await message.reply_document(document=document, file_name=file_name)
@@ -95,7 +89,7 @@ async def send_protocol(app: Client, message: Message):
         user_status = await app.get_chat_member(
             chat_id="-1002409517684", user_id=message.from_user.id
         )
-    except Exception as e:
+    except Exception:
         await message.reply("Нужно написать /start в беседу цифровизаторов.")
     if not isinstance(
         user_status,
@@ -166,6 +160,8 @@ async def answer_to_voice(app: Client, message: Message):
         return
 
     result = await download_file(message)
+
+    await message.reply(str(result))
     if result is None:
         return
     else:
