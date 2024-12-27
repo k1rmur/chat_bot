@@ -181,7 +181,11 @@ async def answer_to_voice(app: Client, message: Message):
 
         answer = await get_rag_answer(text)
 
+<<<<<<< HEAD
         await message.reply(f"Распознанные слова:\n{text}\n\nОтвет:\n{answer}")
+=======
+        await message.reply(f"Распознанные слова: {text}\n\nОтвет:\n{answer}")
+>>>>>>> 11d8a3291d1979afd3055b8911b6c14c6eacfd41
 
     except Exception as e:
         error_text = f"Пользователь {message.from_user.username} отправил файл формата {extension} и получил ошибку\n{e}"
