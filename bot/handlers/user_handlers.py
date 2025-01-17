@@ -132,7 +132,6 @@ async def send(message: Message, bot: Bot):
                     FSInputFile(file, filename=file.split("/")[-1])
                 )
     else:
-        log_action(message, allowed_actions["ai"])
         text = message.text
         if text is None:
             return
@@ -143,6 +142,7 @@ async def send(message: Message, bot: Bot):
             logger.info(
                 f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"'
             )
+            log_action(message, allowed_actions["ai"], answer=answer)
             await message.reply(text=answer, parse_mode="Markdown")
         except Exception as e:
             error_text = (
