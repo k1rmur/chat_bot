@@ -1,4 +1,6 @@
-import datetime
+import csv
+from datetime import datetime
+
 
 CSV_LOG_PATH = "/app/logs/stats.csv"
 
@@ -11,15 +13,19 @@ allowed_actions = {
 }
 
 
-def log_action(message, action):
+def log_action(message, action, answer=None):
     try:
         with open(CSV_LOG_PATH, "a") as file:
+            writer = csv.writer(file)
             user_id = message.from_user.id
             username = message.from_user.username
             if username is None:
                 username = "Скрыт"
-            mydate = datetime.datetime.now()
+            mydate = datetime.now()
 
-            file.write(",".join([str(user_id), username, str(mydate), action]) + "\n")
+            if action == "Вопрос ИИ" and answer:
+                action += f": {message.text}\nОтвет: {answer}"
+
+            writer.writerow([str(user_id), username, str(mydate), action])
     except Exception as e:
         print(e)
