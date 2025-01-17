@@ -24,7 +24,7 @@ def log_action(message, action, answer=None):
             mydate = datetime.now()
 
             if action == "Вопрос ИИ" and answer:
-                writer.writerow([str(user_id), username, str(mydate), action, message.text, answer])
+                writer.writerow([str(user_id), username, str(mydate), message.text])
             else:
                 writer.writerow([str(user_id), username, str(mydate), action])
     except Exception as e:
