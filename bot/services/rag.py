@@ -40,7 +40,7 @@ chat_text_qa_msgs = [
 text_qa_template = ChatPromptTemplate.from_messages(chat_text_qa_msgs)
 
 
-llm = GigaChat(verify_ssl_certs=False, credentials=CREDENTIALS, scope="GIGACHAT_API_CORP", model="GigaChat-Pro", verbose=True, profanity=False, temperature=0.1)
+llm = GigaChat(verify_ssl_certs=False, credentials=CREDENTIALS, scope="GIGACHAT_API_B2B", model="GigaChat-Pro", verbose=True, profanity=False, temperature=0.1)
 Settings.llm = llm
 Settings.embed_model = embeddings
 Settings.context_window = 32768
