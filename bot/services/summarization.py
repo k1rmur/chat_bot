@@ -63,9 +63,9 @@ else:
 
 llm = GigaChat(
     verify_ssl_certs=False,
-    credentials=os.getenv("CREDENTIALS"),
+    credentials=os.getenv("CREDENTIALS_NONRAG"),
     scope="GIGACHAT_API_CORP",
-    model="GigaChat-Max",
+    model="GigaChat-Pro",
 )
 
 
