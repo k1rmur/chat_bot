@@ -39,29 +39,9 @@ async def process_chunk(order_chain, content_chain, chunks):
 ABS_PATH = os.path.dirname(os.path.abspath(__file__))
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-print("OLLAMA DEVICE:", device)
-if device == "cuda":
-    n_gpu_layers = 33
-    num_thread = None
-    base_url = "http://ollama-container-gpu:11434"
-else:
-    n_gpu_layers = None
-    num_thread = 8
-    base_url = "http://ollama-container:11434"
+print("DEVICE:", device)
 
-# llm = ChatOllama(
-#    model='llama3.1:8b-instruct-q4_K_M',
-#    temperature=0.1,
-#    base_url=base_url,
-#    keep_alive=-1,
-#    num_ctx=CONTEXT_LENGTH,
-#    num_thread=num_thread,
-#    n_gpu_layers=n_gpu_layers,
-#    verbose=True,
-#    system="Ты ассистент, анализирующий стенограммы встреч, не оставляющий своих комментариев и не выдумывающий поручения и темы обсуждения, если они не оговорены.",
-# )
-
-llm = GigaChat(
+llm_nonrag = GigaChat(
     verify_ssl_certs=False,
     credentials=os.getenv("CREDENTIALS_NONRAG"),
     scope="GIGACHAT_API_CORP",
@@ -71,7 +51,7 @@ llm = GigaChat(
 
 def length_function(text) -> int:
     """Get number of tokens for input contents."""
-    return llm.get_num_tokens(text)
+    return llm_nonrag.get_num_tokens(text)
 
 
 REFINE_ORDERS_PROMPT_LENGTH = length_function(REFINE_ORDERS_PROMPT)
@@ -108,8 +88,8 @@ async def get_summary(file_id, text, message):
 
     logger.info(f'Чанки: {" ".join(chunks)}')
 
-    order_chain = order_template | llm
-    content_chain = content_template | llm
+    order_chain = order_template | llm_nonrag
+    content_chain = content_template | llm_nonrag
     orders, contents = await process_chunk(order_chain, content_chain, chunks)
 
     raw_orders = []
@@ -159,20 +139,20 @@ async def get_summary(file_id, text, message):
         ):
             break
 
-    content = await LLMChain(llm=llm, prompt=refine_content_prompt).ainvoke(raw_content)
+    content = await LLMChain(llm=llm_nonrag, prompt=refine_content_prompt).ainvoke(raw_content)
     content = content["text"]
-    orders = await LLMChain(llm=llm, prompt=refine_orders_prompt).ainvoke(raw_orders)
+    orders = await LLMChain(llm=llm_nonrag, prompt=refine_orders_prompt).ainvoke(raw_orders)
     orders = orders["text"]
 
     logger.info(f"orders: {orders}")
     logger.info(f"content: {content}")
 
     main_question = await LLMChain(
-        llm=llm, prompt=extract_main_questions_prompt
+        llm=llm_nonrag, prompt=extract_main_questions_prompt
     ).ainvoke(
         f"Темы разговора и принятые решения:{content}\nПоручения сотрудникам:{orders}"
     )
-    resume = await LLMChain(llm=llm, prompt=extract_short_resume_prompt).ainvoke(
+    resume = await LLMChain(llm=llm_nonrag, prompt=extract_short_resume_prompt).ainvoke(
         f"Темы разговора и принятые решения:{content}\nПоручения сотрудникам:{orders}"
     )
 

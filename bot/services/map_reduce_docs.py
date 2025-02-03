@@ -27,7 +27,7 @@ def clear_temp(file_id):
             os.remove(f)
 
 
-llm = GigaChat(
+llm_nonrag = GigaChat(
     verify_ssl_certs=False,
     credentials=os.getenv("CREDENTIALS_NONRAG"),
     scope="GIGACHAT_API_CORP",
@@ -49,8 +49,8 @@ reduce_template = """
 map_prompt = ChatPromptTemplate([("human", map_template)])
 reduce_prompt = ChatPromptTemplate([("human", reduce_template)])
 
-map_chain = map_prompt | llm | StrOutputParser()
-reduce_chain = reduce_prompt | llm | StrOutputParser()
+map_chain = map_prompt | llm_nonrag | StrOutputParser()
+reduce_chain = reduce_prompt | llm_nonrag | StrOutputParser()
 
 
 logger = logging.getLogger(__name__)
@@ -58,7 +58,7 @@ logger = logging.getLogger(__name__)
 
 def length_function(documents: List[Document]) -> int:
     """Get number of tokens for input contents."""
-    return sum(llm.get_num_tokens(doc) for doc in documents)
+    return sum(llm_nonrag.get_num_tokens(doc) for doc in documents)
 
 
 token_max = 25000
