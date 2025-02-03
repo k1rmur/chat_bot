@@ -27,12 +27,7 @@ def clear_temp(file_id):
             os.remove(f)
 
 
-llm_nonrag = GigaChat(
-    verify_ssl_certs=False,
-    credentials=os.getenv("CREDENTIALS_NONRAG"),
-    scope="GIGACHAT_API_CORP",
-    model="GigaChat",
-)
+llm_nonrag = GigaChat(verify_ssl_certs=False, credentials=os.getenv("CREDENTIALS_NONRAG"), scope="GIGACHAT_API_CORP", model="GigaChat")
 
 map_template = "Напиши краткое, но с сохранением главной информации обобщение следующего текста:\n{context}\n\nОбобщение:\n\n"
 

@@ -41,13 +41,7 @@ ABS_PATH = os.path.dirname(os.path.abspath(__file__))
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print("DEVICE:", device)
 
-llm_nonrag = GigaChat(
-    verify_ssl_certs=False,
-    credentials=os.getenv("CREDENTIALS_NONRAG"),
-    scope="GIGACHAT_API_CORP",
-    model="GigaChat-Pro",
-)
-
+llm_nonrag = GigaChat(verify_ssl_certs=False, credentials=os.getenv("CREDENTIALS_NONRAG"), scope="GIGACHAT_API_CORP", model="GigaChat")
 
 def length_function(text) -> int:
     """Get number of tokens for input contents."""
