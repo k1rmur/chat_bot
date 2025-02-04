@@ -6,7 +6,7 @@ from typing import Annotated, List, Literal, TypedDict
 
 from docx import Document
 from langchain.chains.combine_documents.reduce import collapse_docs, split_list_of_docs
-from llama_index.llms.gigachat import GigaChatLLM
+from langchain_community.llms import GigaChat
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_text_splitters import CharacterTextSplitter
