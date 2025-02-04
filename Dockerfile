@@ -13,8 +13,6 @@ RUN apt-get update && \
 
 RUN pip install --upgrade gigachat langgraph validators aiogram_calendar salute-speech
 
-RUN pip install langchain-gigachat
-
 COPY . /app
 
 RUN sh -c "pip install protobuf==3.19.4 && cp ./builder.py /usr/local/lib/python3.10/site-packages/google/protobuf/internal/"

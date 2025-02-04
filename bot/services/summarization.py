@@ -8,7 +8,7 @@ from docx.enum.style import WD_STYLE_TYPE
 from docx.shared import Pt
 from dotenv import find_dotenv, load_dotenv
 from langchain.chains.llm import LLMChain
-from langchain_gigachat import GigaChat
+from langchain_community.llms import GigaChat
 from langchain_core.prompts import PromptTemplate
 from langchain_text_splitters import CharacterTextSplitter
 
