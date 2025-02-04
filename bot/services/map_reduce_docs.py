@@ -6,7 +6,7 @@ from typing import Annotated, List, Literal, TypedDict
 
 from docx import Document
 from langchain.chains.combine_documents.reduce import collapse_docs, split_list_of_docs
-from langchain_community.chat_models import ChatOllama, GigaChat
+from llama_index.llms.gigachat import GigaChatLLM
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_text_splitters import CharacterTextSplitter
@@ -27,7 +27,7 @@ def clear_temp(file_id):
             os.remove(f)
 
 
-llm_nonrag = GigaChat(verify_ssl_certs=False, credentials=os.getenv("CREDENTIALS"), scope="GIGACHAT_API_B2B", model="GigaChat-Pro")
+llm_nonrag = GigaChatLLM(verify_ssl_certs=False, credentials=os.getenv("CREDENTIALS_NONRAG"), scope="GIGACHAT_API_CORP", model="GigaChat")
 
 map_template = "Напиши краткое, но с сохранением главной информации обобщение следующего текста:\n{context}\n\nОбобщение:\n\n"
 

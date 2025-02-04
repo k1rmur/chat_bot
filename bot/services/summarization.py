@@ -8,7 +8,7 @@ from docx.enum.style import WD_STYLE_TYPE
 from docx.shared import Pt
 from dotenv import find_dotenv, load_dotenv
 from langchain.chains.llm import LLMChain
-from langchain_community.chat_models import GigaChat
+from llama_index.llms.gigachat import GigaChatLLM
 from langchain_core.prompts import PromptTemplate
 from langchain_text_splitters import CharacterTextSplitter
 
@@ -41,7 +41,7 @@ ABS_PATH = os.path.dirname(os.path.abspath(__file__))
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print("DEVICE:", device)
 
-llm_nonrag = GigaChat(verify_ssl_certs=False, credentials=os.getenv("CREDENTIALS"), scope="GIGACHAT_API_B2B", model="GigaChat-Pro")
+llm_nonrag = GigaChatLLM(verify_ssl_certs=False, credentials=os.getenv("CREDENTIALS_NONRAG"), scope="GIGACHAT_API_CORP", model="GigaChat")
 
 def length_function(text) -> int:
     """Get number of tokens for input contents."""
