@@ -20,6 +20,8 @@ parser.add_option("--Mode", type=str, default="inner")
 (Opts, args) = parser.parse_args()
 mode = Opts.Mode
 
+print(mode)
+
 ABS_PATH = os.path.dirname(os.path.abspath(__file__))
 
 if mode == "inner":
@@ -52,7 +54,7 @@ if __name__ == "__main__":
     docstore = SimpleDocumentStore()
     docstore.add_documents(nodes)
 
-    bm25_retriever = BM25Retriever.from_defaults(docstore=docstore, similarity_top_k=5)
+    bm25_retriever = BM25Retriever.from_defaults(docstore=docstore, similarity_top_k=10)
 
     db = chromadb.PersistentClient(path=DB_DIR)
     chroma_collection = db.create_collection("embeddings")
@@ -87,4 +89,4 @@ else:
         vector_store, storage_context=storage_context
     )
 
-    bm25_retriever = BM25Retriever.from_defaults(docstore=docstore, similarity_top_k=5)
+    bm25_retriever = BM25Retriever.from_defaults(docstore=docstore, similarity_top_k=10)
