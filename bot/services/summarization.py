@@ -12,6 +12,8 @@ from langchain_community.llms import GigaChat
 from langchain_core.prompts import PromptTemplate
 from langchain_text_splitters import CharacterTextSplitter
 
+from .rag import llm
+
 from .prompt_templates import (
     CONTENT_PROMPT,
     EXTRACT_MAIN_QUESTIONS_PROMPT,
@@ -41,11 +43,9 @@ ABS_PATH = os.path.dirname(os.path.abspath(__file__))
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print("DEVICE:", device)
 
-llm_nonrag = GigaChat(verify_ssl_certs=False, credentials=os.getenv("CREDENTIALS"), scope="GIGACHAT_API_B2B", model="GigaChat-Pro")
-
 def length_function(text) -> int:
     """Get number of tokens for input contents."""
-    return llm_nonrag.get_num_tokens(text)
+    return llm.get_num_tokens(text)
 
 
 REFINE_ORDERS_PROMPT_LENGTH = length_function(REFINE_ORDERS_PROMPT)
@@ -82,8 +82,8 @@ async def get_summary(file_id, text, message):
 
     logger.info(f'Чанки: {" ".join(chunks)}')
 
-    order_chain = order_template | llm_nonrag
-    content_chain = content_template | llm_nonrag
+    order_chain = order_template | llm
+    content_chain = content_template | llm
     orders, contents = await process_chunk(order_chain, content_chain, chunks)
 
     raw_orders = []
@@ -133,20 +133,20 @@ async def get_summary(file_id, text, message):
         ):
             break
 
-    content = await LLMChain(llm=llm_nonrag, prompt=refine_content_prompt).ainvoke(raw_content)
+    content = await LLMChain(llm=llm, prompt=refine_content_prompt).ainvoke(raw_content)
     content = content["text"]
-    orders = await LLMChain(llm=llm_nonrag, prompt=refine_orders_prompt).ainvoke(raw_orders)
+    orders = await LLMChain(llm=llm, prompt=refine_orders_prompt).ainvoke(raw_orders)
     orders = orders["text"]
 
     logger.info(f"orders: {orders}")
     logger.info(f"content: {content}")
 
     main_question = await LLMChain(
-        llm=llm_nonrag, prompt=extract_main_questions_prompt
+        llm=llm, prompt=extract_main_questions_prompt
     ).ainvoke(
         f"Темы разговора и принятые решения:{content}\nПоручения сотрудникам:{orders}"
     )
-    resume = await LLMChain(llm=llm_nonrag, prompt=extract_short_resume_prompt).ainvoke(
+    resume = await LLMChain(llm=llm, prompt=extract_short_resume_prompt).ainvoke(
         f"Темы разговора и принятые решения:{content}\nПоручения сотрудникам:{orders}"
     )
 

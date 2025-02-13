@@ -13,6 +13,8 @@ from langchain_text_splitters import CharacterTextSplitter
 from langgraph.constants import Send
 from langgraph.graph import END, START, StateGraph
 
+from .rag import llm
+
 
 def clear_temp(file_id):
     files = glob.glob("./tmp/*")
@@ -26,8 +28,6 @@ def clear_temp(file_id):
             print(f"Deleting {f}...")
             os.remove(f)
 
-
-llm_nonrag = GigaChat(verify_ssl_certs=False, credentials=os.getenv("CREDENTIALS"), scope="GIGACHAT_API_B2B", model="GigaChat-Pro")
 
 map_template = "Напиши краткое, но с сохранением главной информации обобщение следующего текста:\n{context}\n\nОбобщение:\n\n"
 
@@ -44,8 +44,8 @@ reduce_template = """
 map_prompt = ChatPromptTemplate([("human", map_template)])
 reduce_prompt = ChatPromptTemplate([("human", reduce_template)])
 
-map_chain = map_prompt | llm_nonrag | StrOutputParser()
-reduce_chain = reduce_prompt | llm_nonrag | StrOutputParser()
+map_chain = map_prompt | llm | StrOutputParser()
+reduce_chain = reduce_prompt | llm | StrOutputParser()
 
 
 logger = logging.getLogger(__name__)
@@ -53,7 +53,7 @@ logger = logging.getLogger(__name__)
 
 def length_function(documents: List[Document]) -> int:
     """Get number of tokens for input contents."""
-    return sum(llm_nonrag.get_num_tokens(doc) for doc in documents)
+    return sum(llm.get_num_tokens(doc) for doc in documents)
 
 
 token_max = 25000
