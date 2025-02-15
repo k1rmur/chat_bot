@@ -44,12 +44,7 @@ async def recognize_from_audio(
     message: Message,
     reply_transription=True
 ):
-<<<<<<< HEAD
     document, file_name, text = await recognize(file_id, extension)
-=======
-    document, file_name, text = recognize(file_id, extension)
->>>>>>> 34f9e4146e6170a028cb6a4d6bd3cf7e212cf6a9
-
     await message_to_delete.delete()
     if reply_transription:
         await message.reply_document(document=document, file_name=file_name)
