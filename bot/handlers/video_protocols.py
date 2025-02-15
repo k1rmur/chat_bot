@@ -7,7 +7,7 @@ from aiogram import Router
 from dotenv import find_dotenv, load_dotenv
 from pyrogram import Client
 from pyrogram.types import ChatMember, Message
-from services.converter import clear_temp, convert, is_audio, is_video, salute_recognize
+from services.converter import clear_temp, convert, is_audio, is_video, salute_recognize, recognize
 from services.summarization import get_summary
 from services.rag import get_rag_answer
 
@@ -44,7 +44,7 @@ async def recognize_from_audio(
     message: Message,
     reply_transription=True
 ):
-    document, file_name, text = salute_recognize(file_id, extension)
+    document, file_name, text = recognize(file_id, extension)
 
     await message_to_delete.delete()
     if reply_transription:
