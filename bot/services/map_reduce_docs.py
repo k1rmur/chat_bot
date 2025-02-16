@@ -1,6 +1,7 @@
 import glob
 import logging
 import operator
+import time
 import os
 from typing import Annotated, List, Literal, TypedDict
 
@@ -146,5 +147,6 @@ def return_summary(documents):
         {"recursion_limit": 50},
     ):
         _ = step
+        time.sleep(1)
     if step:
         return step["generate_final_summary"]["final_summary"]
