@@ -80,9 +80,12 @@ def map_summaries(state: OverallState):
     # We will return a list of `Send` objects
     # Each `Send` object consists of the name of a node in the graph
     # as well as the state to send to that node
-    return [
-        Send("generate_summary", {"content": content}) for content in state["contents"]
-    ]
+    lst = []
+
+    for content in state["contents"]:
+        time.sleep(1)
+        lst.append(Send("generate_summary", {"content": content}))
+    return lst
 
 
 # Modify final summary to read off collapsed summaries
@@ -109,6 +112,7 @@ def collapse_summaries(state: OverallState):
     )
     results = []
     for doc_list in doc_lists:
+        time.sleep(1)
         results.append(collapse_docs(doc_list, reduce_chain.invoke))
 
     return {"collapsed_summaries": results}
