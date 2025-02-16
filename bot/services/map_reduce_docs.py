@@ -57,7 +57,7 @@ def length_function(documents: List[Document]) -> int:
     return sum(llm.get_num_tokens(doc) for doc in documents)
 
 
-token_max = 25000
+token_max = 30000
 
 
 class OverallState(TypedDict):
@@ -136,8 +136,8 @@ app = graph.compile()
 
 
 def return_summary(documents):
-    text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
-        chunk_size=25000, chunk_overlap=200
+    text_splitter = CharacterTextSplitter(
+        chunk_size=30000, chunk_overlap=200
     )
     split_docs = text_splitter.split_documents(documents)
     print(f"Generated {len(split_docs)} documents.")
