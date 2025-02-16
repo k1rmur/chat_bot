@@ -149,7 +149,7 @@ def return_summary(documents):
     step = None
     for step in app.stream(
         {"contents": [doc.page_content for doc in split_docs]},
-        {"recursion_limit": 1},
+        {"recursion_limit": 10},
     ):
         _ = step
     if step:
