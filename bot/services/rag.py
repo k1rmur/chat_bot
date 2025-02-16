@@ -7,6 +7,7 @@ from llama_index.core import Settings
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from llama_index.core.retrievers import QueryFusionRetriever
 from make_embeddings import bm25_retriever, embeddings, vector_index
+from langchain_core.rate_limiters import InMemoryRateLimiter
 
 from .prompt_templates import (
     QA_PROMPT_STR,
@@ -57,6 +58,11 @@ chat_refine_msgs = [
 ]
 refine_template = ChatPromptTemplate.from_messages(chat_refine_msgs)
 
+rate_limiter = InMemoryRateLimiter(
+    requests_per_second=1,
+    check_every_n_seconds=0.01,  # Wake up every 100 ms to check whether allowed to make a request,
+    max_bucket_size=10,  # Controls the maximum burst size.
+)
 
 llm = GigaChat(
     verify_ssl_certs=False,
@@ -66,6 +72,7 @@ llm = GigaChat(
     verbose=True,
     profanity=False,
     temperature=0.1,
+    rate_limiter=rate_limiter
 )
 Settings.llm = llm
 Settings.embed_model = embeddings

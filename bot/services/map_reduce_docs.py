@@ -147,6 +147,5 @@ def return_summary(documents):
         {"recursion_limit": 1},
     ):
         _ = step
-        time.sleep(1)
     if step:
         return step["generate_final_summary"]["final_summary"]
