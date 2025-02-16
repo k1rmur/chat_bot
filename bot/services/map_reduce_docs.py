@@ -95,6 +95,7 @@ def generate_final_summary(state: OverallState):
 
 
 def generate_summary(state: SummaryState):
+    time.sleep(1)
     response = map_chain.invoke(state["content"])
     return {"summaries": [response]}
 
