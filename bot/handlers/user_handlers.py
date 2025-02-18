@@ -3,6 +3,7 @@ import os
 
 from aiogram import Bot, F, Router
 from aiogram.enums.parse_mode import ParseMode
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -143,7 +144,10 @@ async def send(message: Message, bot: Bot):
                 f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"'
             )
             log_action(message, allowed_actions["ai"], answer=answer)
-            await message.reply(text=answer, parse_mode="Markdown")
+            try:
+                await message.reply(text=answer, parse_mode="Markdown")
+            except TelegramBadRequest:
+                await message.reply(text=answer, parse_mode=None)
         except Exception as e:
             error_text = (
                 f"Пользователь {message.from_user.username} получил ошибку\n{e}"
