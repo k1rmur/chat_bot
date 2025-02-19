@@ -175,7 +175,7 @@ async def answer_to_voice(app: Client, message: Message):
     try:
 
         text = await recognize_from_audio(
-            file_id, extension, message_to_delete, message, reply_transription=False
+            file_id, extension, message_to_delete, message
         )
 
         answer = await get_rag_answer(text)
