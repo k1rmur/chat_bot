@@ -16,7 +16,7 @@ device = "cpu"
 batch_size = 16
 
 compute_type = "int8"
-model_dir = "/app/services/models/"
+model_dir = "/app/bot/services/models/"
 model_name = "medium"
 
 model = whisperx.load_model(
