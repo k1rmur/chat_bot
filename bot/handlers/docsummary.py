@@ -12,6 +12,8 @@ from dotenv import find_dotenv, load_dotenv
 from filters.filters import users_from_group_only
 from services.map_reduce_docs import clear_temp, return_summary
 from services.text_extraction import extract_text_from_document
+from gigachat.exceptions import ResponseError
+
 
 router = Router()
 config: Config = load_config()
@@ -74,7 +76,12 @@ async def text_message_handler(message: Message, state: FSMContext):
             f"Началась обработка, количество документов - {len(documents)}..."
         )
         summarized_text = return_summary(documents)
-    except Exception as e:
+    except ResponseError:
+        await message.answer("Превышен лимит одновременных запросов. Пожалуйста, попробуйте ещё раз.")
+        await state.clear()
+        clear_temp(message.from_user.id)
+        return
+    except Exception:
         tb = traceback.format_exc()
         with open("/app/logs/error.txt", "w") as file:
             file.write(tb)
