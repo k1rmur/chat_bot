@@ -61,7 +61,7 @@ async def document_handler(message: Message, state: FSMContext):
         await message.reply(str(e))
 
     await message.answer(
-        f"Текст из документа '{document.file_name}' сохранен. Отправьте еще документы или /process для обработки."
+        f"Текст из документа '{document.file_name}' сохранен. Отправьте еще документы или нажмите /process для обработки."
     )
 
 

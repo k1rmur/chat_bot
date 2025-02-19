@@ -60,8 +60,8 @@ refine_template = ChatPromptTemplate.from_messages(chat_refine_msgs)
 
 rate_limiter = InMemoryRateLimiter(
     requests_per_second=1,
-    check_every_n_seconds=0.01,  # Wake up every 100 ms to check whether allowed to make a request,
-    max_bucket_size=10,  # Controls the maximum burst size.
+    check_every_n_seconds=0.001,  # Wake up every 10 ms to check whether allowed to make a request,
+    max_bucket_size=100,  # Controls the maximum burst size.
 )
 
 llm = GigaChat(
