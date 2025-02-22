@@ -180,6 +180,6 @@ async def get_summary(file_id, text, message):
     heading = doc.add_paragraph()
     heading.add_run(content, style="CommentsStyle")
 
-    doc.save(f"./tmp/{file_id}.docx")
+    doc.save(f"/app/bot/tmp/{file_id}.docx")
 
-    return f"./tmp/{file_id}.docx", "Протокол.docx"
+    return f"/app/bot/tmp/{file_id}.docx", "Протокол.docx"

@@ -86,15 +86,15 @@ lock = asyncio.Lock()
 
 
 def salute_recognize(file_id: str, extension: str):
-    audio_path = f"./tmp/{file_id}.{extension}"
+    audio_path = f"app/bot/tmp/{file_id}.{extension}"
 
     if extension not in ["mp3", "wav"]:
-        song = AudioSegment.from_ogg(f"./tmp/{file_id}.{extension}")
-        song.export(f"./tmp/{file_id}.mp3", format="mp3")
+        song = AudioSegment.from_ogg(f"/app/bot/tmp/{file_id}.{extension}")
+        song.export(f"/app/bot/tmp/{file_id}.mp3", format="mp3")
 
-        audio_path = f"./tmp/{file_id}.mp3"
+        audio_path = f"/app/bot/tmp/{file_id}.mp3"
 
-    text_file = f"./tmp/{file_id}.txt"
+    text_file = f"/app/bot/tmp/{file_id}.txt"
     os.system(f'salute_speech transcribe-audio "{audio_path}" -o "{text_file}"')
 
     doc_transcription = Document()
@@ -103,9 +103,9 @@ def salute_recognize(file_id: str, extension: str):
         full_transcript = "\n".join(file.readlines())
         doc_transcription.add_paragraph(full_transcript)
 
-    doc_transcription.save(f"./tmp/{file_id}.docx")
+    doc_transcription.save(f"/app/bot/tmp/{file_id}.docx")
 
-    return f"./tmp/{file_id}.docx", "Транскрипция.docx", full_transcript
+    return f"/app/bot/tmp/{file_id}.docx", "Транскрипция.docx", full_transcript
 
 
 async def recognize(file_id: str, extension: str) -> None:
@@ -152,11 +152,11 @@ async def recognize(file_id: str, extension: str) -> None:
         text_for_summary.append(line_summary)
         doc_transcription.add_paragraph(line_massive)
 
-    doc_transcription.save(f"./tmp/{file_id}.docx")
+    doc_transcription.save(f"/app/bot/tmp/{file_id}.docx")
 
     full_transcript = "\n".join(text_for_summary)
 
-    with open(f"./tmp/{file_id}.txt", "w") as file:
+    with open(f"/app/bot/tmp/{file_id}.txt", "w") as file:
         file.write(full_transcript)
 
-    return f"./tmp/{file_id}.docx", "Транскрипция.docx", full_transcript
+    return f"/app/bot/tmp/{file_id}.docx", "Транскрипция.docx", full_transcript

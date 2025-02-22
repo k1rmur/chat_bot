@@ -88,9 +88,9 @@ async def text_message_handler(message: Message, state: FSMContext):
 
     doc = Document()
     doc.add_paragraph(summarized_text)
-    doc.save(f"./tmp/{message.from_user.id}.docx")
+    doc.save(f"/app/bot/tmp/{message.from_user.id}.docx")
     await message.answer_document(
-        FSInputFile(f"./tmp/{message.from_user.id}.docx", filename="Суммаризация.docx")
+        FSInputFile(f"/app/bot/tmp/{message.from_user.id}.docx", filename="Суммаризация.docx")
     )
     await state.clear()
 

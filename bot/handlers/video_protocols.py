@@ -25,10 +25,10 @@ load_dotenv(find_dotenv())
 
 async def download_file(message: Message):
     message_to_delete = await message.reply("Скачивание медиафайла...")
-    file_path = await message.download(file_name="./tmp/")
+    file_path = await message.download(file_name="/app/bot/tmp/")
     extension = file_path.split(".")[-1]
-    os.rename(file_path, f"./tmp/{message.id}.{extension}")
-    file_path = f"./tmp/{message.id}.{extension}"
+    os.rename(file_path, f"/app/bot/tmp/{message.id}.{extension}")
+    file_path = f"/app/bot/tmp/{message.id}.{extension}"
     await message_to_delete.delete()
     file_id = Path(file_path).stem
     if not is_audio(extension) and not is_video(extension) and extension != "txt":
@@ -48,9 +48,9 @@ async def recognize_from_audio(
     await message_to_delete.delete()
     if reply_transription:
         await message.reply_document(document=document, file_name=file_name)
-    logger.info(
-        f"Пользователю (username={message.from_user.username} id={message.from_user.id}) пришла транскрипция."
-    )
+        logger.info(
+            f"Пользователю (username={message.from_user.username} id={message.from_user.id}) пришла транскрипция."
+        )
 
     return text
 
@@ -175,7 +175,7 @@ async def answer_to_voice(app: Client, message: Message):
     try:
 
         text = await recognize_from_audio(
-            file_id, extension, message_to_delete, message
+            file_id, extension, message_to_delete, message, reply_transription=False
         )
 
         answer = await get_rag_answer(text)
@@ -218,7 +218,7 @@ async def make_protocol_from_url(app: Client, message: Message):
                     await message.reply("Ссылка не ведет на видеофайл.")
                     return
 
-                file_path = f"./tmp/{Path(url).name}"
+                file_path = f"/app/bot/tmp/{Path(url).name}"
                 with open(file_path, "wb") as f:
                     f.write(await response.read())
 
