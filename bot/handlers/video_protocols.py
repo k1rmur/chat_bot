@@ -130,11 +130,7 @@ async def send_protocol(app: Client, message: Message):
         elif message.voice or message.audio or is_audio(extension):
             pass
         elif extension in ["txt", "doc"]:
-<<<<<<< HEAD
             await message_to_delete.delete()
-=======
-            message_to_delete.delete()
->>>>>>> b0e8d69c0cdfadc67df868a307a2c2178ad1d034
             await get_protocol_from_txt(file_path, file_id, message, app)
             return
         else:
