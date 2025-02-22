@@ -54,7 +54,11 @@ logger = logging.getLogger(__name__)
 
 def length_function(documents: List[Document]) -> int:
     """Get number of tokens for input contents."""
-    return sum(llm.get_num_tokens(doc) for doc in documents)
+    summ = 0
+    for doc in documents:
+        time.sleep(1)
+        summ += llm.get_num_tokens(doc)
+    return summ
 
 
 token_max = 30000
