@@ -90,6 +90,7 @@ def map_summaries(state: OverallState):
 
 # Modify final summary to read off collapsed summaries
 def generate_final_summary(state: OverallState):
+    time.sleep(1)
     response = reduce_chain.invoke(state["collapsed_summaries"])
     return {"final_summary": response}
 
