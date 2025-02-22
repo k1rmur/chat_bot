@@ -10,6 +10,7 @@ from pyrogram.types import ChatMember, Message
 from services.converter import clear_temp, convert, is_audio, is_video, salute_recognize, recognize
 from services.summarization import get_summary
 from services.rag import get_rag_answer
+import docx
 
 class NoWordsRecognizedError(Exception):
     pass
@@ -31,7 +32,7 @@ async def download_file(message: Message):
     file_path = f"/app/bot/tmp/{message.id}.{extension}"
     await message_to_delete.delete()
     file_id = Path(file_path).stem
-    if not is_audio(extension) and not is_video(extension) and extension != "txt":
+    if not is_audio(extension) and not is_video(extension) and extension not in ["txt", "doc"]:
         return
 
     return {"file_path": file_path, "file_id": file_id, "extension": extension}
@@ -79,8 +80,15 @@ async def get_protocol(app: Client, message: Message, file_id: str, text: str):
 async def get_protocol_from_txt(
     file_path: str, file_id: str, message: Message, app: Client
 ):
-    with open(file_path, "r") as file:
-        text = file.read()
+    if file_path.endswith("txt"):
+        with open(file_path, "r") as file:
+            text = file.read()
+    else:
+        doc = docx.Document(file_path)
+        text = []
+        for para in doc.paragraphs:
+            text.append(para.text)
+        text = "\n".join(text)
 
     await get_protocol(app, message, file_id, text)
 
@@ -121,8 +129,8 @@ async def send_protocol(app: Client, message: Message):
             extension = "wav"
         elif message.voice or message.audio or is_audio(extension):
             pass
-        elif extension == "txt":
-            message_to_delete.delete()
+        elif extension in ["txt", "doc"]:
+            await message_to_delete.delete()
             await get_protocol_from_txt(file_path, file_id, message, app)
             return
         else:
