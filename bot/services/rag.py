@@ -59,7 +59,7 @@ chat_refine_msgs = [
 refine_template = ChatPromptTemplate.from_messages(chat_refine_msgs)
 
 rate_limiter = InMemoryRateLimiter(
-    requests_per_second=1,
+    requests_per_second=0.5,
     check_every_n_seconds=0.001,  # Wake up every 1 ms to check whether allowed to make a request,
     max_bucket_size=100,  # Controls the maximum burst size.
 )
@@ -67,7 +67,7 @@ rate_limiter = InMemoryRateLimiter(
 llm = GigaChat(
     verify_ssl_certs=False,
     credentials=CREDENTIALS,
-    scope="GIGACHAT_API_PERS",
+    scope="GIGACHAT_API_B2B",
     model="GigaChat-Pro",
     verbose=True,
     profanity=False,

@@ -74,8 +74,8 @@ async def main():
     scheduler.add_job(
         send_documents.send_message_on_time,
         "cron",
-        hour=10,
-        minute=00,
+        hour=11,
+        minute=30,
         timezone=timezone(timedelta(hours=+3)),
         args=(bot,),
     )
