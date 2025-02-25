@@ -20,6 +20,7 @@ from services.rag import get_context_str, llm, text_qa_template, get_rag_answer
 class UserState(StatesGroup):
     level_1_menu = State()
     level_2_menu = State()
+    waiting_for_feedback = State()
 
 
 load_dotenv(find_dotenv())
@@ -44,51 +45,76 @@ router = Router()
 logger = logging.getLogger(__name__)
 
 
-if mode == "inner":
+@router.message(F.text == "Обратная связь")
+@users_from_group_only
+async def get_feedback(message: Message, state: FSMContext):
+    log_action(message, allowed_actions["menu"])
+    answer_text, reply_markup, files = LEXICON_RU[message.text]
+    await message.answer(answer_text, reply_markup=reply_markup)
+    await state.set_state(UserState.waiting_for_feedback)
 
-    @router.message(F.text == "Оптимизированный стандарт")
-    @users_from_group_only
-    async def send_optimized_std_menu(message: Message, state: FSMContext):
-        await message.answer("Меню ОС:", reply_markup=gosuslugi_menu())
-        await state.set_state(UserState.level_1_menu)
 
-    @router.message(F.text == "Описание целевого состояния")
-    @users_from_group_only
-    async def send_target_state_menu(message: Message, state: FSMContext):
-        await message.answer("Меню ОСЦ:", reply_markup=gosuslugi_menu())
-        await state.set_state(UserState.level_2_menu)
+@router.message(UserState.waiting_for_feedback)
+@users_from_group_only
+async def process_feedback(message: Message, state: FSMContext):
+    message_to_send = f"Поступила обратная связь от пользователя (username: {message.from_user.username}, chat id: {message.from_user.id})\n\n{message.text}"
 
-    @router.message(UserState.level_1_menu)
-    @users_from_group_only
-    async def handle_optimized_std_menu(message: Message, state: FSMContext):
-        text = message.text
-        if text in GOSUSLUGI_LEVEL_1:
-            answer_text, reply_markup, files = GOSUSLUGI_LEVEL_1.get(text)
-            await message.answer(answer_text)
-            for file in files:
-                await message.answer_document(
-                    FSInputFile(file, filename=file.split("/")[-1])
-                )
-        if text == "Назад":
-            answer_text, reply_markup, file = LEXICON_RU.get("Назад")
-            await message.answer(answer_text, reply_markup=reply_markup)
-            await state.clear()
+    for user in ["322077458", "132332389", "834120561", "588460251"]:
+        try:
+            await message.bot.send_message(chat_id=user, text=message_to_send)
+        except Exception:
+            pass
 
-    @router.message(UserState.level_2_menu)
-    @users_from_group_only
-    async def handle_target_state_menu(message: Message, state: FSMContext):
-        text = message.text
-        if text in GOSUSLUGI_LEVEL_2:
-            answer_text, reply_markup, files = GOSUSLUGI_LEVEL_2.get(text)
-            await message.answer(answer_text)
-            for file in files:
-                await message.answer_document(
-                    FSInputFile(file, filename=file.split("/")[-1])
-                )
-        if text == "Назад":
-            answer_text, reply_markup, file = LEXICON_RU.get("Назад")
-            await message.answer(answer_text, reply_markup=reply_markup)
-            await state.clear()
+    await message.answer("Спасибо за обратную связь, я передал её разработчикам.")
+    await state.clear()
+
+
+@router.message(F.text == "Оптимизированный стандарт")
+@users_from_group_only
+async def send_optimized_std_menu(message: Message, state: FSMContext):
+    await message.answer("Меню ОС:", reply_markup=gosuslugi_menu())
+    await state.set_state(UserState.level_1_menu)
+
+
+@router.message(F.text == "Описание целевого состояния")
+@users_from_group_only
+async def send_target_state_menu(message: Message, state: FSMContext):
+    await message.answer("Меню ОСЦ:", reply_markup=gosuslugi_menu())
+    await state.set_state(UserState.level_2_menu)
+
+
+@router.message(UserState.level_1_menu)
+@users_from_group_only
+async def handle_optimized_std_menu(message: Message, state: FSMContext):
+    text = message.text
+    if text in GOSUSLUGI_LEVEL_1:
+        answer_text, reply_markup, files = GOSUSLUGI_LEVEL_1.get(text)
+        await message.answer(answer_text)
+        for file in files:
+            await message.answer_document(
+                FSInputFile(file, filename=file.split("/")[-1])
+            )
+    if text == "Назад":
+        answer_text, reply_markup, file = LEXICON_RU.get("Назад")
+        await message.answer(answer_text, reply_markup=reply_markup)
+        await state.clear()
+
+
+@router.message(UserState.level_2_menu)
+@users_from_group_only
+async def handle_target_state_menu(message: Message, state: FSMContext):
+    text = message.text
+    if text in GOSUSLUGI_LEVEL_2:
+        answer_text, reply_markup, files = GOSUSLUGI_LEVEL_2.get(text)
+        await message.answer(answer_text)
+        for file in files:
+            await message.answer_document(
+                FSInputFile(file, filename=file.split("/")[-1])
+            )
+    if text == "Назад":
+        answer_text, reply_markup, file = LEXICON_RU.get("Назад")
+        await message.answer(answer_text, reply_markup=reply_markup)
+        await state.clear()
 
 
 @router.message(CommandStart())
