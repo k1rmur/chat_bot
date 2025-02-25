@@ -26,7 +26,7 @@ async def get_context_str(text):
     for i, node in enumerate(documents):
         current_string += "###\n\n"
         current_string += (
-            f"Номер документа: {i+1}\nСодержание:\n\n"
+            f"Номер документа: {i+1}\n\nИмя документа (не сообщать пользователю!): {node.metadata.get('file_name', '')}\n\nСодержание:\n\n"
         )
 
         current_string += node.text
