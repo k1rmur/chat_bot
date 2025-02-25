@@ -1,4 +1,4 @@
-aiogram
+aiogram==3.17.0
 annotated-types==0.7.0
 certifi==2024.6.2
 chromadb==0.5.15
@@ -10,12 +10,12 @@ grpcio==1.64.1
 grpcio-tools==1.64.1
 langchain==0.2.16
 langchain-community==0.2.5
-langchain-core
+langchain-core==0.2.43
 moviepy==1.0.3
 numpy==1.26.4
 pdf2image==1.17.0
 pdfminer.six==20231228
-protobuf
+protobuf==3.19.4
 python-docx==1.1.2
 python-dotenv==1.0.1
 tiktoken==0.7.0
@@ -33,6 +33,7 @@ einops==0.6.1
 torch==2.5.0
 APScheduler==3.10.4
 Pyrogram==2.0.106
+textract==1.6.1
 TgCrypto==1.2.5
 SQLAlchemy==2.0.28
 aiosqlite==0.20.0
@@ -45,3 +46,4 @@ llama-index==0.11.19
 llama-index-vector-stores-chroma==0.2.1
 llama-index-core==0.11.19
 llama-index-retrievers-bm25==0.4.0
+whisperx==3.3.1
