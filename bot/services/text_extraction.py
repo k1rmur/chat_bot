@@ -2,6 +2,7 @@ import logging
 import os
 
 import docx
+import textract
 import langchain_core.documents
 from aiogram import Bot
 from aiogram.types import Document
@@ -29,10 +30,7 @@ async def extract_text_from_document(document: Document, bot: Bot):
         f.write(downloaded_file.getvalue())
 
     # Извлекаем текст из документа
-    doc = docx.Document(temp_file_name)
-    full_text = []
-    for paragraph in doc.paragraphs:
-        full_text.append(paragraph.text)
+    full_text = textract.process(temp_file_name)
 
     # Удаляем временный файл
     os.remove(temp_file_name)
