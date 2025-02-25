@@ -24,9 +24,9 @@ async def get_context_str(text):
     doc_list = []
     current_string = ""
     for i, node in enumerate(documents):
-        current_string += "###\n"
+        current_string += "###\n\n"
         current_string += (
-            f"Имя файла: {node.metadata.get('file_name', '')}\nСодержание:\n"
+            f"Номер документа: {i+1}\nСодержание:\n\n"
         )
 
         current_string += node.text
@@ -60,7 +60,7 @@ refine_template = ChatPromptTemplate.from_messages(chat_refine_msgs)
 
 rate_limiter = InMemoryRateLimiter(
     requests_per_second=1,
-    check_every_n_seconds=0.001,  # Wake up every 10 ms to check whether allowed to make a request,
+    check_every_n_seconds=0.001,  # Wake up every 1 ms to check whether allowed to make a request,
     max_bucket_size=100,  # Controls the maximum burst size.
 )
 
