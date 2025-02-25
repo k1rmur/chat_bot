@@ -23,6 +23,7 @@ from services.prompt_templates import QUERY_GEN_PROMPT
 class DocumentStates(BaseStateGroup):
     waiting_for_text = 0
     waiting_for_rating = 1
+    waiting_for_feedback = 2
 
 
 bot = Bot(token)
@@ -33,12 +34,6 @@ session = async_sessionmaker(engine, expire_on_commit=False)
 logger = logging.getLogger(__name__)
 
 labeler = BotLabeler()
-
-
-@labeler.message(text="test")
-async def hi_handler(message: Message):
-    await message.answer("Привет")
-
 
 load_dotenv(find_dotenv())
 mode = "outer"
@@ -73,6 +68,30 @@ async def statistics(message: Message):
 async def process_send_command(message: Message):
     await message.reply("Пожалуйста, напишите текст для рассылки всем пользователям.")
     await message.state_dispenser.set(message.peer_id, DocumentStates.waiting_for_text)
+
+
+@labeler.message(text="Обратная связь")
+@allowed_users_only
+async def get_feedback(message: Message):
+    log_action(message, allowed_actions["menu"])
+    answer_text, reply_markup, files = LEXICON_RU[message.text]
+    await message.answer(answer_text, reply_markup=reply_markup)
+    await message.state_dispenser.set(message.peer_id, DocumentStates.waiting_for_feedback)
+
+
+@labeler.message(state=DocumentStates.waiting_for_feedback)
+@allowed_users_only
+async def process_feedback(message: Message):
+    message_to_send = f"Поступила обратная связь от пользователя (chat id: {message.peer_id})\n\n{message.text}"
+
+    for user in ["200820242",]:
+        try:
+            await message.ctx_api.messages.send(peer_id=user, message=message_to_send, random_id=random.randint(1, 1e6))
+        except Exception:
+            pass
+
+    await message.reply("Спасибо за обратную связь, я передал её разработчикам.")
+    await message.state_dispenser.delete(message.peer_id)
 
 
 @labeler.message(state=DocumentStates.waiting_for_text)
