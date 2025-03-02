@@ -84,7 +84,9 @@ async def get_protocol_from_txt(
         with open(file_path, "r") as file:
             text = file.read()
     else:
-        text = textract.process(file_path)
+        p = Path(file_path)
+        p.rename(p.with_suffix('.docx'))
+        text = textract.process(p)
 
     await get_protocol(app, message, file_id, text)
 

@@ -39,6 +39,10 @@ logging_config = {
             "level": "DEBUG",
             "handlers": ["error_file", "info_file"],
         },
+        "handlers.video_protocols": {
+            "level": "DEBUG",
+            "handlers": ["error_file", "info_file"],
+        },
         "handlers.user_handlers": {
             "level": "DEBUG",
             "handlers": ["error_file", "info_file"],
