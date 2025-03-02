@@ -102,8 +102,8 @@ async def main():
 
 if __name__ == "__main__":
     print("Бот запускается")
-    if not os.path.exists("./tmp"):
-        os.mkdir("./tmp")
+    if not os.path.exists("/app/bot/tmp"):
+        os.mkdir("/app/bot/tmp")
     if mode == "inner":
         if not os.path.exists("./documents_to_send"):
             os.mkdir("./documents_to_send")
