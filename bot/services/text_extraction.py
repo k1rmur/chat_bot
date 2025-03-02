@@ -36,7 +36,7 @@ async def extract_text_from_document(document: Document, bot: Bot):
     os.remove(temp_file_name)
 
     langchain_document = langchain_core.documents.Document(
-        page_content="\n".join(full_text)
+        page_content=full_text
     )
 
     return langchain_document
