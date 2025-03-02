@@ -147,7 +147,7 @@ app = graph.compile()
 
 def return_summary(documents):
     text_splitter = CharacterTextSplitter(
-        chunk_size=30000, chunk_overlap=200
+        chunk_size=token_max*3, chunk_overlap=200
     )
     split_docs = text_splitter.split_documents(documents)
     print(f"Generated {len(split_docs)} documents.")
