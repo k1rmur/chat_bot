@@ -1,5 +1,6 @@
 import logging
 import traceback
+import os
 
 from aiogram import F, Router
 from aiogram.filters import Command
@@ -48,9 +49,10 @@ async def clear_command(message: Message, state: FSMContext):
 async def document_handler(message: Message, state: FSMContext):
     document = message.document
 
-    langchain_document = await extract_text_from_document(document, message.bot)
+#    langchain_document = await extract_text_from_document(document, message.bot)
 
     try:
+        langchain_document = await extract_text_from_document(document, message.bot)
         data = await state.get_data()
 
         if "langchain_documents" not in data:
@@ -76,6 +78,12 @@ async def text_message_handler(message: Message, state: FSMContext):
             f"Началась обработка, количество документов - {len(documents)}..."
         )
         summarized_text = return_summary(documents)
+        doc = Document()
+        doc.add_paragraph(summarized_text)
+        doc.save(os.path.join("/app/bot/tmp/", f"{message.from_user.id}.docx"))
+        await message.answer_document(
+           FSInputFile(f"/app/bot/tmp/{message.from_user.id}.docx", filename="Суммаризация.docx")
+        )
     except ResponseError:
         await message.answer("Превышен лимит одновременных запросов. Пожалуйста, попробуйте ещё раз.")
         await state.clear()
@@ -86,12 +94,6 @@ async def text_message_handler(message: Message, state: FSMContext):
         with open("/app/logs/error.txt", "w") as file:
             file.write(tb)
 
-    doc = Document()
-    doc.add_paragraph(summarized_text)
-    doc.save(f"/app/bot/tmp/{message.from_user.id}.docx")
-    await message.answer_document(
-        FSInputFile(f"/app/bot/tmp/{message.from_user.id}.docx", filename="Суммаризация.docx")
-    )
     await state.clear()
 
     clear_temp(message.from_user.id)
