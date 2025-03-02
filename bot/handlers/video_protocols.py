@@ -10,7 +10,7 @@ from pyrogram.types import ChatMember, Message
 from services.converter import clear_temp, convert, is_audio, is_video, salute_recognize, recognize
 from services.summarization import get_summary
 from services.rag import get_rag_answer
-import docx
+import textract
 
 class NoWordsRecognizedError(Exception):
     pass
@@ -84,11 +84,7 @@ async def get_protocol_from_txt(
         with open(file_path, "r") as file:
             text = file.read()
     else:
-        doc = docx.Document(file_path)
-        text = []
-        for para in doc.paragraphs:
-            text.append(para.text)
-        text = "\n".join(text)
+        text = textract.process(file_path)
 
     await get_protocol(app, message, file_id, text)
 
