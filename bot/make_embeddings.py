@@ -54,7 +54,7 @@ if __name__ == "__main__":
     docstore = SimpleDocumentStore()
     docstore.add_documents(nodes)
 
-    bm25_retriever = BM25Retriever.from_defaults(docstore=docstore, similarity_top_k=15)
+    bm25_retriever = BM25Retriever.from_defaults(docstore=docstore, similarity_top_k=20)
 
     db = chromadb.PersistentClient(path=DB_DIR)
     chroma_collection = db.create_collection("embeddings")
@@ -89,4 +89,4 @@ else:
         vector_store, storage_context=storage_context
     )
 
-    bm25_retriever = BM25Retriever.from_defaults(docstore=docstore, similarity_top_k=15)
+    bm25_retriever = BM25Retriever.from_defaults(docstore=docstore, similarity_top_k=20)

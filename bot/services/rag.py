@@ -79,13 +79,13 @@ Settings.embed_model = embeddings
 Settings.context_window = 32768
 
 
-vector_retriever = vector_index.as_retriever(similarity_top_k=5)
+vector_retriever = vector_index.as_retriever(similarity_top_k=10)
 
 retriever = QueryFusionRetriever(
     [bm25_retriever, vector_retriever],
-    similarity_top_k=20,
+    similarity_top_k=30,
     num_queries=2,
-    mode="reciprocal_rerank",
+    mode="simple",
     use_async=True,
     verbose=True,
 )
