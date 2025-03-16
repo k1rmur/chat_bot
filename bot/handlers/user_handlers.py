@@ -171,12 +171,12 @@ async def send(message: Message, bot: Bot):
             )
             log_action(message, allowed_actions["ai"], answer=answer)
 
-            if len(answer) > 4096:
-                for x in range(0, len(answer), 4096):
+            if len(answer) > 4000:
+                for x in range(0, len(answer), 4000):
                     try:
-                        await message.reply(text=answer[x:x+4096], parse_mode="Markdown")
+                        await message.reply(text=answer[x:x+4000], parse_mode="Markdown")
                     except TelegramBadRequest:
-                        await message.reply(text=answer[x:x+4096], parse_mode=None)
+                        await message.reply(text=answer[x:x+4000], parse_mode=None)
                 else:
                     try:
                         await message.reply(text=answer, parse_mode="Markdown")
