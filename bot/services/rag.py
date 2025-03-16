@@ -68,7 +68,7 @@ llm = GigaChat(
     verify_ssl_certs=False,
     credentials=CREDENTIALS,
     scope="GIGACHAT_API_B2B",
-    model="GigaChat-Pro",
+    model="GigaChat-2-Pro",
     verbose=True,
     profanity=False,
     temperature=0.1,
@@ -76,7 +76,7 @@ llm = GigaChat(
 )
 Settings.llm = llm
 Settings.embed_model = embeddings
-Settings.context_window = 32768
+Settings.context_window = 128000
 
 
 vector_retriever = vector_index.as_retriever(similarity_top_k=10)
@@ -85,7 +85,7 @@ retriever = QueryFusionRetriever(
     [bm25_retriever, vector_retriever],
     similarity_top_k=30,
     num_queries=2,
-    mode="simple",
+    mode="reciprocal_rerank",
     use_async=True,
     verbose=True,
 )
