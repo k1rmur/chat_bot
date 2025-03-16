@@ -177,11 +177,11 @@ async def send(message: Message, bot: Bot):
                         await message.reply(text=answer[x:x+4000], parse_mode="Markdown")
                     except TelegramBadRequest:
                         await message.reply(text=answer[x:x+4000], parse_mode=None)
-                else:
-                    try:
-                        await message.reply(text=answer, parse_mode="Markdown")
-                    except TelegramBadRequest:
-                        await message.reply(text=answer, parse_mode=None)
+            else:
+                try:
+                    await message.reply(text=answer, parse_mode="Markdown")
+                except TelegramBadRequest:
+                    await message.reply(text=answer, parse_mode=None)
 
         except Exception as e:
             error_text = (
