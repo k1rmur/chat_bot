@@ -182,9 +182,15 @@ async def answer_to_voice(app: Client, message: Message):
             file_id, extension, message_to_delete, message, reply_transription=False
         )
 
+        await message.reply(f"Распознанный вопрос:\n{text.replace('1:', '')}")
+
         answer = await get_rag_answer(text)
 
-        await message.reply(f"Распознанные слова:\n{text}\n\nОтвет:\n{answer}")
+        if len(answer) > 4096:
+            for x in range(0, len(answer), 4096):
+                await message.reply(text=answer[x:x+4096])
+            else:
+                await message.reply(text=answer)
 
     except Exception as e:
         error_text = f"Пользователь {message.from_user.username} отправил файл формата {extension} и получил ошибку\n{e}"

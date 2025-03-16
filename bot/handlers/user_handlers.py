@@ -170,10 +170,19 @@ async def send(message: Message, bot: Bot):
                 f'Пользователь {message.from_user.username} задал вопрос: "{text}", получен ответ: "{answer}"'
             )
             log_action(message, allowed_actions["ai"], answer=answer)
-            try:
-                await message.reply(text=answer, parse_mode="Markdown")
-            except TelegramBadRequest:
-                await message.reply(text=answer, parse_mode=None)
+
+            if len(answer) > 4096:
+                for x in range(0, len(answer), 4096):
+                    try:
+                        await message.reply(text=answer[x:x+4096], parse_mode="Markdown")
+                    except TelegramBadRequest:
+                        await message.reply(text=answer[x:x+4096], parse_mode=None)
+                else:
+                    try:
+                        await message.reply(text=answer, parse_mode="Markdown")
+                    except TelegramBadRequest:
+                        await message.reply(text=answer, parse_mode=None)
+
         except Exception as e:
             error_text = (
                 f"Пользователь {message.from_user.username} получил ошибку\n{e}"
