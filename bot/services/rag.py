@@ -72,7 +72,8 @@ llm = GigaChat(
     verbose=True,
     profanity=False,
     temperature=0.1,
-    rate_limiter=rate_limiter
+    rate_limiter=rate_limiter,
+    timeout=60,
 )
 Settings.llm = llm
 Settings.embed_model = embeddings
