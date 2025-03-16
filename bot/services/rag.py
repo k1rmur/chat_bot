@@ -88,13 +88,14 @@ retriever = QueryFusionRetriever(
     mode="reciprocal_rerank",
     use_async=True,
     verbose=True,
+    query_gen_prompt=QUERY_GEN_PROMPT,
 )
 
 
 async def get_rag_answer(text):
 
-    query = await llm.ainvoke(QUERY_GEN_PROMPT.format(query=text))
-    context_str = await get_context_str(query.content)
+#    query = await llm.ainvoke(QUERY_GEN_PROMPT.format(query=text))
+    context_str = await get_context_str(text)
     prompt = text_qa_template.format(context_str=context_str, query_str=text)
     chain = await llm.ainvoke(prompt)
     answer = chain.content
