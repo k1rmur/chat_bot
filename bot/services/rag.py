@@ -85,11 +85,11 @@ vector_retriever = vector_index.as_retriever(similarity_top_k=10)
 retriever = QueryFusionRetriever(
     [bm25_retriever, vector_retriever],
     similarity_top_k=30,
-    num_queries=2,
+    num_queries=4,
     mode="reciprocal_rerank",
     use_async=True,
     verbose=True,
-    query_gen_prompt=QUERY_GEN_PROMPT,
+#    query_gen_prompt=QUERY_GEN_PROMPT,
 )
 
 
