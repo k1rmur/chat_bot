@@ -8,6 +8,7 @@ from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTempla
 from llama_index.core.retrievers import QueryFusionRetriever
 from make_embeddings import bm25_retriever, embeddings, vector_index
 from langchain_core.rate_limiters import InMemoryRateLimiter
+from llama_index.retrievers.bm25 import BM25Retriever
 
 from .prompt_templates import (
     QA_PROMPT_STR,
@@ -80,16 +81,21 @@ Settings.embed_model = embeddings
 Settings.context_window = 128000
 
 
-vector_retriever = vector_index.as_retriever(similarity_top_k=10)
+vector_retriever = vector_index.as_retriever(similarity_top_k=50)
 
 retriever = QueryFusionRetriever(
-    [bm25_retriever, vector_retriever],
+    [
+        vector_index.as_retriever(similarity_top_k=50),
+        BM25Retriever.from_defaults(
+            docstore=vector_index.docstore, similarity_top_k=50
+        )
+    ],
     similarity_top_k=30,
-    num_queries=4,
-    mode="reciprocal_rerank",
+    num_queries=2,
+    mode="dist_based_score",
     use_async=True,
     verbose=True,
-#    query_gen_prompt=QUERY_GEN_PROMPT,
+    query_gen_prompt=QUERY_GEN_PROMPT,
 )
 
 

@@ -12,7 +12,6 @@ from llama_index.core import (
 from llama_index.core.node_parser import TokenTextSplitter
 from llama_index.core.storage.docstore import SimpleDocumentStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.retrievers.bm25 import BM25Retriever
 from llama_index.vector_stores.chroma import ChromaVectorStore
 
 parser = OptionParser()
@@ -54,16 +53,15 @@ if __name__ == "__main__":
     docstore = SimpleDocumentStore()
     docstore.add_documents(nodes)
 
-    bm25_retriever = BM25Retriever.from_defaults(docstore=docstore, similarity_top_k=20)
-
     db = chromadb.PersistentClient(path=DB_DIR)
     chroma_collection = db.create_collection("embeddings")
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
-    storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
-    vector_index = VectorStoreIndex.from_documents(
-        documents, storage_context=storage_context
+    storage_context = StorageContext.from_defaults(
+        docstore=docstore, vector_store=vector_store
     )
+
+    vector_index = VectorStoreIndex(nodes=nodes, storage_context=storage_context)
 
     docstore.persist(f"{DB_DIR}/docstore")
 
@@ -83,10 +81,9 @@ else:
     chroma_collection = db.get_or_create_collection("embeddings")
 
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
-    storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
-    vector_index = VectorStoreIndex.from_vector_store(
-        vector_store, storage_context=storage_context
+    storage_context = StorageContext.from_defaults(
+        docstore=docstore, vector_store=vector_store
     )
 
-    bm25_retriever = BM25Retriever.from_defaults(docstore=docstore, similarity_top_k=20)
+    vector_index = VectorStoreIndex(nodes=nodes, storage_context=storage_context)
