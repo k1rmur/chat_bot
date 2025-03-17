@@ -81,15 +81,10 @@ Settings.embed_model = embeddings
 Settings.context_window = 128000
 
 
-vector_retriever = vector_index.as_retriever(similarity_top_k=50)
+vector_retriever = vector_index.as_retriever(similarity_top_k=10)
 
 retriever = QueryFusionRetriever(
-    [
-        vector_index.as_retriever(similarity_top_k=50),
-        BM25Retriever.from_defaults(
-            docstore=vector_index.docstore, similarity_top_k=50
-        )
-    ],
+    [bm25_retriever, vector_retriever],
     similarity_top_k=30,
     num_queries=2,
     mode="dist_based_score",
@@ -97,7 +92,6 @@ retriever = QueryFusionRetriever(
     verbose=True,
     query_gen_prompt=QUERY_GEN_PROMPT,
 )
-
 
 async def get_rag_answer(text):
 
