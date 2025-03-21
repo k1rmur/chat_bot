@@ -100,7 +100,7 @@ retriever = QueryFusionRetriever(
     similarity_top_k=30,
     num_queries=2,
     mode="dist_based_score",
-    use_async=True,
+    use_async=False,
     verbose=True,
     query_gen_prompt=QUERY_GEN_PROMPT,
 )
