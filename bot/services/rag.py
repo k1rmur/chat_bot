@@ -3,6 +3,7 @@ import os
 import langchain
 from dotenv import find_dotenv, load_dotenv
 from langchain_community.chat_models import GigaChat
+from langchain_mistralai import ChatMistralAI
 from llama_index.core import Settings
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from llama_index.core.retrievers import QueryFusionRetriever
@@ -65,17 +66,28 @@ rate_limiter = InMemoryRateLimiter(
     max_bucket_size=100,  # Controls the maximum burst size.
 )
 
-llm = GigaChat(
-    verify_ssl_certs=False,
-    credentials=CREDENTIALS,
-    scope="GIGACHAT_API_B2B",
-    model="GigaChat-2-Pro",
+#llm = GigaChat(
+#    verify_ssl_certs=False,
+#    credentials=CREDENTIALS,
+#    scope="GIGACHAT_API_B2B",
+#    model="GigaChat-2-Pro",
+#    verbose=True,
+#    profanity=False,
+#    temperature=0.1,
+#    rate_limiter=rate_limiter,
+#    timeout=60,
+#)
+
+llm = ChatMistralAI(
+    model="mistral-large-latest",
+    cache=False,
+    max_concurrent_requests=1,
+    max_retries=500,
     verbose=True,
-    profanity=False,
-    temperature=0.1,
-    rate_limiter=rate_limiter,
-    timeout=60,
+    mistral_api_key="key",
+    api_key="key",
 )
+
 Settings.llm = llm
 Settings.embed_model = embeddings
 Settings.context_window = 128000
