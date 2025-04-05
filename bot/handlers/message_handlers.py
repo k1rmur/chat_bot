@@ -10,14 +10,12 @@ from dotenv import find_dotenv, load_dotenv
 from keyboards.keyboards import inline_rating_keyboard
 from lexicon.lexicon import INTRO_MESSAGES, LEXICON_COMMANDS_RU, LEXICON_RU
 from services.log_actions import allowed_actions, log_action
-from sqlalchemy.ext.asyncio import AsyncSession
 from vkbottle import BaseStateGroup, DocMessagesUploader, PhotoMessageUploader
 from vkbottle.bot import Bot, Message, MessageEvent
 from vkbottle_types.events import GroupEventType
 from vkbottle.bot import BotLabeler
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from services.rag import llm, get_context_str, text_qa_template
-from services.prompt_templates import QUERY_GEN_PROMPT
+from services.rag import get_rag_answer
 
 
 class DocumentStates(BaseStateGroup):
@@ -183,19 +181,7 @@ async def send(message: Message):
     else:
         log_action(message, allowed_actions['ai'])
         try:
-            query = await llm.ainvoke(QUERY_GEN_PROMPT.format(query=text))
-#            await message.answer(query.content)
-#            await message.ctx_api.messages.send(peer_id=200820242, text=text, random_id=random.randint(1, 1e6))
-#            await message.ctx_api.messages.send(peer_id=200820242, text=query.content, random_id=random.randint(1, 1e6))
-            context_str = await get_context_str(query.content)
-#            await message.ctx_api.messages.send(peer_id=200820242, text=context_str, random_id=random.randint(1, 1e6))
-#            try:
-#                await message.answer(context_str)
-#            except:
-#                pass
-            prompt = text_qa_template.format(context_str=context_str, query_str=text)
-            chain = await llm.ainvoke(prompt)
-            answer = chain.content
+            answer = await get_rag_answer(text)
             logger.info(f'Пользователь {message.from_id} задал вопрос: "{text}", получен ответ: "{answer}"')
             await message.answer(answer)
         except Exception as e:

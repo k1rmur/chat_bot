@@ -1,12 +1,21 @@
 import os
 
+import langchain
 from dotenv import find_dotenv, load_dotenv
 from langchain_community.chat_models import GigaChat
-from langchain_core.prompts import ChatPromptTemplate
-from llama_index.core import ChatPromptTemplate, Settings
+from llama_index.core import Settings
+from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from llama_index.core.retrievers import QueryFusionRetriever
 from make_embeddings import bm25_retriever, embeddings, vector_index
-from .prompt_templates import QA_PROMPT_STR, QA_SYSTEM_PROMPT
+from langchain_core.rate_limiters import InMemoryRateLimiter
+
+from .prompt_templates import (
+    QA_PROMPT_STR,
+    QA_SYSTEM_PROMPT,
+    QUERY_GEN_PROMPT
+)
+
+langchain.debug = True
 
 
 async def get_context_str(text):
@@ -14,8 +23,10 @@ async def get_context_str(text):
     doc_list = []
     current_string = ""
     for i, node in enumerate(documents):
-        current_string += "------------\n"
-        current_string += f"Имя файла: {node.metadata.get('file_name', '')}\nСодержание:\n"
+        current_string += "###\n\n"
+        current_string += (
+            f"Номер документа: {i+1}\n\nИмя документа (не сообщать пользователю!): {node.metadata.get('file_name', '')}\n\nСодержание:\n\n"
+        )
 
         current_string += node.text
 
@@ -31,28 +42,54 @@ CREDENTIALS = os.getenv("CREDENTIALS")
 
 
 chat_text_qa_msgs = [
-    (
-        "system",
-        QA_SYSTEM_PROMPT,
-    ),
-    ("user", QA_PROMPT_STR),
+    SystemMessagePromptTemplate.from_template(QA_SYSTEM_PROMPT),
+    HumanMessagePromptTemplate.from_template(QA_PROMPT_STR),
 ]
 text_qa_template = ChatPromptTemplate.from_messages(chat_text_qa_msgs)
 
 
-llm = GigaChat(verify_ssl_certs=False, credentials=CREDENTIALS, scope="GIGACHAT_API_B2B", model="GigaChat-Pro", verbose=True, profanity=False, temperature=0.1)
+rate_limiter = InMemoryRateLimiter(
+    requests_per_second=0.5,
+    check_every_n_seconds=0.001,  # Wake up every 1 ms to check whether allowed to make a request,
+    max_bucket_size=100,  # Controls the maximum burst size.
+)
+
+llm = GigaChat(
+    verify_ssl_certs=False,
+    credentials=CREDENTIALS,
+    scope="GIGACHAT_API_B2B",
+    model="GigaChat-2-Pro",
+    verbose=True,
+    profanity=False,
+    temperature=0.1,
+    rate_limiter=rate_limiter,
+    timeout=60,
+)
+
+
+
 Settings.llm = llm
 Settings.embed_model = embeddings
-Settings.context_window = 32768
+Settings.context_window = 128000
 
 
-vector_retriever = vector_index.as_retriever(similarity_top_k=5)
+vector_retriever = vector_index.as_retriever(similarity_top_k=10)
 
 retriever = QueryFusionRetriever(
     [bm25_retriever, vector_retriever],
-    similarity_top_k=10,
-    num_queries=1,
-    mode="reciprocal_rerank",
-    use_async=True,
+    similarity_top_k=30,
+    num_queries=2,
+    mode="dist_based_score",
+    use_async=False,
     verbose=True,
+    query_gen_prompt=QUERY_GEN_PROMPT,
 )
+
+async def get_rag_answer(text):
+
+    context_str = await get_context_str(text)
+    prompt = text_qa_template.format(context_str=context_str, query_str=text)
+    chain = await llm.ainvoke(prompt)
+    answer = chain.content
+
+    return answer
