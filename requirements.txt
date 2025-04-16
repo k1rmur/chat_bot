@@ -30,7 +30,7 @@ scikit-learn==1.6.1
 pydub
 accelerate
 einops==0.6.1
-torch
+torch==2.6.0
 APScheduler==3.10.4
 langchain-ollama
 Pyrogram==2.0.106
