@@ -10,6 +10,7 @@ grpcio-tools==1.64.1
 langchain==0.2.6
 langchain-community==0.2.6
 langchain-core==0.2.43
+langsmith==0.1.147
 moviepy==1.0.3
 numpy==1.26.4
 pdf2image==1.17.0
