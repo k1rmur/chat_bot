@@ -23,7 +23,8 @@ tokenizers
 curl_cffi==0.7.0
 nest_asyncio==1.6.0
 InstructorEmbedding
-sentence-transformers
+sentence-transformers==3.2.1
+scipy==1.15.1
 pydub
 accelerate
 einops==0.6.1
