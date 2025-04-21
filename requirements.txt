@@ -50,3 +50,4 @@ llama-index
 llama-index-vector-stores-chroma
 llama-index-core
 llama-index-retrievers-bm25
+llama-cloud==0.1.6
