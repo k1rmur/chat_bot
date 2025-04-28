@@ -15,6 +15,11 @@ from llama_index.core.storage.docstore import SimpleDocumentStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.retrievers.bm25 import BM25Retriever
+from pydantic import BaseModel
+
+class Maintain(BaseModel):
+    class Config:
+        arbitrary_types_allowed = True
 
 parser = OptionParser()
 parser.add_option("--Mode", type=str, default="inner")
