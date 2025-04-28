@@ -8,6 +8,14 @@ import whisperx
 from docx import Document
 from dotenv import find_dotenv, load_dotenv
 from pydub import AudioSegment
+from salute_speech.speech_recognition import SaluteSpeechClient
+from salute_speech.speech_recognition import SpeechRecognitionConfig
+
+
+config = SpeechRecognitionConfig(
+    speaker_separation=True
+)
+
 
 load_dotenv(find_dotenv())
 
@@ -85,8 +93,10 @@ def convert(video_path, audio_path):
 lock = asyncio.Lock()
 
 
-def salute_recognize(file_id: str, extension: str):
+async def salute_recognize(file_id: str, extension: str):
+
     audio_path = f"app/bot/tmp/{file_id}.{extension}"
+    client = SaluteSpeechClient(client_credentials=os.getenv("SBER_SPEECH_API_KEY"))
 
     if extension not in ["mp3", "wav"]:
         song = AudioSegment.from_ogg(f"/app/bot/tmp/{file_id}.{extension}")
@@ -97,15 +107,19 @@ def salute_recognize(file_id: str, extension: str):
     text_file = f"/app/bot/tmp/{file_id}.txt"
     os.system(f'salute_speech transcribe-audio "{audio_path}" -o "{text_file}"')
 
-    doc_transcription = Document()
+    with open("audio.mp3", "rb") as audio_file:
+        result = await client.audio.transcriptions.create(
+            file=audio_file,
+            language="ru-RU",
+            config=config
+        )
 
-    with open(text_file, "r") as file:
-        full_transcript = "\n".join(file.readlines())
-        doc_transcription.add_paragraph(full_transcript)
+    doc_transcription = Document()
+    doc_transcription.add_paragraph(result.text)
 
     doc_transcription.save(f"/app/bot/tmp/{file_id}.docx")
 
-    return f"/app/bot/tmp/{file_id}.docx", "Транскрипция.docx", full_transcript
+    return f"/app/bot/tmp/{file_id}.docx", "Транскрипция.docx", result.text
 
 
 async def recognize(file_id: str, extension: str) -> None:

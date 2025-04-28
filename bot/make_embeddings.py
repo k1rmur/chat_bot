@@ -10,7 +10,7 @@ from llama_index.core import (
     StorageContext,
     VectorStoreIndex,
 )
-from llama_index.core.node_parser import TokenTextSplitter
+from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.storage.docstore import SimpleDocumentStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.vector_stores.chroma import ChromaVectorStore
@@ -20,6 +20,25 @@ from pydantic import BaseModel
 class Maintain(BaseModel):
     class Config:
         arbitrary_types_allowed = True
+
+
+class CustomNodeParser(SentenceSplitter):
+    def get_nodes_from_documents(self, documents):
+        nodes = []
+        for doc in documents:
+            filename = os.path.splitext(os.path.basename(doc.metadata.get("file_path", "")))[0]
+            split_nodes = super().get_nodes_from_documents([doc])
+
+            for node in split_nodes:
+                node.text = f"Источник: {filename}\n\n{node.text}"
+                node.metadata = {}  # Remove metadata
+                nodes.append(node)
+
+        return nodes
+
+
+CHUNK_SIZE = 1024
+CHUNK_OVERLAP = 256
 
 parser = OptionParser()
 parser.add_option("--Mode", type=str, default="inner")
@@ -50,12 +69,14 @@ Settings.embed_model = embeddings
 if __name__ == "__main__":
     try:
         os.remove(f"{DB_DIR}/chroma.sqlite3")
-    except:
+    except Exception:
         pass
 
     documents = reader.load_data()
-    parser = TokenTextSplitter(chunk_size=1024, chunk_overlap=256)
+    parser = CustomNodeParser(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
+    vector_parser = SentenceSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
     nodes = parser.get_nodes_from_documents(documents)
+    vector_nodes = vector_parser.get_nodes_from_documents(documents)
     print(nodes)
     docstore = SimpleDocumentStore()
     docstore.add_documents(nodes)
@@ -71,8 +92,8 @@ if __name__ == "__main__":
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
-    vector_index = VectorStoreIndex.from_documents(
-        documents, storage_context=storage_context
+    vector_index = VectorStoreIndex(
+        vector_nodes, storage_context=storage_context
     )
 
     docstore.persist(f"{DB_DIR}/docstore")
@@ -82,7 +103,7 @@ else:
         docstore = SimpleDocumentStore.from_persist_path(f"{DB_DIR}/docstore")
     except Exception:
         documents = reader.load_data()
-        parser = TokenTextSplitter(chunk_size=1024, chunk_overlap=256)
+        parser = CustomNodeParser(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
         nodes = parser.get_nodes_from_documents(documents)
         docstore = SimpleDocumentStore()
         docstore.add_documents(nodes)
