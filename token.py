@@ -29,7 +29,7 @@ class TokenManager:
         self.token = None
         self.token_expiry = None
 
-    def get_valid_token(self, scope: str = "SALUTE_SPEECH_CORP") -> str:
+    def get_valid_token(self, scope: str = "SALUTE_SPEECH_B2B") -> str:
         """
         Get a valid token, refreshing if necessary.
 
