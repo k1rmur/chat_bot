@@ -13,7 +13,8 @@ from salute_speech.speech_recognition import SpeechRecognitionConfig
 
 
 config = SpeechRecognitionConfig(
-    speaker_separation=True
+    max_speech_timeout="180s",
+    no_speech_timeout="180s"
 )
 
 
@@ -95,7 +96,7 @@ lock = asyncio.Lock()
 
 async def salute_recognize(file_id: str, extension: str):
 
-    audio_path = f"app/bot/tmp/{file_id}.{extension}"
+    audio_path = f"/app/bot/tmp/{file_id}.{extension}"
     client = SaluteSpeechClient(client_credentials=os.getenv("SBER_SPEECH_API_KEY"))
 
     if extension not in ["mp3", "wav"]:
@@ -107,7 +108,7 @@ async def salute_recognize(file_id: str, extension: str):
     text_file = f"/app/bot/tmp/{file_id}.txt"
     os.system(f'salute_speech transcribe-audio "{audio_path}" -o "{text_file}"')
 
-    with open("audio.mp3", "rb") as audio_file:
+    with open(audio_path, "rb") as audio_file:
         result = await client.audio.transcriptions.create(
             file=audio_file,
             language="ru-RU",
