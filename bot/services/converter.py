@@ -12,12 +12,6 @@ from salute_speech.speech_recognition import SaluteSpeechClient
 from salute_speech.speech_recognition import SpeechRecognitionConfig
 
 
-config = SpeechRecognitionConfig(
-    max_speech_timeout="180s",
-    no_speech_timeout="180s"
-)
-
-
 load_dotenv(find_dotenv())
 
 
@@ -106,17 +100,16 @@ async def salute_recognize(file_id: str, extension: str):
         audio_path = f"/app/bot/tmp/{file_id}.mp3"
 
     text_file = f"/app/bot/tmp/{file_id}.txt"
-    os.system(f'salute_speech transcribe-audio "{audio_path}" -o "{text_file}"')
 
     with open(audio_path, "rb") as audio_file:
         result = await client.audio.transcriptions.create(
             file=audio_file,
             language="ru-RU",
-            config=config
         )
 
     doc_transcription = Document()
-    doc_transcription.add_paragraph(result.text)
+
+    doc_transcription.add_paragraph(f"{result.text}")
 
     doc_transcription.save(f"/app/bot/tmp/{file_id}.docx")
 
