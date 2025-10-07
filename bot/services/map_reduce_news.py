@@ -28,6 +28,7 @@ def clear_temp(file_id):
             print(f"Deleting {f}...")
             os.remove(f)
 
+
 map_template = """Перечисли и кратко перескажи все основные моменты из данной сводки новостей:
 
 {context}"""

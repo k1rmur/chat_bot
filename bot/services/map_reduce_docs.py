@@ -1,8 +1,8 @@
 import glob
 import logging
 import operator
-import time
 import os
+import time
 from typing import Annotated, List, Literal, TypedDict
 
 from docx import Document
@@ -74,6 +74,7 @@ class OverallState(TypedDict):
 class SummaryState(TypedDict):
     content: str
 
+
 def collect_summaries(state: OverallState):
     return {"collapsed_summaries": [summary for summary in state["summaries"]]}
 
@@ -140,9 +141,7 @@ app = graph.compile()
 
 
 def return_summary(documents):
-    text_splitter = CharacterTextSplitter(
-        chunk_size=token_max*3, chunk_overlap=200
-    )
+    text_splitter = CharacterTextSplitter(chunk_size=token_max * 3, chunk_overlap=200)
     split_docs = text_splitter.split_documents(documents)
     print(f"Generated {len(split_docs)} documents.")
     step = None

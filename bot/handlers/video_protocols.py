@@ -3,14 +3,15 @@ import os
 from pathlib import Path
 
 import aiohttp
+import textract
 from aiogram import Router
 from dotenv import find_dotenv, load_dotenv
 from pyrogram import Client
 from pyrogram.types import ChatMember, Message
 from services.converter import clear_temp, convert, is_audio, is_video, salute_recognize
-from services.summarization import get_summary
 from services.rag import get_rag_answer
-import textract
+from services.summarization import get_summary
+
 
 class NoWordsRecognizedError(Exception):
     pass
@@ -32,7 +33,11 @@ async def download_file(message: Message):
     file_path = f"/app/bot/tmp/{message.id}.{extension}"
     await message_to_delete.delete()
     file_id = Path(file_path).stem
-    if not is_audio(extension) and not is_video(extension) and extension not in ["txt", "doc"]:
+    if (
+        not is_audio(extension)
+        and not is_video(extension)
+        and extension not in ["txt", "doc"]
+    ):
         return
 
     return {"file_path": file_path, "file_id": file_id, "extension": extension}
@@ -43,7 +48,7 @@ async def recognize_from_audio(
     extension: str,
     message_to_delete: Message,
     message: Message,
-    reply_transription=True
+    reply_transription=True,
 ):
     document, file_name, text = await salute_recognize(file_id, extension)
     await message_to_delete.delete()
@@ -188,7 +193,7 @@ async def answer_to_voice(app: Client, message: Message):
 
         if len(answer) > 4000:
             for x in range(0, len(answer), 4000):
-                await message.reply(text=answer[x:x+4000])
+                await message.reply(text=answer[x : x + 4000])
         else:
             await message.reply(text=answer)
 

@@ -1,6 +1,6 @@
 import logging
-import traceback
 import os
+import traceback
 
 from aiogram import F, Router
 from aiogram.filters import Command
@@ -11,10 +11,9 @@ from config_data.config import Config, load_config
 from docx import Document
 from dotenv import find_dotenv, load_dotenv
 from filters.filters import users_from_group_only
+from gigachat.exceptions import ResponseError
 from services.map_reduce_docs import clear_temp, return_summary
 from services.text_extraction import extract_text_from_document
-from gigachat.exceptions import ResponseError
-
 
 router = Router()
 config: Config = load_config()
@@ -49,7 +48,7 @@ async def clear_command(message: Message, state: FSMContext):
 async def document_handler(message: Message, state: FSMContext):
     document = message.document
 
-#    langchain_document = await extract_text_from_document(document, message.bot)
+    #    langchain_document = await extract_text_from_document(document, message.bot)
 
     try:
         langchain_document = await extract_text_from_document(document, message.bot)
@@ -82,10 +81,15 @@ async def text_message_handler(message: Message, state: FSMContext):
         doc.add_paragraph(summarized_text)
         doc.save(os.path.join("/app/bot/tmp/", f"{message.from_user.id}.docx"))
         await message.answer_document(
-           FSInputFile(f"/app/bot/tmp/{message.from_user.id}.docx", filename="Суммаризация.docx")
+            FSInputFile(
+                f"/app/bot/tmp/{message.from_user.id}.docx",
+                filename="Суммаризация.docx",
+            )
         )
     except ResponseError:
-        await message.answer("Превышен лимит одновременных запросов. Пожалуйста, попробуйте ещё раз.")
+        await message.answer(
+            "Превышен лимит одновременных запросов. Пожалуйста, попробуйте ещё раз."
+        )
         await state.clear()
         clear_temp(message.from_user.id)
         return

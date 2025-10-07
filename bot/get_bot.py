@@ -59,16 +59,11 @@ async def main():
     app.add_handler(
         MessageHandler(
             video_protocols.send_protocol,
-            filters=filters.video
-            | filters.audio
-            | filters.document,
+            filters=filters.video | filters.audio | filters.document,
         )
     )
     app.add_handler(
-        MessageHandler(
-            video_protocols.answer_to_voice,
-            filters=filters.voice
-        )
+        MessageHandler(video_protocols.answer_to_voice, filters=filters.voice)
     )
     await app.start()
     scheduler.add_job(

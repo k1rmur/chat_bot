@@ -2,8 +2,8 @@ import logging
 import os
 
 import docx
-import textract
 import langchain_core.documents
+import textract
 from aiogram import Bot
 from aiogram.types import Document
 
@@ -29,9 +29,7 @@ async def extract_text_from_document(document: Document, bot: Bot):
 
     os.remove(temp_file_name)
 
-    langchain_document = langchain_core.documents.Document(
-        page_content=full_text
-    )
+    langchain_document = langchain_core.documents.Document(page_content=full_text)
 
     return langchain_document
 

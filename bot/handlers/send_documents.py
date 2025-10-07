@@ -322,7 +322,8 @@ async def send_news_command(message: Message, state: FSMContext):
         doc.save(f"/app/bot/tmp/{message.from_user.id}.docx")
         await message.answer_document(
             FSInputFile(
-                f"/app/bot/tmp/{message.from_user.id}.docx", filename="Суммаризация.docx"
+                f"/app/bot/tmp/{message.from_user.id}.docx",
+                filename="Суммаризация.docx",
             )
         )
         await state.clear()

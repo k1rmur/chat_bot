@@ -2,8 +2,8 @@ import os
 from optparse import OptionParser
 
 import chromadb
-import torch
 import Stemmer
+import torch
 from llama_index.core import (
     Settings,
     SimpleDirectoryReader,
@@ -13,9 +13,10 @@ from llama_index.core import (
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.storage.docstore import SimpleDocumentStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.retrievers.bm25 import BM25Retriever
+from llama_index.vector_stores.chroma import ChromaVectorStore
 from pydantic import BaseModel
+
 
 class Maintain(BaseModel):
     class Config:
@@ -26,7 +27,9 @@ class CustomNodeParser(SentenceSplitter):
     def get_nodes_from_documents(self, documents):
         nodes = []
         for doc in documents:
-            filename = os.path.splitext(os.path.basename(doc.metadata.get("file_path", "")))[0]
+            filename = os.path.splitext(
+                os.path.basename(doc.metadata.get("file_path", ""))
+            )[0]
             split_nodes = super().get_nodes_from_documents([doc])
 
             for node in split_nodes:
@@ -82,9 +85,10 @@ if __name__ == "__main__":
     docstore.add_documents(nodes)
 
     bm25_retriever = BM25Retriever.from_defaults(
-        docstore=docstore, similarity_top_k=20,
+        docstore=docstore,
+        similarity_top_k=20,
         stemmer=Stemmer.Stemmer("russian"),
-        language="russian"
+        language="russian",
     )
 
     db = chromadb.PersistentClient(path=DB_DIR)
@@ -92,9 +96,7 @@ if __name__ == "__main__":
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
-    vector_index = VectorStoreIndex(
-        vector_nodes, storage_context=storage_context
-    )
+    vector_index = VectorStoreIndex(vector_nodes, storage_context=storage_context)
 
     docstore.persist(f"{DB_DIR}/docstore")
 
@@ -121,7 +123,8 @@ else:
     )
 
     bm25_retriever = BM25Retriever.from_defaults(
-        docstore=docstore, similarity_top_k=20,
+        docstore=docstore,
+        similarity_top_k=20,
         stemmer=Stemmer.Stemmer("russian"),
-        language="russian"
+        language="russian",
     )

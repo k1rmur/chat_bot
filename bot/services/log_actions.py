@@ -1,7 +1,6 @@
 import csv
 from datetime import datetime
 
-
 CSV_LOG_PATH = "/app/logs/stats.csv"
 
 

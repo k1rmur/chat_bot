@@ -12,8 +12,6 @@ from langchain_community.llms import GigaChat
 from langchain_core.prompts import PromptTemplate
 from langchain_text_splitters import CharacterTextSplitter
 
-from .rag import llm
-
 from .prompt_templates import (
     CONTENT_PROMPT,
     EXTRACT_MAIN_QUESTIONS_PROMPT,
@@ -22,6 +20,7 @@ from .prompt_templates import (
     REFINE_CONTENT_PROMPT,
     REFINE_ORDERS_PROMPT,
 )
+from .rag import llm
 
 logger = logging.getLogger(__name__)
 CONTEXT_LENGTH = 8192 * 4
@@ -42,6 +41,7 @@ ABS_PATH = os.path.dirname(os.path.abspath(__file__))
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print("DEVICE:", device)
+
 
 def length_function(text) -> int:
     """Get number of tokens for input contents."""

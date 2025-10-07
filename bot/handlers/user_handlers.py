@@ -14,7 +14,7 @@ from filters.filters import users_from_group_only
 from keyboards.keyboards_inner import gosuslugi_menu
 from services.log_actions import allowed_actions, log_action
 from services.prompt_templates import QUERY_GEN_PROMPT
-from services.rag import get_context_str, llm, text_qa_template, get_rag_answer
+from services.rag import get_context_str, get_rag_answer, llm, text_qa_template
 
 
 class UserState(StatesGroup):
@@ -174,9 +174,11 @@ async def send(message: Message, bot: Bot):
             if len(answer) > 4000:
                 for x in range(0, len(answer), 4000):
                     try:
-                        await message.reply(text=answer[x:x+4000], parse_mode="Markdown")
+                        await message.reply(
+                            text=answer[x : x + 4000], parse_mode="Markdown"
+                        )
                     except TelegramBadRequest:
-                        await message.reply(text=answer[x:x+4000], parse_mode=None)
+                        await message.reply(text=answer[x : x + 4000], parse_mode=None)
             else:
                 try:
                     await message.reply(text=answer, parse_mode="Markdown")

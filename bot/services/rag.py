@@ -3,18 +3,22 @@ import os
 import langchain
 from dotenv import find_dotenv, load_dotenv
 from langchain_community.chat_models import GigaChat
-from llama_index.core import Settings
-from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
-from llama_index.core.retrievers import QueryFusionRetriever
-from make_embeddings import bm25_retriever, embeddings, vector_index
+from langchain_core.prompts import (
+    ChatPromptTemplate,
+    HumanMessagePromptTemplate,
+    SystemMessagePromptTemplate,
+)
 from langchain_core.rate_limiters import InMemoryRateLimiter
+from llama_index.core import Settings
+from llama_index.core.retrievers import QueryFusionRetriever
 from llama_index.retrievers.bm25 import BM25Retriever
+from make_embeddings import bm25_retriever, embeddings, vector_index
 
 from .prompt_templates import (
     QA_PROMPT_STR,
     QA_SYSTEM_PROMPT,
+    QUERY_GEN_PROMPT,
     REFINE_PROMPT_STR,
-    QUERY_GEN_PROMPT
 )
 
 langchain.debug = True
@@ -26,9 +30,7 @@ async def get_context_str(text):
     current_string = ""
     for i, node in enumerate(documents):
         current_string += "###\n\n"
-        current_string += (
-            f"Номер документа: {i+1}\n\nИмя документа (не сообщать пользователю!): {node.metadata.get('file_name', '')}\n\nСодержание:\n\n"
-        )
+        current_string += f"Номер документа: {i+1}\n\nИмя документа (не сообщать пользователю!): {node.metadata.get('file_name', '')}\n\nСодержание:\n\n"
 
         current_string += node.text
 
@@ -93,6 +95,7 @@ retriever = QueryFusionRetriever(
     verbose=True,
     query_gen_prompt=QUERY_GEN_PROMPT,
 )
+
 
 async def get_rag_answer(text):
 

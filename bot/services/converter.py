@@ -8,9 +8,7 @@ import whisperx
 from docx import Document
 from dotenv import find_dotenv, load_dotenv
 from pydub import AudioSegment
-from salute_speech.speech_recognition import SaluteSpeechClient
-from salute_speech.speech_recognition import SpeechRecognitionConfig
-
+from salute_speech.speech_recognition import SaluteSpeechClient, SpeechRecognitionConfig
 
 load_dotenv(find_dotenv())
 
@@ -89,7 +87,7 @@ lock = asyncio.Lock()
 
 
 async def salute_recognize(file_id: str, extension: str):
-    
+
     original_audio_path = f"/app/bot/tmp/{file_id}.{extension}"
     path_to_process = original_audio_path
 
@@ -99,17 +97,21 @@ async def salute_recognize(file_id: str, extension: str):
 
         try:
             print(f"Attempting to convert {original_audio_path} to MP3...")
-            
+
             sound = AudioSegment.from_file(original_audio_path)
-            
+
             sound.export(converted_path, format="mp3")
-            
+
             path_to_process = converted_path
             print(f"Successfully converted. Processing file: {path_to_process}")
 
         except Exception as e:
-            print(f"FATAL: Could not convert audio file. It might be severely corrupted. Error: {e}")
-            raise ValueError(f"Не удалось обработать аудиофайл. Файл поврежден. Ошибка: {e}")
+            print(
+                f"FATAL: Could not convert audio file. It might be severely corrupted. Error: {e}"
+            )
+            raise ValueError(
+                f"Не удалось обработать аудиофайл. Файл поврежден. Ошибка: {e}"
+            )
 
     client = SaluteSpeechClient(client_credentials=os.getenv("SBER_SPEECH_API_KEY"))
 
