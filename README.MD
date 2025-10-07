@@ -51,15 +51,15 @@ chat_bot_inner/
 │   ├── config_data/              # Конфигурация
 │   ├── database/                 # Модели и запросы к БД
 │   ├── handlers/                 # Обработчики команд и сообщений
-│   │   ├── user_handlers.py     # Обработка пользовательских команд
-│   │   ├── send_documents.py    # Рассылка документов
-│   │   ├── video_protocols.py   # Обработка аудио/видео
-│   │   └── docsummary.py        # Суммаризация документов
+│   │   ├── user_handlers.py      # Обработка пользовательских команд
+│   │   ├── send_documents.py     # Рассылка документов
+│   │   ├── video_protocols.py    # Обработка аудио/видео
+│   │   └── docsummary.py         # Суммаризация документов
 │   ├── services/                 # Бизнес-логика
-│   │   ├── rag.py               # RAG-система
-│   │   ├── prompt_templates.py  # Шаблоны промптов
-│   │   ├── converter.py         # Конвертация медиа
-│   │   └── map_reduce_*.py      # Обработка больших текстов
+│   │   ├── rag.py                # RAG-система
+│   │   ├── prompt_templates.py   # Шаблоны промптов
+│   │   ├── converter.py          # Конвертация медиа
+│   │   └── map_reduce_*.py       # Обработка больших текстов
 │   ├── keyboards/                # Клавиатуры для бота
 │   ├── lexicon/                  # Текстовые ресурсы
 │   ├── filters/                  # Фильтры сообщений
