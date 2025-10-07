@@ -17,7 +17,6 @@ class Database:
             self.session.add(user)
         await self.session.commit()
 
-
     async def get_chat_ids(self):
         stmt = select(User.id)
         try:
@@ -25,7 +24,3 @@ class Database:
         except Exception as e:
             print(e)
         return [user[0] for user in result.all()]
-
-
-        
-

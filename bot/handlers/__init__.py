@@ -1,4 +1,5 @@
 from . import message_handlers
 
-
-labelers = [message_handlers.labeler,]
+labelers = [
+    message_handlers.labeler,
+]
