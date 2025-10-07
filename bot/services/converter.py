@@ -89,19 +89,32 @@ lock = asyncio.Lock()
 
 
 async def salute_recognize(file_id: str, extension: str):
+    
+    original_audio_path = f"/app/bot/tmp/{file_id}.{extension}"
+    path_to_process = original_audio_path
 
-    audio_path = f"/app/bot/tmp/{file_id}.{extension}"
+    if extension.lower() not in ["mp3", "wav"]:
+        print(f"Detected format '{extension.lower()}', which requires conversion.")
+        converted_path = f"/app/bot/tmp/{file_id}_converted.mp3"
+
+        try:
+            print(f"Attempting to convert {original_audio_path} to MP3...")
+            
+            sound = AudioSegment.from_file(original_audio_path)
+            
+            sound.export(converted_path, format="mp3")
+            
+            path_to_process = converted_path
+            print(f"Successfully converted. Processing file: {path_to_process}")
+
+        except Exception as e:
+            print(f"FATAL: Could not convert audio file. It might be severely corrupted. Error: {e}")
+            raise ValueError(f"Не удалось обработать аудиофайл. Файл поврежден. Ошибка: {e}")
+
     client = SaluteSpeechClient(client_credentials=os.getenv("SBER_SPEECH_API_KEY"))
 
-    if extension not in ["mp3", "wav"]:
-        song = AudioSegment.from_ogg(f"/app/bot/tmp/{file_id}.{extension}")
-        song.export(f"/app/bot/tmp/{file_id}.mp3", format="mp3")
-
-        audio_path = f"/app/bot/tmp/{file_id}.mp3"
-
-    text_file = f"/app/bot/tmp/{file_id}.txt"
-
-    with open(audio_path, "rb") as audio_file:
+    print(f"Sending {path_to_process} to Sber Speech API...")
+    with open(path_to_process, "rb") as audio_file:
         result = await client.audio.transcriptions.create(
             file=audio_file,
             language="ru-RU",

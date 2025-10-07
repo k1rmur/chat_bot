@@ -14,25 +14,19 @@ async def extract_text_from_document(document: Document, bot: Bot):
     """
     Функция, переводящая объект Document aiogram (который содержит docx файл) в Document Langchain
     """
-    # Получаем файл с серверов Telegram
 
     file_info = await bot.get_file(document.file_id)
     file_path = file_info.file_path
 
-    # Загружаем файл на локальный диск
     downloaded_file = await bot.download_file(file_path)
 
-    # Временное имя файла
     temp_file_name = f"temp_{document.file_id}.docx"
 
-    # Сохраняем документ на диск
     with open(temp_file_name, "wb") as f:
         f.write(downloaded_file.getvalue())
 
-    # Извлекаем текст из документа
     full_text = textract.process(temp_file_name)
 
-    # Удаляем временный файл
     os.remove(temp_file_name)
 
     langchain_document = langchain_core.documents.Document(
@@ -46,22 +40,17 @@ async def extract_news_from_document(document: Document, bot: Bot):
     """
     Функция, переводящая объект Document aiogram (который содержит docx файл) в Documentы Langchain
     """
-    # Получаем файл с серверов Telegram
 
     file_info = await bot.get_file(document.file_id)
     file_path = file_info.file_path
 
-    # Загружаем файл на локальный диск
     downloaded_file = await bot.download_file(file_path)
 
-    # Временное имя файла
     temp_file_name = f"temp_{document.file_id}.docx"
 
-    # Сохраняем документ на диск
     with open(temp_file_name, "wb") as f:
         f.write(downloaded_file.getvalue())
 
-    # Извлекаем текст из документа
     doc = docx.Document(temp_file_name)
 
     headings = [

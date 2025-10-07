@@ -189,8 +189,8 @@ async def answer_to_voice(app: Client, message: Message):
         if len(answer) > 4000:
             for x in range(0, len(answer), 4000):
                 await message.reply(text=answer[x:x+4000])
-            else:
-                await message.reply(text=answer)
+        else:
+            await message.reply(text=answer)
 
     except Exception as e:
         error_text = f"Пользователь {message.from_user.username} отправил файл формата {extension} и получил ошибку\n{e}"

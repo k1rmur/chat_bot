@@ -15,9 +15,15 @@ RUN pip install --upgrade gigachat langgraph validators aiogram_calendar salute-
 
 RUN git clone https://github.com/mmua/salute_speech.git
 
-COPY .token.py ./salute_speech/src/salute_speech/utils/
+COPY ./token.py ./salute_speech/src/salute_speech/utils/
+
+COPY ./speech_recognition.py ./salute_speech/src/salute_speech/
 
 RUN pip install ./salute_speech
+
+RUN pip install --upgrade langgraph-checkpoint
+
+RUN pip install -U llama-index-embeddings-langchain llama-index llama-index-core langchain langchain-core langchain_community
 
 COPY . /app
 

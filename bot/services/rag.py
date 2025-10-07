@@ -3,7 +3,6 @@ import os
 import langchain
 from dotenv import find_dotenv, load_dotenv
 from langchain_community.chat_models import GigaChat
-from langchain_mistralai import ChatMistralAI
 from llama_index.core import Settings
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from llama_index.core.retrievers import QueryFusionRetriever
@@ -45,7 +44,6 @@ CREDENTIALS = os.getenv("CREDENTIALS")
 
 
 chat_text_qa_msgs = [
-    SystemMessagePromptTemplate.from_template(QA_SYSTEM_PROMPT),
     HumanMessagePromptTemplate.from_template(QA_PROMPT_STR),
 ]
 text_qa_template = ChatPromptTemplate.from_messages(chat_text_qa_msgs)
@@ -62,31 +60,22 @@ refine_template = ChatPromptTemplate.from_messages(chat_refine_msgs)
 
 rate_limiter = InMemoryRateLimiter(
     requests_per_second=0.5,
-    check_every_n_seconds=0.001,  # Wake up every 1 ms to check whether allowed to make a request,
-    max_bucket_size=100,  # Controls the maximum burst size.
+    check_every_n_seconds=0.001,
+    max_bucket_size=100,
 )
 
-#llm = GigaChat(
-#    verify_ssl_certs=False,
-#    credentials=CREDENTIALS,
-#    scope="GIGACHAT_API_B2B",
-#    model="GigaChat-2-Pro",
-#    verbose=True,
-#    profanity=False,
-#    temperature=0.1,
-#    rate_limiter=rate_limiter,
-#    timeout=60,
-#)
-
-llm = ChatMistralAI(
-    model="mistral-large-latest",
-    cache=False,
-    max_concurrent_requests=1,
-    max_retries=500,
+llm = GigaChat(
+    verify_ssl_certs=False,
+    credentials=CREDENTIALS,
+    scope="GIGACHAT_API_B2B",
+    model="GigaChat-2-Pro",
     verbose=True,
-    mistral_api_key="key",
-    api_key="key",
+    profanity=False,
+    temperature=0.1,
+    rate_limiter=rate_limiter,
+    timeout=60,
 )
+
 
 Settings.llm = llm
 Settings.embed_model = embeddings
@@ -107,7 +96,6 @@ retriever = QueryFusionRetriever(
 
 async def get_rag_answer(text):
 
-#    query = await llm.ainvoke(QUERY_GEN_PROMPT.format(query=text))
     context_str = await get_context_str(text)
     prompt = text_qa_template.format(context_str=context_str, query_str=text)
     chain = await llm.ainvoke(prompt)

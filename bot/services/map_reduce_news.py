@@ -54,7 +54,7 @@ token_max = 7000 * 5
 class OverallState(TypedDict):
     contents: List[str]
     summaries: Annotated[list, operator.add]
-    collapsed_summaries: List[Document]  # add key for collapsed summaries
+    collapsed_summaries: List[Document]
     final_summary: str
 
 
@@ -62,21 +62,17 @@ class SummaryState(TypedDict):
     content: str
 
 
-# Add node to store summaries for collapsing
 def collect_summaries(state: OverallState):
     return {"collapsed_summaries": [summary for summary in state["summaries"]]}
 
 
 def map_summaries(state: OverallState):
-    # We will return a list of `Send` objects
-    # Each `Send` object consists of the name of a node in the graph
-    # as well as the state to send to that node
+
     return [
         Send("generate_summary", {"content": content}) for content in state["contents"]
     ]
 
 
-# Modify final summary to read off collapsed summaries
 def generate_final_summary(state: OverallState):
     response = reduce_chain.invoke(state["collapsed_summaries"])
     return {"final_summary": response}
@@ -88,12 +84,11 @@ def generate_summary(state: SummaryState):
 
 
 graph = StateGraph(OverallState)
-graph.add_node("generate_summary", generate_summary)  # same as before
+graph.add_node("generate_summary", generate_summary)
 graph.add_node("collect_summaries", collect_summaries)
 graph.add_node("generate_final_summary", generate_final_summary)
 
 
-# Add node to collapse summaries
 def collapse_summaries(state: OverallState):
     doc_lists = split_list_of_docs(
         state["collapsed_summaries"], length_function, token_max

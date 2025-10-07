@@ -8,6 +8,7 @@ services:
     environment:
       MODE: "inner"
       SBER_SPEECH_API_KEY: "KEY"
+      CREDENTIALS_NONRAG: "KEY"
     command: 
       python3 /app/bot/get_bot.py --Mode inner
     volumes:
@@ -17,15 +18,17 @@ services:
       - docs_sent:/app/documents_sent/
       - send_to_list:/app/send_to/
       - user_db_inner:/user_db/
-      - embeddings_outer:/app/bot/db_citizens/
+      - local_models:/tmp/llama_index/
+      - whisper:/app/bot/services/models/
 
 
 volumes:
   embeddings_inner:
-  embeddings_outer:
   inner_logs:
   docs_to_send:
   docs_sent:
   send_to_list:
   user_db_inner:
+  local_models:
+  whisper:
 
