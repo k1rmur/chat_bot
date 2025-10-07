@@ -13,3 +13,5 @@ RUN pip install gigachat
 COPY . /app
 
 RUN sh -c "pip install protobuf==3.19.4 && cp ./builder.py /usr/local/lib/python3.10/site-packages/google/protobuf/internal/"
+
+RUN pip install vkbottle==4.4.1 chromadb==1.0.15 llama-index-vector-stores-chroma==0.4.1

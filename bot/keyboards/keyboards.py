@@ -21,8 +21,6 @@ def gosuslugi_menu():
     keyboard.row()
     keyboard.add(Text("Договоры"), color=KeyboardButtonColor.PRIMARY)
     keyboard.row()
-    keyboard.add(Text("Допустимые нормы"), color=KeyboardButtonColor.PRIMARY)
-    keyboard.row()
     keyboard.add(Text("Земельный участок"), color=KeyboardButtonColor.PRIMARY)
     keyboard.row()
     keyboard.add(Text("Назад"), color=KeyboardButtonColor.NEGATIVE)

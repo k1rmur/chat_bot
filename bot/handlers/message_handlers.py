@@ -10,7 +10,7 @@ from dotenv import find_dotenv, load_dotenv
 from keyboards.keyboards import inline_rating_keyboard
 from lexicon.lexicon import INTRO_MESSAGES, LEXICON_COMMANDS_RU, LEXICON_RU
 from services.log_actions import allowed_actions, log_action
-from vkbottle import BaseStateGroup, DocMessagesUploader, PhotoMessageUploader
+from vkbottle import BaseStateGroup, DocMessagesUploader, PhotoMessageUploader, BuiltinStateDispenser
 from vkbottle.bot import Bot, Message, MessageEvent
 from vkbottle_types.events import GroupEventType
 from vkbottle.bot import BotLabeler
@@ -23,8 +23,8 @@ class DocumentStates(BaseStateGroup):
     waiting_for_rating = 1
     waiting_for_feedback = 2
 
-
-bot = Bot(token)
+state_dispenser = BuiltinStateDispenser()
+bot = Bot(token, state_dispenser=state_dispenser)
 
 engine = create_async_engine(url=db_url, echo=True) 
 session = async_sessionmaker(engine, expire_on_commit=False)
@@ -65,43 +65,7 @@ async def statistics(message: Message):
 @allowed_users_only
 async def process_send_command(message: Message):
     await message.reply("Пожалуйста, напишите текст для рассылки всем пользователям.")
-    await message.state_dispenser.set(message.peer_id, DocumentStates.waiting_for_text)
-
-
-@labeler.message(text="Обратная связь")
-@allowed_users_only
-async def get_feedback(message: Message):
-    log_action(message, allowed_actions["menu"])
-    answer_text, reply_markup, files = LEXICON_RU[message.text]
-    await message.answer(answer_text, reply_markup=reply_markup)
-    await message.state_dispenser.set(message.peer_id, DocumentStates.waiting_for_feedback)
-
-
-@labeler.message(state=DocumentStates.waiting_for_feedback)
-@allowed_users_only
-async def process_feedback(message: Message):
-    message_to_send = f"Поступила обратная связь от пользователя (chat id: {message.peer_id})\n\n{message.text}"
-
-    for user in ["200820242",]:
-        try:
-            await message.ctx_api.messages.send(peer_id=user, message=message_to_send, random_id=random.randint(1, 1e6))
-        except Exception:
-            pass
-
-    await message.reply("Спасибо за обратную связь, я передал её разработчикам.")
-    await message.state_dispenser.delete(message.peer_id)
-
-
-@labeler.message(state=DocumentStates.waiting_for_text)
-async def send_to_everyone(message: Message, db: Database):
-    if message.text:
-        result = await db.get_chat_ids()
-        tasks = [message.ctx_api.messages.send(peer_id=chat_id, message=message.text, random_id=random.randint(1, 1e6)) for chat_id in result]
-        await asyncio.gather(*tasks)
-        await message.reply("Рассылка прошла успешно.")
-    else:
-        await message.reply("Нет текста.")
-    await message.state_dispenser.delete(message.peer_id)
+    await bot.state_dispenser.set(message.peer_id, DocumentStates.waiting_for_text)
 
 
 async def send_intro_message(message: Message):
@@ -139,6 +103,7 @@ async def process_rating(event: MessageEvent, bot: Bot):
 
 
 @labeler.message(command='start')
+@labeler.message(text='Начать')
 async def process_start_command(message: Message):
 
 
@@ -157,7 +122,7 @@ async def process_start_command(message: Message):
     )
 
 
-@labeler.message()
+@labeler.message(state=None)
 async def send(message: Message):
 
     text = message.text

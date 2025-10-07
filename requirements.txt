@@ -43,10 +43,13 @@ posthog==3.11.0
 aiosqlite==0.20.0
 alembic==1.8.1
 Mako==1.2.4
+llama_index_llms_openai==0.2.16
+llama_index_agent_openai==0.3.4
 llama-index-embeddings-huggingface
 llama-index-embeddings-langchain
 llama-index-llms-langchain
-llama-index
+llama-index-program-openai==0.2.0
+llama_index==0.11.19
 llama-index-vector-stores-chroma
 llama-index-core
 llama-index-retrievers-bm25
