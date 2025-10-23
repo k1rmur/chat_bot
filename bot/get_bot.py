@@ -46,6 +46,9 @@ async def process_feedback(message: Message):
             peer_id=user, message=message_to_send, random_id=random.randint(1, 1e6)
         )
 
+    # Log feedback action
+    log_action(message, "Обратная связь", extra_info=message.text[:50] if message.text else "")
+    
     await message.reply("Спасибо за обратную связь, я передал её разработчикам.")
 
 
