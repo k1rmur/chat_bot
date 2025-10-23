@@ -65,6 +65,9 @@ async def process_feedback(message: Message, state: FSMContext):
         except Exception:
             pass
 
+    # Log feedback action
+    log_action(message, "Обратная связь", extra_info=message.text[:50])
+    
     await message.answer("Спасибо за обратную связь, я передал её разработчикам.")
     await state.clear()
 

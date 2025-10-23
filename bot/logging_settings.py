@@ -1,10 +1,11 @@
-from log_filters import ExceptionLogFilter, InfoLogFilter
+from log_filters import ExceptionLogFilter, InfoLogFilter, UserActionLogFilter
 
 logging_config = {
     "version": 1,
     "disable_existing_loggers": True,
     "formatters": {
-        "default": {"format": "#%(levelname)-8s [%(asctime)s] - %(message)s"}
+        "default": {"format": "#%(levelname)-8s [%(asctime)s] - %(message)s"},
+        "user_actions": {"format": "%(asctime)s - %(message)s"},
     },
     "filters": {
         "exception_filter": {
@@ -12,6 +13,9 @@ logging_config = {
         },
         "info_filter": {
             "()": InfoLogFilter,
+        },
+        "user_action_filter": {
+            "()": UserActionLogFilter,
         },
     },
     "handlers": {
@@ -32,6 +36,14 @@ logging_config = {
             "filters": ["info_filter"],
             "encoding": "utf-8",
         },
+        "user_actions_file": {
+            "class": "logging.FileHandler",
+            "filename": "/app/logs/api.log",
+            "level": "INFO",
+            "formatter": "user_actions",
+            "filters": ["user_action_filter"],
+            "encoding": "utf-8",
+        },
     },
     "loggers": {
         "get_bot": {"level": "DEBUG", "handlers": ["error_file", "info_file"]},
@@ -43,13 +55,18 @@ logging_config = {
             "level": "DEBUG",
             "handlers": ["error_file", "info_file"],
         },
-        "handlers.user_handlers": {
-            "level": "DEBUG",
-            "handlers": ["error_file", "info_file"],
-        },
         "handlers.send_documents": {
             "level": "DEBUG",
             "handlers": ["error_file", "info_file"],
+        },
+        "handlers.docsummary": {
+            "level": "DEBUG",
+            "handlers": ["error_file", "info_file"],
+        },
+        "user_actions": {
+            "level": "INFO",
+            "handlers": ["user_actions_file"],
+            "propagate": False,
         },
     },
 }

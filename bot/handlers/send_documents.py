@@ -16,6 +16,7 @@ from aiogram_calendar import DialogCalendar, DialogCalendarCallback
 from database import Database
 from docx import Document
 from filters.filters import allowed_users_only
+from services.log_actions import allowed_actions, log_action
 from services.map_reduce_docs import clear_temp
 from services.map_reduce_news import return_news_summary
 from services.text_extraction import extract_news_from_document
@@ -142,6 +143,8 @@ async def handle_password(message: Message, state: FSMContext):
             send_to.append(user_id)
             save_send_to(send_to)
             await message.reply("Вы успешно добавлены в список рассылки.")
+            # Log subscription action
+            log_action(message, "Подписка на рассылку")
         else:
             await message.reply("Вы уже находитесь в списке рассылки.")
     else:
@@ -161,6 +164,8 @@ async def send_document_command(message: Message, state: FSMContext):
 @router.message(Command("get_report"))
 async def get_report_command(message: Message):
     if message.from_user.id in load_send_to():
+        # Log get report action
+        log_action(message, "Получение отчета")
         await message.answer(
             "Пожалуйста, выберите дату.",
             reply_markup=await DialogCalendar().start_calendar(year=2024),
@@ -253,26 +258,6 @@ async def send_intro_message(bot: Bot, session: AsyncSession):
     )
 
 
-async def ask_for_rating(bot: Bot, session: AsyncSession):
-    from keyboards.keyboards_outer import inline_rating_keyboard
-
-    async with session() as current_session:
-        db = Database(session=current_session)
-
-    text = "Пожалуйста, оцените нашу деятельность по шкале от 1 до 10."
-    result = await db.get_chat_ids()
-    tasks = [
-        bot.send_message(
-            chat_id=chat_id, text=text, reply_markup=inline_rating_keyboard()
-        )
-        for chat_id in result
-    ]
-    await asyncio.gather(*tasks)
-    await bot.send_message(
-        chat_id=322077458, text=f"Прошла рассылка сообщения:\n\n{text}"
-    )
-
-
 @router.callback_query(DialogCalendarCallback.filter())
 async def process_dialog_calendar(
     callback_query: CallbackQuery, callback_data: CallbackData
@@ -326,6 +311,10 @@ async def send_news_command(message: Message, state: FSMContext):
                 filename="Суммаризация.docx",
             )
         )
+        
+        # Log news summary action
+        log_action(message, "Рассылка новостей")
+        
         await state.clear()
     except Exception as e:
         await message.bot.send_message(chat_id=322077458, text=str(e), parse_mode=None)

@@ -12,6 +12,7 @@ from docx import Document
 from dotenv import find_dotenv, load_dotenv
 from filters.filters import users_from_group_only
 from gigachat.exceptions import ResponseError
+from services.log_actions import allowed_actions, log_action
 from services.map_reduce_docs import clear_temp, return_summary
 from services.text_extraction import extract_text_from_document
 
@@ -86,6 +87,10 @@ async def text_message_handler(message: Message, state: FSMContext):
                 filename="Суммаризация.docx",
             )
         )
+        
+        # Log document summary action
+        log_action(message, "Суммаризация документа", extra_info=f"{len(documents)} документов")
+        
     except ResponseError:
         await message.answer(
             "Превышен лимит одновременных запросов. Пожалуйста, попробуйте ещё раз."

@@ -4,7 +4,7 @@ import glob
 import os
 
 import moviepy.editor as mp
-import whisperx
+#import whisperx
 from docx import Document
 from dotenv import find_dotenv, load_dotenv
 from pydub import AudioSegment
@@ -13,20 +13,20 @@ from salute_speech.speech_recognition import SaluteSpeechClient, SpeechRecogniti
 load_dotenv(find_dotenv())
 
 
-device = "cpu"
-batch_size = 16
-
-compute_type = "int8"
-model_dir = "/app/bot/services/models/"
-model_name = "medium"
-
-model = whisperx.load_model(
-    model_name,
-    device=device,
-    compute_type=compute_type,
-    download_root=model_dir,
-    language="ru",
-)
+#device = "cpu"
+#batch_size = 16
+#
+#compute_type = "int8"
+#model_dir = "/app/bot/services/models/"
+#model_name = "medium"
+#
+#model = whisperx.load_model(
+#    model_name,
+#    device=device,
+#    compute_type=compute_type,
+#    download_root=model_dir,
+#    language="ru",
+#)
 
 
 def change_speaker_name(string: str | None):
@@ -131,55 +131,55 @@ async def salute_recognize(file_id: str, extension: str):
     return f"/app/bot/tmp/{file_id}.docx", "Транскрипция.docx", result.text
 
 
-async def recognize(file_id: str, extension: str) -> None:
-    loop = asyncio.get_event_loop()
-    audiofile = f"/app/bot/tmp/{file_id}.{extension}"
-    audio = whisperx.load_audio(audiofile)
-
-    transcription_result = await loop.run_in_executor(
-        None,
-        functools.partial(
-            model.transcribe, audiofile, language="ru", batch_size=batch_size
-        ),
-    )
-    model_a, metadata = whisperx.load_align_model(language_code="ru", device=device)
-    result = await loop.run_in_executor(
-        None,
-        functools.partial(
-            whisperx.align,
-            transcription_result["segments"],
-            model_a,
-            metadata,
-            audio,
-            device,
-            return_char_alignments=False,
-        ),
-    )
-    diarize_model = whisperx.DiarizationPipeline(
-        use_auth_token=HF_TOKEN,
-        device=device,
-        model_name="pyannote/speaker-diarization-3.1",
-    )
-    diarize_segments = await loop.run_in_executor(
-        None, functools.partial(diarize_model, audio)
-    )
-    result = whisperx.assign_word_speakers(diarize_segments, result)
-
-    text_for_summary = []
-    doc_transcription = Document()
-
-    for segment in result["segments"]:
-        speaker = change_speaker_name(segment.get("speaker"))
-        line_massive = f"[{segment.get('start'):.3f} --> {segment.get('end'):.3f}] {speaker}: {segment.get('text')}"
-        line_summary = f"{speaker.split()[-1]}: {segment.get('text')}\n"
-        text_for_summary.append(line_summary)
-        doc_transcription.add_paragraph(line_massive)
-
-    doc_transcription.save(f"/app/bot/tmp/{file_id}.docx")
-
-    full_transcript = "\n".join(text_for_summary)
-
-    with open(f"/app/bot/tmp/{file_id}.txt", "w") as file:
-        file.write(full_transcript)
-
-    return f"/app/bot/tmp/{file_id}.docx", "Транскрипция.docx", full_transcript
+#async def recognize(file_id: str, extension: str) -> None:
+#    loop = asyncio.get_event_loop()
+#    audiofile = f"/app/bot/tmp/{file_id}.{extension}"
+#    audio = whisperx.load_audio(audiofile)
+#
+#    transcription_result = await loop.run_in_executor(
+#        None,
+#        functools.partial(
+#            model.transcribe, audiofile, language="ru", batch_size=batch_size
+#        ),
+#    )
+#    model_a, metadata = whisperx.load_align_model(language_code="ru", device=device)
+#    result = await loop.run_in_executor(
+#        None,
+#        functools.partial(
+#            whisperx.align,
+#            transcription_result["segments"],
+#            model_a,
+#            metadata,
+#            audio,
+#            device,
+#            return_char_alignments=False,
+#        ),
+#    )
+#    diarize_model = whisperx.DiarizationPipeline(
+#        use_auth_token=HF_TOKEN,
+#        device=device,
+#        model_name="pyannote/speaker-diarization-3.1",
+#    )
+#    diarize_segments = await loop.run_in_executor(
+#        None, functools.partial(diarize_model, audio)
+#    )
+#    result = whisperx.assign_word_speakers(diarize_segments, result)
+#
+#    text_for_summary = []
+#    doc_transcription = Document()
+#
+#    for segment in result["segments"]:
+#        speaker = change_speaker_name(segment.get("speaker"))
+#        line_massive = f"[{segment.get('start'):.3f} --> {segment.get('end'):.3f}] {speaker}: {segment.get('text')}"
+#        line_summary = f"{speaker.split()[-1]}: {segment.get('text')}\n"
+#        text_for_summary.append(line_summary)
+#        doc_transcription.add_paragraph(line_massive)
+#
+#    doc_transcription.save(f"/app/bot/tmp/{file_id}.docx")
+#
+#    full_transcript = "\n".join(text_for_summary)
+#
+#    with open(f"/app/bot/tmp/{file_id}.txt", "w") as file:
+#        file.write(full_transcript)
+#
+#    return f"/app/bot/tmp/{file_id}.docx", "Транскрипция.docx", full_transcript

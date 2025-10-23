@@ -9,6 +9,7 @@ from dotenv import find_dotenv, load_dotenv
 from pyrogram import Client
 from pyrogram.types import ChatMember, Message
 from services.converter import clear_temp, convert, is_audio, is_video, salute_recognize
+from services.log_actions import allowed_actions, log_action
 from services.rag import get_rag_answer
 from services.summarization import get_summary
 
@@ -71,6 +72,10 @@ async def get_protocol(app: Client, message: Message, file_id: str, text: str):
     logger.info(
         f"Пользователь (username={message.from_user.username} id={message.from_user.id}) получил протокол."
     )
+    
+    # Log user action
+    log_action(message, "Протокол", extra_info=file_name_sum)
+    
     try:
         await app.send_document(
             chat_id="-1002240095685",
@@ -78,7 +83,7 @@ async def get_protocol(app: Client, message: Message, file_id: str, text: str):
             file_name=file_name_sum,
             caption=f"@{message.from_user.username}",
         )
-    except:
+    except Exception:
         pass
 
 
@@ -190,6 +195,9 @@ async def answer_to_voice(app: Client, message: Message):
         await message.reply(f"Распознанный вопрос:\n{text.replace('1:', '')}")
 
         answer = await get_rag_answer(text)
+        
+        # Log voice message action
+        log_action(message, "Голосовое сообщение", extra_info=text[:100])
 
         if len(answer) > 4000:
             for x in range(0, len(answer), 4000):
