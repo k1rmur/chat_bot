@@ -54,10 +54,6 @@ def log_action(message, action, answer=None, extra_info=None):
         # Format: User: {user_id:username}, Action: {action}
         log_message = f"User: {user_name}, Action: {action}"
         
-        # Add extra context if available
-        if extra_info:
-            log_message += f", Details: {extra_info}"
-        
         # Log to user actions logger
         action_logger.info(log_message)
         
